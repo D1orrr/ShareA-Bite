@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // NOTE: Update this to include the paths to all of your component files.
   content: [
     "./app/**/*.{js,jsx,ts,tsx}",
     "./components/**/*.{js,jsx,ts,tsx}"
@@ -9,35 +8,48 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Neo-brutalist Canvas & Neutral
-        brutal: {
-          bg: "#FBF9F1",       // Soft warm cream
-          card: "#FFFFFF",     // Stark white
-          black: "#000000",    // Pitch black for borders & text
-          charcoal: "#1A1A1A",
-          muted: "#E2DEC9",
-        },
-        // Neo-brutalist High-Contrast Pastels
-        neo: {
-          mint: "#99F6E4",     // Crisp pastel mint (#5EEAD4 / #A7F3D0)
-          green: "#86EFAC",    // Fresh warung green
-          pink: "#FBCFE8",     // Playful soft baby pink
-          yellow: "#FEF08A",   // High-contrast soft yellow
-          orange: "#FDBA74",   // Warm pastel orange
-          blue: "#BAE6FD",     // Friendly pastel sky blue
-          purple: "#DDD6FE",   // Light lilac
+        // Warm & Cozy Minimalist (Soft Pop) Theme
+        cozy: {
+          bg: "#FAF7F2",             // Cream / Soft warm off-white canvas
+          surface: "#FFFFFF",        // Pure white card background
+          surfaceWarm: "#F5EFEB",    // Subtle warm surface container
+          card: "#FFFFFF",
+          
+          // Accents
+          terracotta: "#E06D53",     // Primary Accent / Buttons (Warm Orange / Terracotta)
+          terracottaDark: "#C8573E",
+          terracottaLight: "#FDEEE9",
+          
+          mustard: "#F59E0B",        // Secondary Accent (Mustard Yellow)
+          mustardLight: "#FEF3C7",
+          
+          sky: "#38BDF8",            // Tertiary Highlight (Soft Sky Blue)
+          skySoft: "#E0F2FE",
+          
+          // Fridge / Warung status colors
+          fridgeGreen: "#22C55E",    // In Fridge Green (+)
+          fridgeBg: "#DCFCE7",
+          missingRed: "#EF4444",     // Missing Warung Red (-)
+          missingBg: "#FEE2E2",
+          
+          // Typography
+          textMain: "#2D2522",       // Warm deep espresso / charcoal
+          textMuted: "#786F6A",      // Warm muted stone
+          textLight: "#A89F9A",
+          borderSoft: "#EFE8E1",     // Delicate soft border
         }
       },
-      borderWidth: {
-        '3': '3px',
-        '4': '4px',
-        '5': '5px',
+      borderRadius: {
+        '3xl': '24px',
+        '4xl': '32px',
+        'full': '9999px',
       },
       boxShadow: {
-        'brutal-sm': '2px 2px 0px 0px #000000',
-        'brutal': '4px 4px 0px 0px #000000',
-        'brutal-lg': '6px 6px 0px 0px #000000',
-        'brutal-xl': '8px 8px 0px 0px #000000',
+        // Wide, soft, and diffuse drop shadows (No stark black drop shadows)
+        'soft-sm': '0 2px 8px rgba(45, 37, 34, 0.04)',
+        'soft': '0 6px 20px -2px rgba(45, 37, 34, 0.07)',
+        'floating': '0 12px 30px -4px rgba(45, 37, 34, 0.09)',
+        'terracotta-glow': '0 8px 24px -2px rgba(224, 109, 83, 0.3)',
       }
     },
   },

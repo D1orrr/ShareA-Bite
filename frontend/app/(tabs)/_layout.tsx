@@ -1,36 +1,36 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { View, Text, Platform } from "react-native";
+import { View, Platform } from "react-native";
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerStyle: {
-          backgroundColor: "#FEF08A", // Soft yellow
-          borderBottomWidth: 4,
-          borderBottomColor: "#000000",
+          backgroundColor: "#FAF7F2", // Soft warm cream header
+          borderBottomWidth: 1,
+          borderBottomColor: "#EFE8E1",
         },
         headerTitleStyle: {
-          fontWeight: "900",
+          fontWeight: "800",
           fontSize: 18,
-          color: "#000000",
+          color: "#2D2522", // Warm deep charcoal
         },
         headerShadowVisible: false,
         tabBarStyle: {
           backgroundColor: "#FFFFFF",
-          borderTopWidth: 4,
-          borderTopColor: "#000000",
-          height: Platform.OS === "ios" ? 88 : 70,
+          borderTopWidth: 1,
+          borderTopColor: "#EFE8E1",
+          height: Platform.OS === "ios" ? 88 : 72,
           paddingBottom: Platform.OS === "ios" ? 24 : 10,
           paddingTop: 8,
-          boxShadow: "0px -4px 0px 0px rgba(0,0,0,0.1)",
+          boxShadow: "0 -8px 24px rgba(45, 37, 34, 0.04)",
         },
-        tabBarActiveTintColor: "#000000",
-        tabBarInactiveTintColor: "#666666",
+        tabBarActiveTintColor: "#E06D53", // Terracotta Primary Accent
+        tabBarInactiveTintColor: "#A89F9A", // Warm Muted Stone
         tabBarLabelStyle: {
-          fontWeight: "900",
+          fontWeight: "700",
           fontSize: 10,
         },
       }}
@@ -42,11 +42,11 @@ export default function TabsLayout() {
           headerTitle: "Share'N'Bite • AI Racik 🍳",
           tabBarIcon: ({ color, focused }) => (
             <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#FEF08A] border-black" : "border-transparent"
+              className={`p-1.5 rounded-full ${
+                focused ? "bg-[#FDEEE9]" : "bg-transparent"
               }`}
             >
-              <Ionicons name="sparkles" size={20} color={focused ? "#000000" : color} />
+              <Ionicons name="sparkles" size={20} color={color} />
             </View>
           ),
         }}
@@ -58,11 +58,11 @@ export default function TabsLayout() {
           headerTitle: "Daftar Belanja Warung 🛒",
           tabBarIcon: ({ color, focused }) => (
             <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#99F6E4] border-black" : "border-transparent"
+              className={`p-1.5 rounded-full ${
+                focused ? "bg-[#FDEEE9]" : "bg-transparent"
               }`}
             >
-              <Ionicons name="cart" size={20} color={focused ? "#000000" : color} />
+              <Ionicons name="cart" size={20} color={color} />
             </View>
           ),
         }}
@@ -71,14 +71,14 @@ export default function TabsLayout() {
         name="create"
         options={{
           title: "Buat Resep",
-          headerTitle: "Recipe Creator Lab 👨‍🍳",
+          headerTitle: "Resep Kreator 👨‍🍳",
           tabBarIcon: ({ color, focused }) => (
             <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#FBCFE8] border-black" : "border-transparent"
+              className={`p-1.5 rounded-full ${
+                focused ? "bg-[#FEF3C7]" : "bg-transparent"
               }`}
             >
-              <Ionicons name="add-circle" size={22} color={focused ? "#000000" : color} />
+              <Ionicons name="add-circle" size={22} color={color} />
             </View>
           ),
         }}
@@ -90,11 +90,11 @@ export default function TabsLayout() {
           headerTitle: "Komunitas Resep Anak Kos 🌐",
           tabBarIcon: ({ color, focused }) => (
             <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#BAE6FD] border-black" : "border-transparent"
+              className={`p-1.5 rounded-full ${
+                focused ? "bg-[#E0F2FE]" : "bg-transparent"
               }`}
             >
-              <Ionicons name="people" size={20} color={focused ? "#000000" : color} />
+              <Ionicons name="people" size={20} color={color} />
             </View>
           ),
         }}
@@ -106,11 +106,11 @@ export default function TabsLayout() {
           headerTitle: "Finansial Kos & Level 📊",
           tabBarIcon: ({ color, focused }) => (
             <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#86EFAC] border-black" : "border-transparent"
+              className={`p-1.5 rounded-full ${
+                focused ? "bg-[#DCFCE7]" : "bg-transparent"
               }`}
             >
-              <Ionicons name="stats-chart" size={20} color={focused ? "#000000" : color} />
+              <Ionicons name="stats-chart" size={20} color={color} />
             </View>
           ),
         }}
