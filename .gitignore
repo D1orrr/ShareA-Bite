@@ -1,0 +1,30 @@
+# Root .gitignore for Share'N'Bite Monorepo
+
+# Backend & Python
+backend/venv/
+backend/.env
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+.pytest_cache/
+
+# Frontend & Node
+frontend/node_modules/
+frontend/.expo/
+frontend/dist/
+frontend/web-build/
+frontend/expo-env.d.ts
+frontend/.env*.local
+frontend/.kotlin/
+frontend/ios/
+frontend/android/
+
+# Common OS & IDE files
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
