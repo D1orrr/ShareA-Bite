@@ -1,24 +1,22 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  Alert,
-} from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  useApp,
-  IngredientCategory,
-  Ingredient,
-} from "../../context/AppContext";
-import { NeoCard } from "../../components/NeoCard";
-import { NeoButton } from "../../components/NeoButton";
-import { NeoBadge } from "../../components/NeoBadge";
+import { useApp, Ingredient } from "../../context/AppContext";
+import colors from "../../constants/colors";
+import { formatRp, tabularNums } from "../../constants/format";
+import { Screen } from "../../components/Screen";
+import { Card } from "../../components/Card";
+import { Button } from "../../components/Button";
+import { Chip } from "../../components/Chip";
+import { IconButton } from "../../components/IconButton";
+import { SectionHeader } from "../../components/SectionHeader";
+import { TextField } from "../../components/TextField";
+import { RecipeImage } from "../../components/RecipeImage";
+import { DashedLine } from "../../components/Receipt";
+import { Dialog } from "../../components/Dialog";
+import { Toast, useToast } from "../../components/Toast";
 
 const AVAILABLE_TAGS = [
   "High Protein",
@@ -32,8 +30,14 @@ const AVAILABLE_TAGS = [
 export default function CreateRecipeScreen() {
   const router = useRouter();
   const { activeDraft, setActiveDraft, publishRecipe } = useApp();
+  const { toast, show: showToast } = useToast();
+  const scrollRef = useRef<ScrollView>(null);
+  const contentRef = useRef<View>(null);
+  const formRef = useRef<View>(null);
 
   const [title, setTitle] = useState<string>("");
+  const [titleMissing, setTitleMissing] = useState<boolean>(false);
+  const [publishedTitle, setPublishedTitle] = useState<string | null>(null);
   const [description, setDescription] = useState<string>("");
   const [prepTime, setPrepTime] = useState<string>("10");
   const [servings, setServings] = useState<string>("1");
@@ -61,7 +65,6 @@ export default function CreateRecipeScreen() {
     "Siapkan bahan dan potong sesuai selera.",
     "Tumis bumbu halus dengan minyak secukupnya sampai wangi.",
   ]);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Load activeDraft if present
   useEffect(() => {
@@ -83,7 +86,7 @@ export default function CreateRecipeScreen() {
   const handlePickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -91,11 +94,10 @@ export default function CreateRecipeScreen() {
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         setImageUri(result.assets[0].uri);
-        setToastMessage("📸 Foto resep berhasil diunggah!");
-        setTimeout(() => setToastMessage(null), 3000);
+        showToast("Foto resep berhasil diunggah!");
       }
     } catch (error) {
-      Alert.alert("Info", "Pilih foto dari galeri atau gunakan foto default.");
+      showToast("Pilih foto dari galeri atau gunakan foto default.", "error");
     }
   };
 
@@ -159,9 +161,18 @@ export default function CreateRecipeScreen() {
     setInstructions(["Langkah 1: Siapkan bahan"]);
   };
 
+  // Feedback is shown in-app rather than with Alert.alert, which does nothing on the web.
   const handlePublish = () => {
     if (!title.trim()) {
-      Alert.alert("Perhatian", "Silakan isi nama resep terlebih dahulu!");
+      setTitleMissing(true);
+      // Measured now rather than cached from onLayout: on the web onLayout does not
+      // fire when the form only moves (e.g. after the draft banner is removed).
+      const content = contentRef.current;
+      if (content) {
+        formRef.current?.measureLayout(content, (_x, y) =>
+          scrollRef.current?.scrollTo({ y, animated: true })
+        );
+      }
       return;
     }
 
@@ -183,274 +194,243 @@ export default function CreateRecipeScreen() {
     });
 
     setActiveDraft(null);
-    Alert.alert(
-      "Resep Berhasil Dipublish! 🎉",
-      `Resep "${title}" sudah tampil di Komunitas. Kamu dapat +50 XP!`,
-      [{ text: "Lihat di Komunitas", onPress: () => router.push("/community") }]
-    );
+    setPublishedTitle(title);
   };
 
-  return (
-    <ScrollView
-      className="flex-1 bg-[#FBF9F1]"
-      contentContainerStyle={{ padding: 16, paddingBottom: 60 }}
-    >
-      {/* Toast */}
-      {toastMessage ? (
-        <View
-          className="bg-[#99F6E4] p-3 rounded-xl border-3 border-black mb-4 flex-row items-center"
-          style={{ boxShadow: "3px 3px 0px 0px #000000" }}
-        >
-          <Ionicons name="checkmark-circle" size={18} color="#000" />
-          <Text className="font-black text-xs text-black ml-2">{toastMessage}</Text>
-        </View>
-      ) : null}
-
-      {/* AI Draft Banner */}
-      {activeDraft ? (
-        <View
-          className="bg-[#FEF08A] p-4 rounded-2xl border-4 border-black mb-5"
-          style={{ boxShadow: "4px 4px 0px 0px #000000" }}
-        >
-          <View className="flex-row items-center justify-between mb-1">
-            <View className="bg-black px-2.5 py-0.5 rounded">
-              <Text className="text-white text-[10px] font-black uppercase">
-                ✨ MODE DRAF AI
-              </Text>
-            </View>
-            <TouchableOpacity onPress={handleResetToBlank}>
-              <Text className="text-xs font-black text-red-600 underline">
-                Batal / Reset Manual
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <Text className="text-sm font-black text-black">
-            Mengedit draf dari resep AI. Sesuaikan bahan, takaran, dan harga modal lokal warungmu!
-          </Text>
-        </View>
-      ) : null}
-
-      {/* Sticky Real-time Modal Cost Indicator */}
-      <NeoCard bg="#99F6E4" className="mb-5">
-        <View className="flex-row items-center justify-between">
-          <View>
-            <Text className="text-[11px] font-black text-gray-800 uppercase">
-              Auto-Kalkulasi Estimasi Modal:
-            </Text>
-            <Text className="text-2xl font-black text-black">
-              Rp {totalModalCost.toLocaleString("id-ID")}
-            </Text>
-          </View>
-          <View className="bg-white px-3 py-1.5 rounded-xl border-2 border-black">
-            <Text className="text-xs font-black text-black">
-              {ingredients.length} Bahan Terinput
-            </Text>
-          </View>
-        </View>
-      </NeoCard>
-
-      {/* Image Upload Banner */}
-      <View
-        className="bg-white rounded-2xl border-4 border-black overflow-hidden mb-5"
-        style={{ boxShadow: "4px 4px 0px 0px #000000" }}
-      >
-        <View className="h-44 w-full bg-gray-100 relative justify-center items-center">
-          <Image
-            source={{ uri: imageUri }}
-            className="w-full h-full"
-            resizeMode="cover"
-          />
-          <TouchableOpacity
-            onPress={handlePickImage}
-            activeOpacity={0.8}
-            className="absolute bottom-3 right-3 bg-[#FEF08A] px-3 py-2 rounded-xl border-3 border-black flex-row items-center"
-            style={{ boxShadow: "2px 2px 0px 0px #000000" }}
-          >
-            <Ionicons name="camera" size={16} color="#000" />
-            <Text className="font-black text-xs text-black ml-1 uppercase">
-              Ganti Foto 📷
-            </Text>
-          </TouchableOpacity>
-        </View>
+  const publishedDialog = (
+    <Dialog visible={publishedTitle !== null} onClose={() => setPublishedTitle(null)}>
+      <View className="h-12 w-12 items-center justify-center rounded-full bg-leaf-soft">
+        <Ionicons name="checkmark" size={26} color={colors.leaf} />
       </View>
-
-      {/* Recipe Info Form */}
-      <NeoCard bg="#FFFFFF" className="mb-5">
-        <Text className="text-sm font-black text-black mb-1 uppercase">
-          Nama Resep:
-        </Text>
-        <TextInput
-          placeholder="Misal: Orek Tempe Manis Cabe Ijo..."
-          value={title}
-          onChangeText={setTitle}
-          className="bg-[#FBF9F1] px-3 py-2.5 rounded-xl border-3 border-black font-bold text-xs mb-4"
-        />
-
-        <Text className="text-sm font-black text-black mb-1 uppercase">
-          Deskripsi Singkat:
-        </Text>
-        <TextInput
-          placeholder="Ceritakan rasa, tekstur, atau tips memasaknya..."
-          value={description}
-          onChangeText={setDescription}
-          multiline
-          numberOfLines={3}
-          className="bg-[#FBF9F1] px-3 py-2.5 rounded-xl border-3 border-black font-bold text-xs mb-4"
-        />
-
-        <View className="flex-row gap-3">
-          <View className="flex-1">
-            <Text className="text-xs font-black text-black mb-1">
-              Waktu Masak (Menit):
-            </Text>
-            <TextInput
-              keyboardType="numeric"
-              value={prepTime}
-              onChangeText={setPrepTime}
-              className="bg-[#FBF9F1] px-3 py-2 rounded-xl border-3 border-black font-bold text-xs"
-            />
-          </View>
-          <View className="flex-1">
-            <Text className="text-xs font-black text-black mb-1">
-              Porsi Makan:
-            </Text>
-            <TextInput
-              keyboardType="numeric"
-              value={servings}
-              onChangeText={setServings}
-              className="bg-[#FBF9F1] px-3 py-2 rounded-xl border-3 border-black font-bold text-xs"
-            />
-          </View>
-        </View>
-      </NeoCard>
-
-      {/* Dynamic Ingredients Section */}
-      <NeoCard bg="#FFFFFF" className="mb-5">
-        <View className="flex-row items-center justify-between mb-3">
-          <Text className="text-sm font-black text-black uppercase">
-            🥩 Rincian Bahan & Harga Modal
-          </Text>
-          <TouchableOpacity
-            onPress={addIngredientRow}
-            className="bg-[#FEF08A] px-2.5 py-1 rounded-lg border-2 border-black"
-          >
-            <Text className="font-black text-xs text-black">+ Tambah</Text>
-          </TouchableOpacity>
-        </View>
-
-        {ingredients.map((ing, idx) => (
-          <View
-            key={ing.id || idx}
-            className="bg-[#FBF9F1] p-3 rounded-xl border-2 border-black mb-2.5"
-          >
-            <View className="flex-row items-center justify-between mb-1.5">
-              <Text className="font-black text-xs text-black">Bahan #{idx + 1}</Text>
-              <TouchableOpacity onPress={() => removeIngredient(idx)}>
-                <Ionicons name="trash-outline" size={16} color="red" />
-              </TouchableOpacity>
-            </View>
-
-            <View className="flex-row gap-2 mb-2">
-              <TextInput
-                placeholder="Nama bahan..."
-                value={ing.name}
-                onChangeText={v => updateIngredient(idx, "name", v)}
-                className="flex-2 bg-white px-2 py-1.5 rounded-lg border-2 border-black font-bold text-xs flex-1"
-              />
-              <TextInput
-                placeholder="Takaran (1 ikat)"
-                value={ing.quantity}
-                onChangeText={v => updateIngredient(idx, "quantity", v)}
-                className="flex-1 bg-white px-2 py-1.5 rounded-lg border-2 border-black font-bold text-xs"
-              />
-            </View>
-
-            <View className="flex-row items-center justify-between">
-              <Text className="text-[11px] font-bold text-gray-700">Harga (Rp):</Text>
-              <TextInput
-                placeholder="Harga (Rp)"
-                keyboardType="numeric"
-                value={ing.price ? ing.price.toString() : ""}
-                onChangeText={v =>
-                  updateIngredient(idx, "price", parseInt(v, 10) || 0)
-                }
-                className="w-32 bg-white px-2 py-1 rounded-lg border-2 border-black font-black text-xs text-right"
-              />
-            </View>
-          </View>
-        ))}
-      </NeoCard>
-
-      {/* Step by Step Cooking Instructions */}
-      <NeoCard bg="#FFFFFF" className="mb-5">
-        <View className="flex-row items-center justify-between mb-3">
-          <Text className="text-sm font-black text-black uppercase">
-            🍳 Langkah Memasak
-          </Text>
-          <TouchableOpacity
-            onPress={addInstructionRow}
-            className="bg-[#99F6E4] px-2.5 py-1 rounded-lg border-2 border-black"
-          >
-            <Text className="font-black text-xs text-black">+ Langkah</Text>
-          </TouchableOpacity>
-        </View>
-
-        {instructions.map((step, idx) => (
-          <View key={idx} className="flex-row items-center gap-2 mb-2">
-            <View className="w-6 h-6 rounded-full bg-black items-center justify-center">
-              <Text className="text-white text-xs font-black">{idx + 1}</Text>
-            </View>
-            <TextInput
-              placeholder={`Langkah ke-${idx + 1}...`}
-              value={step}
-              onChangeText={v => updateInstruction(idx, v)}
-              className="flex-1 bg-[#FBF9F1] px-3 py-2 rounded-xl border-2 border-black font-semibold text-xs"
-            />
-            {instructions.length > 1 && (
-              <TouchableOpacity onPress={() => removeInstruction(idx)}>
-                <Ionicons name="close" size={18} color="#666" />
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
-      </NeoCard>
-
-      {/* Priority Tags */}
-      <NeoCard bg="#FBCFE8" className="mb-6">
-        <Text className="text-xs font-black text-black mb-2 uppercase">
-          Pilih Tag Resep:
-        </Text>
-        <View className="flex-row flex-wrap gap-2">
-          {AVAILABLE_TAGS.map(t => {
-            const active = selectedTags.includes(t);
-            return (
-              <TouchableOpacity
-                key={t}
-                onPress={() => toggleTag(t)}
-                className={`px-3 py-1.5 rounded-lg border-2 border-black ${
-                  active ? "bg-black" : "bg-white"
-                }`}
-              >
-                <Text
-                  className={`font-black text-xs ${
-                    active ? "text-[#FBCFE8]" : "text-black"
-                  }`}
-                >
-                  {t}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </NeoCard>
-
-      {/* Publish Action Button */}
-      <NeoButton
-        title="🚀 Publish ke Komunitas Anak Kos"
-        size="lg"
-        bg="#86EFAC"
-        onPress={handlePublish}
+      <Text accessibilityRole="header" className="mt-4 text-lg font-bold text-ink">
+        Resep Berhasil Dipublish!
+      </Text>
+      <Text className="mt-1 text-sm leading-5 text-muted">
+        Resep "{publishedTitle}" sudah tampil di Komunitas. Kamu dapat +50 XP!
+      </Text>
+      <Button
+        className="mt-5"
+        title="Lihat di Komunitas"
+        onPress={() => {
+          setPublishedTitle(null);
+          router.push("/community");
+        }}
       />
-    </ScrollView>
+    </Dialog>
+  );
+
+  return (
+    <Screen
+      scrollRef={scrollRef}
+      overlay={
+        <>
+          <Toast toast={toast} />
+          {publishedDialog}
+        </>
+      }
+    >
+      <View ref={contentRef}>
+        {activeDraft ? (
+          <View className="mb-5 rounded-2xl bg-accent-soft p-4">
+            <View className="flex-row items-center justify-between gap-3">
+              <Text className="text-xs font-bold text-accent-deep">MODE DRAF AI</Text>
+              <TouchableOpacity
+                accessibilityRole="button"
+                onPress={handleResetToBlank}
+                className="min-h-[44px] justify-center"
+              >
+                <Text className="text-sm font-semibold text-accent-deep underline">Batal / Reset Manual</Text>
+              </TouchableOpacity>
+            </View>
+            <Text className="text-sm leading-5 text-ink">
+              Mengedit draf dari resep AI. Sesuaikan bahan, takaran, dan harga modal lokal warungmu!
+            </Text>
+          </View>
+        ) : null}
+
+        {/* Photo */}
+        <Card padded={false} className="mb-5">
+          <RecipeImage uri={imageUri} fallbackEmoji="🍳" style={{ width: "100%", aspectRatio: 16 / 9 }} />
+          <TouchableOpacity
+            accessibilityRole="button"
+            activeOpacity={0.85}
+            onPress={handlePickImage}
+            className="absolute bottom-3 right-3 min-h-[44px] flex-row items-center rounded-full bg-surface px-4"
+            style={{ boxShadow: "0px 2px 8px rgba(42,34,29,0.2)" }}
+          >
+            <Ionicons name="camera-outline" size={18} color={colors.ink} />
+            <Text className="ml-2 text-sm font-semibold text-ink">Ganti Foto</Text>
+          </TouchableOpacity>
+        </Card>
+
+        {/* Recipe info */}
+        <View ref={formRef}>
+          <Card className="mb-5">
+            <TextField
+              label="Nama Resep:"
+              placeholder="Misal: Orek Tempe Manis Cabe Ijo..."
+              value={title}
+              onChangeText={value => {
+                setTitle(value);
+                if (titleMissing && value.trim()) setTitleMissing(false);
+              }}
+              invalid={titleMissing}
+            />
+            {titleMissing ? (
+              <View accessibilityRole="alert" className="mt-1.5 flex-row items-center">
+                <Ionicons name="alert-circle" size={16} color={colors.danger} />
+                <Text className="ml-1.5 flex-1 text-sm text-danger">
+                  <Text className="font-semibold">Perhatian: </Text>
+                  Silakan isi nama resep terlebih dahulu!
+                </Text>
+              </View>
+            ) : null}
+
+            <TextField
+              label="Deskripsi Singkat:"
+              placeholder="Ceritakan rasa, tekstur, atau tips memasaknya..."
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={3}
+              containerClassName="mt-4"
+            />
+
+            <View className="mt-4 flex-row items-end gap-3">
+              <TextField
+                label="Waktu Masak (Menit):"
+                keyboardType="numeric"
+                value={prepTime}
+                onChangeText={setPrepTime}
+                containerClassName="flex-1"
+              />
+              <TextField
+                label="Porsi Makan:"
+                keyboardType="numeric"
+                value={servings}
+                onChangeText={setServings}
+                containerClassName="flex-1"
+              />
+            </View>
+          </Card>
+        </View>
+
+        {/* Ingredients, totalled like a receipt */}
+        <Card className="mb-5">
+          <SectionHeader
+            title="Rincian Bahan & Harga Modal"
+            right={<Button variant="secondary" title="+ Tambah" onPress={addIngredientRow} />}
+          />
+
+          {ingredients.map((ing, idx) => (
+            <View key={ing.id || idx} className={idx > 0 ? "mt-3 border-t border-line pt-3" : ""}>
+              <View className="flex-row items-center justify-between">
+                <Text className="text-sm font-semibold text-muted">Bahan #{idx + 1}</Text>
+                <IconButton
+                  icon="trash-outline"
+                  label={`Hapus bahan #${idx + 1}`}
+                  onPress={() => removeIngredient(idx)}
+                />
+              </View>
+
+              <View className="flex-row gap-2">
+                <TextField
+                  placeholder="Nama bahan..."
+                  accessibilityLabel={`Nama bahan #${idx + 1}`}
+                  value={ing.name}
+                  onChangeText={v => updateIngredient(idx, "name", v)}
+                  containerClassName="flex-[3]"
+                />
+                <TextField
+                  placeholder="Takaran (1 ikat)"
+                  accessibilityLabel={`Takaran bahan #${idx + 1}`}
+                  value={ing.quantity}
+                  onChangeText={v => updateIngredient(idx, "quantity", v)}
+                  containerClassName="flex-[2]"
+                />
+              </View>
+
+              <View className="mt-2 flex-row items-center justify-between gap-3">
+                <Text className="text-sm text-muted">Harga (Rp):</Text>
+                <TextField
+                  placeholder="Harga (Rp)"
+                  accessibilityLabel={`Harga bahan #${idx + 1}`}
+                  keyboardType="numeric"
+                  value={ing.price ? ing.price.toString() : ""}
+                  onChangeText={v => updateIngredient(idx, "price", parseInt(v, 10) || 0)}
+                  containerClassName="w-36"
+                  style={[tabularNums, { textAlign: "right" }]}
+                />
+              </View>
+            </View>
+          ))}
+
+          <DashedLine className="mb-3 mt-4" />
+          <View className="flex-row items-end justify-between gap-3">
+            <View className="flex-1">
+              <Text className="text-xs font-semibold text-muted">Auto-Kalkulasi Estimasi Modal:</Text>
+              <Text className="text-sm text-muted">{ingredients.length} Bahan Terinput</Text>
+            </View>
+            <Text className="text-2xl font-bold text-ink" style={tabularNums}>
+              {formatRp(totalModalCost)}
+            </Text>
+          </View>
+        </Card>
+
+        {/* Steps */}
+        <Card className="mb-5">
+          <SectionHeader
+            title="Langkah Memasak"
+            right={<Button variant="secondary" title="+ Langkah" onPress={addInstructionRow} />}
+          />
+
+          {instructions.map((step, idx) => (
+            <View key={idx} className="mb-2 flex-row items-start gap-2.5">
+              <View className="mt-2.5 h-6 w-6 items-center justify-center rounded-full bg-ink">
+                <Text className="text-xs font-bold text-white">{idx + 1}</Text>
+              </View>
+              <TextField
+                placeholder={`Langkah ke-${idx + 1}...`}
+                accessibilityLabel={`Langkah ke-${idx + 1}`}
+                value={step}
+                onChangeText={v => updateInstruction(idx, v)}
+                multiline
+                containerClassName="flex-1"
+                style={{ minHeight: 64 }}
+              />
+              {instructions.length > 1 && (
+                <IconButton
+                  icon="close"
+                  label={`Hapus langkah ke-${idx + 1}`}
+                  onPress={() => removeInstruction(idx)}
+                />
+              )}
+            </View>
+          ))}
+        </Card>
+
+        {/* Tags */}
+        <Card className="mb-7">
+          <Text className="mb-3 text-sm font-semibold text-ink">Pilih Tag Resep:</Text>
+          <View className="flex-row flex-wrap gap-2">
+            {AVAILABLE_TAGS.map(t => {
+              const active = selectedTags.includes(t);
+              return (
+                <Chip
+                  key={t}
+                  role="checkbox"
+                  label={t}
+                  selected={active}
+                  trailingIcon={active ? "checkmark" : undefined}
+                  onPress={() => toggleTag(t)}
+                />
+              );
+            })}
+          </View>
+        </Card>
+
+        <Button title="Publish ke Komunitas Anak Kos" size="lg" onPress={handlePublish} />
+      </View>
+    </Screen>
   );
 }

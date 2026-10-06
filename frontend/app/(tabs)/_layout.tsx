@@ -1,118 +1,83 @@
 import React from "react";
 import { Tabs } from "expo-router";
+import { ColorValue, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { View, Text, Platform } from "react-native";
+import colors from "../../constants/colors";
+import type { IconName } from "../../components/Button";
+
+// Filled glyph for the active tab, outline for the rest, so the active tab is
+// marked by shape as well as by color.
+function tabIcon(active: IconName, inactive: IconName) {
+  return ({ color, focused }: { color: ColorValue; focused: boolean }) => (
+    <Ionicons name={focused ? active : inactive} size={22} color={color} />
+  );
+}
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  // Smaller labels so five tabs fit side by side on the narrowest phones.
+  const narrow = useWindowDimensions().width < 360;
+
   return (
     <Tabs
       screenOptions={{
-        headerStyle: {
-          backgroundColor: "#FEF08A", // Soft yellow
-          borderBottomWidth: 4,
-          borderBottomColor: "#000000",
-        },
-        headerTitleStyle: {
-          fontWeight: "900",
-          fontSize: 18,
-          color: "#000000",
-        },
+        headerStyle: { backgroundColor: colors.cream },
         headerShadowVisible: false,
+        headerTitleStyle: { fontSize: 17, fontWeight: "700", color: colors.ink },
+        sceneStyle: { backgroundColor: colors.cream },
+        // Taller than the default so labels are not clipped; the inset keeps
+        // it above the iPhone home indicator.
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopWidth: 4,
-          borderTopColor: "#000000",
-          height: Platform.OS === "ios" ? 88 : 70,
-          paddingBottom: Platform.OS === "ios" ? 24 : 10,
-          paddingTop: 8,
-          boxShadow: "0px -4px 0px 0px rgba(0,0,0,0.1)",
+          backgroundColor: colors.surface,
+          borderTopColor: colors.line,
+          height: 64 + insets.bottom,
+          paddingTop: 4,
+          paddingBottom: 4 + insets.bottom,
         },
-        tabBarActiveTintColor: "#000000",
-        tabBarInactiveTintColor: "#666666",
-        tabBarLabelStyle: {
-          fontWeight: "900",
-          fontSize: 10,
-        },
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.muted,
+        tabBarLabelStyle: { fontSize: narrow ? 10 : 11, lineHeight: 14, fontWeight: "600" },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "AI Racik",
-          headerTitle: "Share'N'Bite • AI Racik 🍳",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#FEF08A] border-black" : "border-transparent"
-              }`}
-            >
-              <Ionicons name="sparkles" size={20} color={focused ? "#000000" : color} />
-            </View>
-          ),
+          headerTitle: "Share'N'Bite • AI Racik",
+          tabBarIcon: tabIcon("restaurant", "restaurant-outline"),
         }}
       />
       <Tabs.Screen
         name="shopping"
         options={{
           title: "Belanja",
-          headerTitle: "Daftar Belanja Warung 🛒",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#99F6E4] border-black" : "border-transparent"
-              }`}
-            >
-              <Ionicons name="cart" size={20} color={focused ? "#000000" : color} />
-            </View>
-          ),
+          headerTitle: "Daftar Belanja Warung",
+          tabBarIcon: tabIcon("basket", "basket-outline"),
         }}
       />
       <Tabs.Screen
         name="create"
         options={{
           title: "Buat Resep",
-          headerTitle: "Recipe Creator Lab 👨‍🍳",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#FBCFE8] border-black" : "border-transparent"
-              }`}
-            >
-              <Ionicons name="add-circle" size={22} color={focused ? "#000000" : color} />
-            </View>
-          ),
+          headerTitle: "Recipe Creator Lab",
+          tabBarIcon: tabIcon("create", "create-outline"),
         }}
       />
       <Tabs.Screen
         name="community"
         options={{
           title: "Komunitas",
-          headerTitle: "Komunitas Resep Anak Kos 🌐",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#BAE6FD] border-black" : "border-transparent"
-              }`}
-            >
-              <Ionicons name="people" size={20} color={focused ? "#000000" : color} />
-            </View>
-          ),
+          headerTitle: "Komunitas Resep Anak Kos",
+          tabBarIcon: tabIcon("people", "people-outline"),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Cuan & Kos",
-          headerTitle: "Finansial Kos & Level 📊",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1 rounded-md border-2 ${
-                focused ? "bg-[#86EFAC] border-black" : "border-transparent"
-              }`}
-            >
-              <Ionicons name="stats-chart" size={20} color={focused ? "#000000" : color} />
-            </View>
-          ),
+          headerTitle: "Finansial Kos & Level",
+          tabBarIcon: tabIcon("wallet", "wallet-outline"),
         }}
       />
     </Tabs>

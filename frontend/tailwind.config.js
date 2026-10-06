@@ -1,6 +1,7 @@
+const palette = require("./constants/colors");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // NOTE: Update this to include the paths to all of your component files.
   content: [
     "./app/**/*.{js,jsx,ts,tsx}",
     "./components/**/*.{js,jsx,ts,tsx}"
@@ -9,36 +10,27 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Neo-brutalist Canvas & Neutral
-        brutal: {
-          bg: "#FBF9F1",       // Soft warm cream
-          card: "#FFFFFF",     // Stark white
-          black: "#000000",    // Pitch black for borders & text
-          charcoal: "#1A1A1A",
-          muted: "#E2DEC9",
+        cream: palette.cream,
+        surface: palette.surface,
+        track: palette.track,
+        line: palette.line,
+        field: palette.field,
+        ink: palette.ink,
+        muted: palette.muted,
+        accent: {
+          DEFAULT: palette.accent,
+          deep: palette.accentDeep,
+          soft: palette.accentSoft,
         },
-        // Neo-brutalist High-Contrast Pastels
-        neo: {
-          mint: "#99F6E4",     // Crisp pastel mint (#5EEAD4 / #A7F3D0)
-          green: "#86EFAC",    // Fresh warung green
-          pink: "#FBCFE8",     // Playful soft baby pink
-          yellow: "#FEF08A",   // High-contrast soft yellow
-          orange: "#FDBA74",   // Warm pastel orange
-          blue: "#BAE6FD",     // Friendly pastel sky blue
-          purple: "#DDD6FE",   // Light lilac
-        }
+        leaf: {
+          DEFAULT: palette.leaf,
+          soft: palette.leafSoft,
+        },
+        danger: {
+          DEFAULT: palette.danger,
+          soft: palette.dangerSoft,
+        },
       },
-      borderWidth: {
-        '3': '3px',
-        '4': '4px',
-        '5': '5px',
-      },
-      boxShadow: {
-        'brutal-sm': '2px 2px 0px 0px #000000',
-        'brutal': '4px 4px 0px 0px #000000',
-        'brutal-lg': '6px 6px 0px 0px #000000',
-        'brutal-xl': '8px 8px 0px 0px #000000',
-      }
     },
   },
   plugins: [],

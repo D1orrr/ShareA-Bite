@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useApp } from "../../context/AppContext";
-import { NeoCard } from "../../components/NeoCard";
-import { NeoBadge } from "../../components/NeoBadge";
+import { useApp, Recipe } from "../../context/AppContext";
+import colors from "../../constants/colors";
+import { formatRp } from "../../constants/format";
+import { Screen } from "../../components/Screen";
+import { Card } from "../../components/Card";
+import { Button } from "../../components/Button";
+import { Chip } from "../../components/Chip";
+import { Tag } from "../../components/Tag";
+import { Segmented } from "../../components/Segmented";
+import { RecipeImage } from "../../components/RecipeImage";
+import { Toast, useToast } from "../../components/Toast";
 
 type CommunityTab = "resep" | "tips" | "tempat";
 
@@ -85,11 +87,13 @@ const CHEAP_SPOTS: CheapSpot[] = [
   },
 ];
 
+const RECIPE_FILTERS = ["Semua", "Di Bawah 12k", "High Protein"];
+
 export default function CommunityScreen() {
   const { recipes, likeRecipe, addRecipeToShoppingList } = useApp();
+  const { toast, show: showToast } = useToast(2500);
   const [activeTab, setActiveTab] = useState<CommunityTab>("resep");
   const [filterTag, setFilterTag] = useState<string>("Semua");
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const filteredRecipes = recipes.filter(r => {
     if (filterTag === "Semua") return true;
@@ -100,277 +104,164 @@ export default function CommunityScreen() {
 
   const handleLike = (id: string) => {
     likeRecipe(id);
-    setToastMessage("❤️ Resep di-upvote!");
-    setTimeout(() => setToastMessage(null), 2500);
+    showToast("Resep di-upvote!");
   };
 
-  const handleSaveToCart = (recipe: any) => {
+  const handleSaveToCart = (recipe: Recipe) => {
     addRecipeToShoppingList(recipe);
-    setToastMessage(`🛒 Bahan "${recipe.title}" masuk ke Shopping List!`);
-    setTimeout(() => setToastMessage(null), 2500);
+    showToast(`Bahan "${recipe.title}" masuk ke Shopping List!`);
   };
 
   return (
-    <ScrollView
-      className="flex-1 bg-[#FBF9F1]"
-      contentContainerStyle={{ padding: 16, paddingBottom: 60 }}
-    >
-      {/* Toast Notice */}
-      {toastMessage ? (
-        <View
-          className="bg-[#99F6E4] p-3 rounded-xl border-3 border-black mb-4 flex-row items-center"
-          style={{ boxShadow: "3px 3px 0px 0px #000000" }}
-        >
-          <Ionicons name="checkmark-circle" size={18} color="#000" />
-          <Text className="font-black text-xs text-black ml-2">{toastMessage}</Text>
-        </View>
-      ) : null}
-
-      {/* Community Header Banner */}
-      <NeoCard bg="#BAE6FD" className="mb-5">
-        <View className="flex-row items-center justify-between mb-1">
-          <Text className="text-xl font-black text-black uppercase">
-            🌐 Creator Community
+    <Screen overlay={<Toast toast={toast} />}>
+      <View className="mb-5">
+        <View className="flex-row items-center justify-between gap-3">
+          <Text accessibilityRole="header" className="flex-1 text-2xl font-bold text-ink">
+            Creator Community
           </Text>
-          <NeoBadge label="Anak Kos Hub" bg="#FFFFFF" />
+          <Tag label="Anak Kos Hub" />
         </View>
-        <Text className="text-xs font-semibold text-gray-800 leading-4">
+        <Text className="mt-1 text-sm leading-5 text-muted">
           Temukan resep murah, tukar tips bertahan hidup akhir bulan, dan warung tersembunyi sekitar kampus!
         </Text>
-      </NeoCard>
-
-      {/* 3 Main Sub-Tabs */}
-      <View className="flex-row gap-2 mb-5">
-        <TouchableOpacity
-          onPress={() => setActiveTab("resep")}
-          className={`flex-1 py-2.5 rounded-xl border-3 border-black items-center ${
-            activeTab === "resep" ? "bg-[#FEF08A]" : "bg-white"
-          }`}
-          style={{
-            boxShadow: activeTab === "resep" ? "none" : "2px 2px 0px 0px #000000",
-          }}
-        >
-          <Text className="font-black text-xs text-black uppercase">
-            🍲 Resep Kos
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setActiveTab("tips")}
-          className={`flex-1 py-2.5 rounded-xl border-3 border-black items-center ${
-            activeTab === "tips" ? "bg-[#99F6E4]" : "bg-white"
-          }`}
-          style={{
-            boxShadow: activeTab === "tips" ? "none" : "2px 2px 0px 0px #000000",
-          }}
-        >
-          <Text className="font-black text-xs text-black uppercase">
-            💡 Tips Hemat
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setActiveTab("tempat")}
-          className={`flex-1 py-2.5 rounded-xl border-3 border-black items-center ${
-            activeTab === "tempat" ? "bg-[#FBCFE8]" : "bg-white"
-          }`}
-          style={{
-            boxShadow: activeTab === "tempat" ? "none" : "2px 2px 0px 0px #000000",
-          }}
-        >
-          <Text className="font-black text-xs text-black uppercase">
-            📍 Pasar Murah
-          </Text>
-        </TouchableOpacity>
       </View>
 
-      {/* TAB 1: RESEP ANAK KOS */}
+      <Segmented
+        className="mb-5"
+        options={[
+          { value: "resep", label: "Resep Kos" },
+          { value: "tips", label: "Tips Hemat" },
+          { value: "tempat", label: "Pasar Murah" },
+        ]}
+        value={activeTab}
+        onChange={setActiveTab}
+      />
+
       {activeTab === "resep" && (
         <View>
-          {/* Filter Chips */}
-          <View className="flex-row gap-2 mb-4">
-            {["Semua", "Di Bawah 12k", "High Protein"].map(f => (
-              <TouchableOpacity
+          <View role="radiogroup" className="mb-4 flex-row flex-wrap gap-2">
+            {RECIPE_FILTERS.map(f => (
+              <Chip
                 key={f}
+                role="radio"
+                label={f}
+                selected={filterTag === f}
                 onPress={() => setFilterTag(f)}
-                className={`px-3 py-1.5 rounded-lg border-2 border-black ${
-                  filterTag === f ? "bg-black" : "bg-white"
-                }`}
-              >
-                <Text
-                  className={`font-black text-xs ${
-                    filterTag === f ? "text-white" : "text-black"
-                  }`}
-                >
-                  {f}
-                </Text>
-              </TouchableOpacity>
+              />
             ))}
           </View>
 
+          {filteredRecipes.length === 0 ? (
+            <Card className="items-center py-8">
+              <Ionicons name="restaurant-outline" size={28} color={colors.muted} />
+              <Text className="mt-3 text-center text-sm text-muted">
+                Belum ada resep untuk filter ini. Coba pilih "Semua".
+              </Text>
+            </Card>
+          ) : null}
+
           {filteredRecipes.map(recipe => (
-            <View
-              key={recipe.id}
-              className="bg-white rounded-2xl border-4 border-black overflow-hidden mb-5"
-              style={{ boxShadow: "4px 4px 0px 0px #000000" }}
-            >
-              {/* Image Banner */}
-              <View className="h-40 w-full bg-[#BAE6FD] border-b-4 border-black relative">
-                <Image
-                  source={{ uri: recipe.image_url }}
-                  className="w-full h-full"
-                  resizeMode="cover"
+            <Card key={recipe.id} padded={false} className="mb-5">
+              <View>
+                <RecipeImage
+                  uri={recipe.image_url}
+                  fallbackEmoji={recipe.fallback_emoji}
+                  style={{ width: "100%", aspectRatio: 16 / 9 }}
                 />
-
-                {/* Creator or AI Badge */}
-                <View
-                  className={`absolute top-3 left-3 px-2.5 py-1 rounded-md border-2 border-black ${
-                    recipe.is_ai_generated ? "bg-[#99F6E4]" : "bg-[#FEF08A]"
-                  }`}
-                >
-                  <Text className="text-black font-black text-xs">
-                    {recipe.is_ai_generated ? "✨ AI Generated" : "👨‍🍳 User Created"}
-                  </Text>
-                </View>
-
-                {/* Price Tag */}
-                <View className="absolute bottom-3 right-3 bg-white px-2.5 py-1 rounded-md border-2 border-black">
-                  <Text className="font-black text-xs text-black">
-                    Modal: Rp {recipe.actual_cost.toLocaleString("id-ID")}
-                  </Text>
-                </View>
+                <Tag
+                  label={recipe.is_ai_generated ? "AI Generated" : "User Created"}
+                  className="absolute left-3 top-3"
+                />
+                <Tag
+                  label={`Modal: ${formatRp(recipe.actual_cost)}`}
+                  className="absolute bottom-3 right-3"
+                />
               </View>
 
               <View className="p-4">
-                <View className="flex-row items-center justify-between mb-1">
-                  <Text className="text-lg font-black text-black">
-                    {recipe.title}
-                  </Text>
-                </View>
-
-                {/* Author Info */}
-                <Text className="text-[11px] font-bold text-gray-600 mb-2">
-                  Oleh: <Text className="text-black font-extrabold">{recipe.author}</Text>{" "}
-                  • {recipe.author_level}
+                <Text className="text-lg font-bold text-ink">{recipe.title}</Text>
+                <Text className="mt-0.5 text-sm text-muted">
+                  Oleh: <Text className="font-semibold text-ink">{recipe.author}</Text> • {recipe.author_level}
                 </Text>
+                <Text className="mt-2 text-sm leading-5 text-ink">{recipe.description}</Text>
 
-                <Text className="text-xs font-semibold text-gray-700 mb-3 leading-5">
-                  {recipe.description}
-                </Text>
-
-                {/* Tags */}
-                <View className="flex-row flex-wrap gap-1.5 mb-3">
+                <View className="mt-3 flex-row flex-wrap gap-1.5">
+                  <Tag icon="time-outline" label={`${recipe.prep_time_minutes} Min`} />
                   {recipe.tags.map(t => (
-                    <View
-                      key={t}
-                      className="bg-[#FBCFE8] px-2 py-0.5 rounded border border-black"
-                    >
-                      <Text className="font-bold text-[10px]">{t}</Text>
-                    </View>
+                    <Tag key={t} label={t} />
                   ))}
-                  <View className="bg-[#FEF08A] px-2 py-0.5 rounded border border-black">
-                    <Text className="font-bold text-[10px]">
-                      ⏱️ {recipe.prep_time_minutes} Min
-                    </Text>
-                  </View>
                 </View>
 
-                {/* Bottom Actions */}
-                <View className="flex-row items-center justify-between pt-2 border-t-2 border-dashed border-gray-200">
+                <View className="mt-4 flex-row items-center justify-between gap-2 border-t border-line pt-3">
                   <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel={`Suka resep ${recipe.title}, ${recipe.likes} suka`}
+                    activeOpacity={0.7}
                     onPress={() => handleLike(recipe.id)}
-                    className="flex-row items-center bg-[#FBF9F1] px-3 py-1.5 rounded-lg border-2 border-black"
+                    className="min-h-[44px] flex-row items-center rounded-full border border-field px-4"
                   >
-                    <Ionicons name="heart" size={16} color="red" />
-                    <Text className="font-black text-xs text-black ml-1.5">
-                      {recipe.likes} Suka
-                    </Text>
+                    <Ionicons name="heart" size={18} color={colors.accent} />
+                    <Text className="ml-1.5 text-sm font-semibold text-ink">{recipe.likes} Suka</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
+                  <Button
+                    variant="secondary"
+                    icon="basket-outline"
+                    title="+ Belanja"
                     onPress={() => handleSaveToCart(recipe)}
-                    className="bg-[#99F6E4] px-3 py-1.5 rounded-lg border-2 border-black flex-row items-center"
-                  >
-                    <Ionicons name="cart-outline" size={16} color="#000" />
-                    <Text className="font-black text-xs text-black ml-1">
-                      + Belanja
-                    </Text>
-                  </TouchableOpacity>
+                  />
                 </View>
               </View>
-            </View>
+            </Card>
           ))}
         </View>
       )}
 
-      {/* TAB 2: TIPS HEMAT */}
       {activeTab === "tips" && (
         <View>
           {TIPS_DATA.map(tip => (
-            <NeoCard key={tip.id} bg="#FFFFFF" className="mb-4">
-              <View className="flex-row justify-between items-center mb-1">
-                <View className="bg-[#99F6E4] px-2.5 py-0.5 rounded-md border-2 border-black">
-                  <Text className="text-[10px] font-black text-black">
-                    {tip.tag}
-                  </Text>
-                </View>
-                <View className="flex-row items-center">
-                  <Ionicons name="heart" size={14} color="red" />
-                  <Text className="text-xs font-bold text-gray-700 ml-1">
-                    {tip.likes}
-                  </Text>
+            <Card key={tip.id} className="mb-4">
+              <View className="flex-row items-center justify-between">
+                <Tag label={tip.tag} tone="leaf" />
+                <View
+                  accessible
+                  accessibilityLabel={`${tip.likes} suka`}
+                  className="flex-row items-center"
+                >
+                  <Ionicons name="heart" size={14} color={colors.accent} />
+                  <Text className="ml-1 text-sm text-muted">{tip.likes}</Text>
                 </View>
               </View>
-
-              <Text className="text-base font-black text-black mt-1 mb-1">
-                {tip.title}
-              </Text>
-              <Text className="text-xs font-semibold text-gray-700 leading-5 mb-2">
-                {tip.content}
-              </Text>
-
-              <Text className="text-[11px] font-bold text-gray-500">
-                Ditulis oleh: {tip.author}
-              </Text>
-            </NeoCard>
+              <Text className="mt-3 text-base font-bold text-ink">{tip.title}</Text>
+              <Text className="mt-1 text-sm leading-5 text-ink">{tip.content}</Text>
+              <Text className="mt-3 text-xs text-muted">Ditulis oleh: {tip.author}</Text>
+            </Card>
           ))}
         </View>
       )}
 
-      {/* TAB 3: TEMPAT MURAH */}
       {activeTab === "tempat" && (
         <View>
           {CHEAP_SPOTS.map(spot => (
-            <NeoCard key={spot.id} bg="#FFFFFF" className="mb-4">
-              <View className="flex-row justify-between items-center mb-1">
-                <Text className="text-base font-black text-black">
-                  {spot.name}
-                </Text>
-                <View className="bg-[#FEF08A] px-2 py-0.5 rounded border border-black">
-                  <Text className="text-[10px] font-black">{spot.avgCost}</Text>
-                </View>
+            <Card key={spot.id} className="mb-4">
+              <View className="flex-row items-start justify-between gap-3">
+                <Text className="flex-1 text-base font-bold text-ink">{spot.name}</Text>
+                <Tag label={spot.avgCost} />
               </View>
-
-              <View className="flex-row items-center mb-2">
-                <Ionicons name="location" size={14} color="#000" />
-                <Text className="text-xs font-bold text-gray-600 ml-1">
-                  {spot.location}
+              <View className="mt-1 flex-row items-center">
+                <Ionicons name="location-outline" size={15} color={colors.muted} />
+                <Text className="ml-1 flex-1 text-sm text-muted">{spot.location}</Text>
+              </View>
+              <View className="mt-3 rounded-xl bg-cream p-3">
+                <Text className="text-sm leading-5 text-ink">
+                  <Text className="font-semibold">Kenapa Murah:</Text> {spot.highlight}
                 </Text>
               </View>
-
-              <View className="bg-[#FBF9F1] p-2.5 rounded-xl border border-black mb-2">
-                <Text className="text-xs font-semibold text-gray-800">
-                  ⭐ <Text className="font-bold">Kenapa Murah:</Text> {spot.highlight}
-                </Text>
-              </View>
-
-              <Text className="text-[10px] font-bold text-gray-500">
-                Rekomendasi dari: {spot.author}
-              </Text>
-            </NeoCard>
+              <Text className="mt-3 text-xs text-muted">Rekomendasi dari: {spot.author}</Text>
+            </Card>
           ))}
         </View>
       )}
-    </ScrollView>
+    </Screen>
   );
 }

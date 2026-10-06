@@ -1,19 +1,20 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { useApp, Recipe } from "../../context/AppContext";
-import { NeoCard } from "../../components/NeoCard";
-import { NeoButton } from "../../components/NeoButton";
-import { NeoBadge } from "../../components/NeoBadge";
+import colors from "../../constants/colors";
+import { formatRp, tabularNums } from "../../constants/format";
+import { Screen } from "../../components/Screen";
+import { Card } from "../../components/Card";
+import { Button } from "../../components/Button";
+import { Chip } from "../../components/Chip";
+import { Tag } from "../../components/Tag";
+import { Segmented } from "../../components/Segmented";
+import { SectionHeader } from "../../components/SectionHeader";
+import { TextField } from "../../components/TextField";
+import { RecipeImage } from "../../components/RecipeImage";
+import { DashedLine, PriceRow } from "../../components/Receipt";
+import { Toast, useToast } from "../../components/Toast";
 
 const BUDGET_OPTIONS = [10000, 15000, 20000, 25000, 35000];
 
@@ -40,6 +41,7 @@ const PRIORITY_TAGS = [
 export default function GeneratorScreen() {
   const router = useRouter();
   const { addRecipeToShoppingList, setActiveDraft } = useApp();
+  const { toast, show: showNotification } = useToast();
 
   const [selectedBudget, setSelectedBudget] = useState<number>(15000);
   const [ingredients, setIngredients] = useState<string[]>(["Telur", "Tempe"]);
@@ -47,10 +49,9 @@ export default function GeneratorScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>(["High Protein", "Pedas Gurih"]);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(true);
-  const [notification, setNotification] = useState<string | null>(null);
 
   // Preloaded recipes for the generator
-  const [generatedResults, setGeneratedResults] = useState<Recipe[]>([
+  const [generatedResults] = useState<Recipe[]>([
     {
       id: "gen-1",
       title: "Orek Tempe Basah Pedas Manis",
@@ -141,18 +142,13 @@ export default function GeneratorScreen() {
     setTimeout(() => {
       setIsGenerating(false);
       setShowResults(true);
-      showNotification("✨ 2 Resep Berhasil Diracik Sesuai Budget!");
+      showNotification("2 Resep Berhasil Diracik Sesuai Budget!");
     }, 1800);
-  };
-
-  const showNotification = (msg: string) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(null), 3000);
   };
 
   const handleSendToShopping = (recipe: Recipe) => {
     addRecipeToShoppingList(recipe);
-    showNotification(`🛒 Bahan "${recipe.title}" ditambahkan ke Shopping List!`);
+    showNotification(`Bahan "${recipe.title}" ditambahkan ke Shopping List!`);
   };
 
   const handleTweakInCreator = (recipe: Recipe) => {
@@ -161,298 +157,182 @@ export default function GeneratorScreen() {
   };
 
   return (
-    <ScrollView
-      className="flex-1 bg-[#FBF9F1]"
-      contentContainerStyle={{ padding: 16, paddingBottom: 60 }}
-    >
-      {/* Toast Notification */}
-      {notification ? (
-        <View
-          className="bg-[#99F6E4] p-3 rounded-xl border-3 border-black mb-4 flex-row items-center"
-          style={{ boxShadow: "3px 3px 0px 0px #000000" }}
-        >
-          <Ionicons name="checkmark-circle" size={20} color="#000" />
-          <Text className="font-black text-black text-xs ml-2 flex-1">
-            {notification}
-          </Text>
+    <Screen overlay={<Toast toast={toast} />}>
+      {/* Budget: the number this whole screen is about */}
+      <Card className="mb-7">
+        <View className="flex-row items-center justify-between gap-3">
+          <Text className="text-sm font-semibold text-muted">Target Budget Masak</Text>
+          <Tag label="Maksimal Kantong" />
         </View>
-      ) : null}
-
-      {/* Target Budget Selector Card */}
-      <NeoCard bg="#FEF08A" className="mb-5">
-        <View className="flex-row items-center justify-between mb-2">
-          <Text className="text-base font-black text-black uppercase tracking-tight">
-            🎯 Target Budget Masak
-          </Text>
-          <NeoBadge label="Maksimal Kantong" bg="#FFFFFF" />
-        </View>
-        <Text className="text-3xl font-black text-black mb-3">
-          Rp {selectedBudget.toLocaleString("id-ID")}
+        <Text className="mt-1 text-4xl font-bold text-ink" style={tabularNums}>
+          {formatRp(selectedBudget)}
         </Text>
+        <Segmented
+          className="mt-4"
+          options={BUDGET_OPTIONS.map(budget => ({
+            value: budget,
+            label: `Rp ${(budget / 1000).toFixed(0)}k`,
+          }))}
+          value={selectedBudget}
+          onChange={setSelectedBudget}
+        />
+      </Card>
+
+      {/* Ingredients on hand */}
+      <View className="mb-7">
+        <SectionHeader
+          title="Bahan Yang Ada di Kulkas / Kos"
+          subtitle="Pilih atau ketik bahan yang kamu miliki:"
+        />
         <View className="flex-row flex-wrap gap-2">
-          {BUDGET_OPTIONS.map(budget => (
-            <TouchableOpacity
-              key={budget}
-              onPress={() => setSelectedBudget(budget)}
-              activeOpacity={0.8}
-              className={`px-3 py-2 rounded-xl border-3 border-black ${
-                selectedBudget === budget ? "bg-black" : "bg-white"
-              }`}
-              style={{
-                boxShadow: selectedBudget === budget ? "none" : "2px 2px 0px 0px #000000",
-              }}
-            >
-              <Text
-                className={`font-black text-xs ${
-                  selectedBudget === budget ? "text-[#FEF08A]" : "text-black"
-                }`}
-              >
-                Rp {(budget / 1000).toFixed(0)}k
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </NeoCard>
-
-      {/* Available Ingredients Card */}
-      <NeoCard bg="#FFFFFF" className="mb-5">
-        <Text className="text-base font-black text-black mb-1 uppercase">
-          🥬 Bahan Yang Ada di Kulkas / Kos
-        </Text>
-        <Text className="text-xs font-semibold text-gray-600 mb-3">
-          Pilih atau ketik bahan yang kamu miliki:
-        </Text>
-
-        {/* Selected Ingredients Badges */}
-        <View className="flex-row flex-wrap gap-1.5 mb-3">
           {ingredients.map(item => (
-            <TouchableOpacity
+            <Chip
               key={item}
+              label={item}
+              selected
+              trailingIcon="close"
+              accessibilityLabel={`Hapus ${item}`}
               onPress={() => handleRemoveIngredient(item)}
-              activeOpacity={0.7}
-              className="bg-[#99F6E4] px-3 py-1.5 rounded-lg border-2 border-black flex-row items-center"
-            >
-              <Text className="font-black text-black text-xs mr-1">{item}</Text>
-              <Ionicons name="close" size={14} color="#000" />
-            </TouchableOpacity>
+            />
           ))}
         </View>
 
-        {/* Custom Input */}
-        <View className="flex-row gap-2 mb-3">
-          <TextInput
+        <View className="mt-3 flex-row items-end gap-2">
+          <TextField
+            containerClassName="flex-1"
             placeholder="Tambah bahan lain (contoh: Sosis, Sawi)..."
+            accessibilityLabel="Tambah bahan lain"
             value={customInput}
             onChangeText={setCustomInput}
             onSubmitEditing={handleAddCustom}
-            placeholderTextColor="#888"
-            className="flex-1 bg-[#FBF9F1] px-3 py-2.5 rounded-xl border-3 border-black font-bold text-xs"
+            returnKeyType="done"
           />
-          <TouchableOpacity
-            onPress={handleAddCustom}
-            className="bg-[#FEF08A] px-4 rounded-xl border-3 border-black justify-center items-center"
-            style={{ boxShadow: "2px 2px 0px 0px #000000" }}
-          >
-            <Text className="font-black text-black text-xs">+ Tambah</Text>
-          </TouchableOpacity>
+          <Button title="+ Tambah" variant="secondary" onPress={handleAddCustom} />
         </View>
 
-        {/* Quick Suggestion Chips */}
-        <Text className="text-[11px] font-bold text-gray-500 mb-1.5">
-          Bahan Populer Warung Terdekat:
-        </Text>
-        <View className="flex-row flex-wrap gap-1.5">
+        <Text className="mb-2 mt-4 text-sm text-muted">Bahan Populer Warung Terdekat:</Text>
+        <View className="flex-row flex-wrap gap-2">
           {POPULAR_INGREDIENTS.filter(i => !ingredients.includes(i)).map(item => (
-            <TouchableOpacity
-              key={item}
-              onPress={() => handleAddIngredient(item)}
-              className="bg-[#FBF9F1] px-2.5 py-1 rounded-md border-2 border-black"
-            >
-              <Text className="font-bold text-[11px] text-black">+ {item}</Text>
-            </TouchableOpacity>
+            <Chip key={item} label={`+ ${item}`} onPress={() => handleAddIngredient(item)} />
           ))}
         </View>
-      </NeoCard>
+      </View>
 
-      {/* Priority Chips */}
-      <NeoCard bg="#FBCFE8" className="mb-5">
-        <Text className="text-base font-black text-black mb-1 uppercase">
-          ⚡ Prioritas & Selera
-        </Text>
-        <Text className="text-xs font-semibold text-gray-700 mb-3">
-          Filter kecerdasan resep sesuai kebutuhan:
-        </Text>
+      {/* Priorities */}
+      <View className="mb-7">
+        <SectionHeader title="Prioritas & Selera" subtitle="Filter kecerdasan resep sesuai kebutuhan:" />
         <View className="flex-row flex-wrap gap-2">
           {PRIORITY_TAGS.map(tag => {
             const active = selectedTags.includes(tag);
             return (
-              <TouchableOpacity
+              <Chip
                 key={tag}
+                role="checkbox"
+                label={tag}
+                selected={active}
+                trailingIcon={active ? "checkmark" : undefined}
                 onPress={() => toggleTag(tag)}
-                className={`px-3 py-1.5 rounded-lg border-2 border-black ${
-                  active ? "bg-black" : "bg-white"
-                }`}
-                style={{
-                  boxShadow: active ? "none" : "2px 2px 0px 0px #000000",
-                }}
-              >
-                <Text
-                  className={`font-black text-xs ${
-                    active ? "text-[#FBCFE8]" : "text-black"
-                  }`}
-                >
-                  {tag}
-                </Text>
-              </TouchableOpacity>
+              />
             );
           })}
         </View>
-      </NeoCard>
+      </View>
 
-      {/* Action Button */}
-      <NeoButton
-        title="✨ Racik Resep Hemat Sekarang"
+      <Button
+        title="Racik Resep Hemat Sekarang"
         size="lg"
-        bg="#99F6E4"
         onPress={triggerGenerate}
         disabled={isGenerating}
-        className="mb-6"
       />
 
-      {/* Skeleton Loading State */}
       {isGenerating ? (
-        <NeoCard bg="#BAE6FD" className="items-center py-8">
-          <ActivityIndicator size="large" color="#000000" />
-          <Text className="font-black text-base text-black mt-4">
-            Matching local warung ingredients...
+        <Card className="mt-6 items-center py-8">
+          <ActivityIndicator size="large" color={colors.accent} />
+          <Text className="mt-4 text-base font-semibold text-ink">Matching local warung ingredients...</Text>
+          <Text className="mt-1 text-center text-sm text-muted">
+            Mengoptimasi modal di bawah {formatRp(selectedBudget)}
           </Text>
-          <Text className="font-bold text-xs text-gray-700 mt-1">
-            Mengoptimasi modal di bawah Rp {selectedBudget.toLocaleString("id-ID")}
-          </Text>
-        </NeoCard>
+        </Card>
       ) : null}
 
-      {/* Generated Results List */}
       {showResults && !isGenerating ? (
-        <View>
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-lg font-black text-black uppercase">
-              📋 Rekomendasi Menu Hemat ({generatedResults.length})
-            </Text>
-            <NeoBadge label="Budget Fit" bg="#86EFAC" />
-          </View>
+        <View className="mt-9">
+          <SectionHeader
+            title={`Rekomendasi Menu Hemat (${generatedResults.length})`}
+            right={<Tag label="Budget Fit" tone="leaf" icon="checkmark" />}
+          />
 
           {generatedResults.map(recipe => {
             const savings = recipe.target_budget - recipe.actual_cost;
             const savingsPercent = Math.round((savings / recipe.target_budget) * 100);
 
             return (
-              <View
-                key={recipe.id}
-                className="bg-white rounded-2xl border-4 border-black overflow-hidden mb-6"
-                style={{ boxShadow: "5px 5px 0px 0px #000000" }}
-              >
-                {/* Food Image Banner */}
-                <View className="h-44 w-full bg-[#BAE6FD] border-b-4 border-black relative">
-                  <Image
-                    source={{ uri: recipe.image_url }}
-                    className="w-full h-full"
-                    resizeMode="cover"
+              <Card key={recipe.id} padded={false} className="mb-5">
+                <View>
+                  <RecipeImage
+                    uri={recipe.image_url}
+                    fallbackEmoji={recipe.fallback_emoji}
+                    style={{ width: "100%", aspectRatio: 16 / 9 }}
                   />
-                  <View className="absolute top-3 left-3 bg-[#99F6E4] px-2.5 py-1 rounded-md border-2 border-black">
-                    <Text className="text-black font-black text-xs">✨ AI Generated</Text>
-                  </View>
-                  <View className="absolute bottom-3 right-3 bg-[#FEF08A] px-3 py-1 rounded-lg border-2 border-black">
-                    <Text className="text-black font-black text-xs">
-                      Modal: Rp {recipe.actual_cost.toLocaleString("id-ID")}
-                    </Text>
-                  </View>
+                  <Tag label="AI Generated" className="absolute left-3 top-3" />
                 </View>
 
-                {/* Content */}
                 <View className="p-4">
-                  <Text className="text-xl font-black text-black mb-1">
-                    {recipe.title}
-                  </Text>
-                  <Text className="text-xs font-semibold text-gray-700 mb-3 leading-5">
-                    {recipe.description}
-                  </Text>
+                  <Text className="text-lg font-bold text-ink">{recipe.title}</Text>
+                  <Text className="mt-1 text-sm leading-5 text-muted">{recipe.description}</Text>
 
-                  {/* Savings Pill */}
-                  <View className="bg-[#86EFAC] px-3 py-1.5 rounded-lg border-2 border-black flex-row items-center justify-between mb-3">
-                    <Text className="font-black text-xs text-black">
-                      💰 Hemat: Rp {savings.toLocaleString("id-ID")} ({savingsPercent}%)
-                    </Text>
-                    <Text className="font-bold text-[11px] text-gray-800">
-                      Target: Rp {recipe.target_budget.toLocaleString("id-ID")}
-                    </Text>
-                  </View>
-
-                  {/* Tags */}
-                  <View className="flex-row flex-wrap gap-1.5 mb-4">
+                  <View className="mt-3 flex-row flex-wrap gap-1.5">
+                    <Tag icon="time-outline" label={`${recipe.prep_time_minutes} Mins`} />
                     {recipe.tags.map(t => (
-                      <View
-                        key={t}
-                        className="bg-[#FBCFE8] px-2 py-0.5 rounded border-2 border-black"
-                      >
-                        <Text className="font-bold text-[10px] text-black">{t}</Text>
-                      </View>
+                      <Tag key={t} label={t} />
                     ))}
-                    <View className="bg-[#FEF08A] px-2 py-0.5 rounded border-2 border-black">
-                      <Text className="font-bold text-[10px] text-black">
-                        ⏱️ {recipe.prep_time_minutes} Mins
-                      </Text>
-                    </View>
                   </View>
 
-                  {/* Ingredients Preview */}
-                  <View className="bg-[#FBF9F1] p-3 rounded-xl border-2 border-black mb-4">
-                    <Text className="font-black text-xs text-black mb-2 uppercase">
+                  <View className="mt-4 rounded-xl bg-cream px-3.5 py-3">
+                    <Text className="mb-1 text-xs font-semibold text-muted">
                       Bahan & Estimasi Modal Warung:
                     </Text>
                     {recipe.ingredients.map(ing => (
-                      <View
+                      <PriceRow
                         key={ing.id}
-                        className="flex-row justify-between py-1 border-b border-dashed border-gray-300"
-                      >
-                        <Text className="text-xs font-bold text-gray-800">
-                          • {ing.name} ({ing.quantity})
-                        </Text>
-                        <Text className="text-xs font-black text-black">
-                          Rp {ing.price.toLocaleString("id-ID")}
-                        </Text>
-                      </View>
+                        label={`${ing.name} (${ing.quantity})`}
+                        value={formatRp(ing.price)}
+                      />
                     ))}
+                    <DashedLine className="my-2" />
+                    <PriceRow label="Modal" value={formatRp(recipe.actual_cost)} strong />
+                    <PriceRow label="Target" value={formatRp(recipe.target_budget)} tone="muted" />
+                    <PriceRow
+                      label="Hemat"
+                      value={`${formatRp(savings)} (${savingsPercent}%)`}
+                      tone="leaf"
+                      strong
+                    />
                   </View>
 
-                  {/* Action Buttons */}
-                  <View className="flex-row gap-2">
-                    <TouchableOpacity
+                  {/* Side by side on phones, stacked on very narrow screens */}
+                  <View className="mt-4 flex-row flex-wrap gap-2">
+                    <Button
+                      className="grow basis-[136px]"
+                      variant="secondary"
+                      icon="basket-outline"
+                      title="+ Shopping List"
                       onPress={() => handleSendToShopping(recipe)}
-                      className="flex-1 bg-[#99F6E4] py-3 rounded-xl border-3 border-black items-center"
-                      style={{ boxShadow: "3px 3px 0px 0px #000000" }}
-                    >
-                      <Text className="font-black text-black text-xs uppercase">
-                        🛒 + Shopping List
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
+                    />
+                    <Button
+                      className="grow basis-[136px]"
+                      variant="secondary"
+                      icon="create-outline"
+                      title="Tweak di Form"
                       onPress={() => handleTweakInCreator(recipe)}
-                      className="flex-1 bg-[#FEF08A] py-3 rounded-xl border-3 border-black items-center"
-                      style={{ boxShadow: "3px 3px 0px 0px #000000" }}
-                    >
-                      <Text className="font-black text-black text-xs uppercase">
-                        ✏️ Tweak di Form
-                      </Text>
-                    </TouchableOpacity>
+                    />
                   </View>
                 </View>
-              </View>
+              </Card>
             );
           })}
         </View>
       ) : null}
-    </ScrollView>
+    </Screen>
   );
 }
