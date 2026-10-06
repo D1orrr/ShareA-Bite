@@ -1,5 +1,8 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
+
+default_db = "sqlite:////tmp/share_n_bite.db" if os.environ.get("VERCEL") else "sqlite:///./share_n_bite.db"
 
 
 class Settings(BaseSettings):
@@ -8,7 +11,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api"
     
     # Database
-    DATABASE_URL: str = "sqlite:///./share_n_bite.db"
+    DATABASE_URL: str = default_db
     
     # LLM Settings
     GEMINI_API_KEY: str = ""
