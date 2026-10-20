@@ -8,10 +8,14 @@ backend_dir = os.path.join(root_dir, "backend")
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-# /tmp is the only writable folder on Vercel. It is wiped when the function goes cold,
-# so the database is simply re-created and re-seeded (the demo account always exists).
+# Database on Vercel:
+#  - If a Postgres database is connected (Vercel Storage → Neon sets DATABASE_URL /
+#    POSTGRES_URL), use it: one shared database for every server instance.
+#  - Otherwise fall back to SQLite in /tmp (each instance has its own copy and it is
+#    wiped when the function goes cold, so only good for a quick look).
 if os.environ.get("VERCEL"):
-    os.environ["DATABASE_URL"] = "sqlite:////tmp/share_a_bite.db"
+    pg = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL")
+    os.environ["DATABASE_URL"] = pg if pg and pg.startswith("postgres") else "sqlite:////tmp/share_a_bite.db"
 
 from app.main import app, init_db  # noqa: E402
 

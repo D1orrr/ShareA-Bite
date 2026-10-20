@@ -144,7 +144,7 @@ class Post(Base):
     campus: Mapped[str] = mapped_column(String(80), default="")
     type: Mapped[str] = mapped_column(String(20))  # Resep | Info Warung | Trik Masak
     recipe_id: Mapped[int | None] = mapped_column(ForeignKey("recipes.id"))
-    image_url: Mapped[str | None] = mapped_column(String(255))
+    image_url: Mapped[str | None] = mapped_column(Text)  # path, or a data: URL on serverless
     cost: Mapped[int | None] = mapped_column(Integer)
     title: Mapped[str] = mapped_column(String(160))
     body: Mapped[str] = mapped_column(Text, default="")

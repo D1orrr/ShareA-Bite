@@ -5,20 +5,38 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import models  # noqa: F401  (registers tables)
 from app.config import settings
-from app.database import Base, SessionLocal, engine, get_db
+from app.database import IS_SQLITE, Base, SessionLocal, engine, get_db
 from app.routers import auth, cart, community, recipes
 from app.seed import seed
 
 
 def init_db() -> None:
     """Create tables and load demo data on first run (fresh clone = zero setup)."""
+    if IS_SQLITE:
+        _create_and_seed()
+        return
+    # Postgres is shared by every server instance: let only one of them set it up at a time.
+    with engine.connect() as conn:
+        conn.execute(text("SELECT pg_advisory_lock(727274)"))
+        try:
+            _create_and_seed()
+        finally:
+            conn.execute(text("SELECT pg_advisory_unlock(727274)"))
+            conn.commit()
+
+
+def _create_and_seed() -> None:
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
-        seed(db)
+        try:
+            seed(db)
+        except IntegrityError:
+            db.rollback()
 
 
 @asynccontextmanager

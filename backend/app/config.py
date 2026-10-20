@@ -24,8 +24,10 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.5-flash"
 
-    # Where uploaded post photos are stored
+    # Where uploaded post photos are stored. On serverless hosts the disk isn't shared
+    # between instances, so photos are kept inside the database instead.
     UPLOAD_DIR: str = "/tmp/sharea_bite_uploads" if os.environ.get("VERCEL") else "./uploads"
+    IMAGES_IN_DB: bool = bool(os.environ.get("VERCEL"))
 
     # Timezone used for "today" and "open now"
     TIMEZONE: str = "Asia/Jakarta"

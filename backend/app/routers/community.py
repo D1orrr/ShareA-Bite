@@ -45,6 +45,8 @@ def _save_image(data_url: str) -> str:
         raise HTTPException(400, "Format gambar tidak valid")
     if len(raw) > MAX_IMAGE:
         raise HTTPException(413, "Foto terlalu besar (maks 5 MB)")
+    if settings.IMAGES_IN_DB:
+        return data_url
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     name = f"{uuid.uuid4().hex}.{ext}"
     with open(os.path.join(settings.UPLOAD_DIR, name), "wb") as f:
