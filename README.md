@@ -1,13 +1,14 @@
-# Share'N'Bite 🍳 (Monorepo MVP)
+# ShareA'Bite 🍳 (Monorepo MVP)
 
 > **Budget-first recipe generator, smart financial tracker, and UGC community for university students ("anak kos").**
-> *Warm, clean design for Mobile & Web.*
+> *Mobile-first Expo app (iOS, Android & Web) with a fresh green "struk anak kos" design system.*
 
 ---
 
 ## 📁 Monorepo Structure
 
 ```text
+├── design/                   # Original HTML prototype of the design
 ├── backend/                  # FastAPI + SQLite + SQLAlchemy
 │   ├── app/
 │   │   ├── __init__.py
@@ -19,25 +20,38 @@
 │   └── requirements.txt      # Python dependencies
 │
 ├── frontend/                 # Universal Expo App (Mobile & Web)
-│   ├── app/
-│   │   ├── _layout.tsx       # Root layout: providers, status bar, icon font
-│   │   ├── index.tsx         # Redirects to the tabs
-│   │   └── (tabs)/
-│   │       ├── _layout.tsx   # Bottom tab bar
-│   │       ├── index.tsx     # AI Racik: budget + ingredients -> recipe ideas
-│   │       ├── shopping.tsx  # Belanja: shopping checklist grouped by category
-│   │       ├── create.tsx    # Buat Resep: recipe editor, publish to Komunitas
-│   │       ├── community.tsx # Komunitas: recipes, saving tips, cheap markets
-│   │       └── profile.tsx   # Cuan & Kos: level, badges, weekly spending
-│   ├── components/           # Shared UI (Button, Chip, Card, Dialog, Toast, ...)
-│   ├── constants/            # colors.js (palette), format.ts (Rupiah formatting)
-│   ├── context/
-│   │   └── AppContext.tsx    # App state and mock data
+│   ├── app/                  # Expo Router routes (every file = a screen)
+│   │   ├── _layout.tsx       # Fonts, theme + app providers, root stack
+│   │   ├── index.tsx         # Redirects to /welcome
+│   │   ├── welcome.tsx       # Landing / sign-up
+│   │   ├── onboard.tsx       # 3-step onboarding (budget, diet, tools)
+│   │   ├── loading.tsx       # "Lagi masak ide" generation screen
+│   │   ├── cook/[id].tsx     # Step-by-step cooking mode with timers
+│   │   ├── finish/[id].tsx   # Log what you spent
+│   │   └── (tabs)/           # Main shell: top bar + bottom tabs (mobile) / top nav (desktop)
+│   │       ├── home.tsx      # Explore: budget picker + Generate
+│   │       ├── belanja.tsx   # Daftar Belanja (shopping list)
+│   │       ├── komunitas.tsx # Community feed + share sheet
+│   │       ├── akun.tsx      # Profile, spending chart, settings (dark mode)
+│   │       ├── results.tsx   # Generated recipes
+│   │       ├── recipe/[id].tsx # Recipe detail (struk / langkah / nutrisi)
+│   │       ├── simpan.tsx    # Saved recipes
+│   │       └── spots.tsx     # Cheap places nearby
+│   ├── components/
+│   │   ├── ui.tsx            # Design-system primitives (Txt, Btn, Chip, Card, Hero, Slider, …)
+│   │   ├── art.tsx           # Si Mangkok mascot + food plate SVG illustrations
+│   │   ├── blocks.tsx        # RecipeCard, PostCard, SpotCard
+│   │   ├── chrome.tsx        # TopBar + TabBar
+│   │   └── ShareSheet.tsx    # Post-to-community bottom sheet
+│   ├── theme/index.tsx       # Colour tokens (light/dark), fonts, responsive helpers
+│   ├── context/AppContext.tsx# In-memory app state + toast (swap for API later)
+│   ├── data/seed.ts          # Mock recipes, posts, spots, cart
+│   ├── lib/format.ts         # Rupiah formatting & budget helpers
 │   ├── assets/               # Icons & app images
 │   ├── app.json              # Expo configuration (Expo Router & web static enabled)
 │   ├── babel.config.js       # Babel preset for NativeWind v4
 │   ├── metro.config.js       # Metro configuration for NativeWind CSS
-│   ├── tailwind.config.js    # Tailwind theme (colors come from constants/colors.js)
+│   ├── tailwind.config.js    # Tailwind theme (brand colours mirror theme/index.tsx)
 │   ├── global.css            # Tailwind directives
 │   ├── nativewind-env.d.ts   # TypeScript typings for NativeWind & CSS modules
 │   ├── tsconfig.json         # Strict TypeScript configuration
