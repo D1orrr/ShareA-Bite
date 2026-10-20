@@ -5,12 +5,10 @@ import { Mascot } from "../../components/art";
 import { RecipeCard } from "../../components/cards";
 import { Txt } from "../../components/Txt";
 import { Btn, Grid, Screen } from "../../components/ui";
-import { RECIPES } from "../../constants/data";
 import { useStore } from "../../context/AppStore";
 
 export default function Simpan() {
-  const { saved } = useStore();
-  const list = RECIPES.filter(r => saved.includes(r.id));
+  const { savedRecipes: list } = useStore();
   return (
     <Screen>
       {list.length ? (

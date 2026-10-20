@@ -7,24 +7,34 @@ import { useToast } from "../../components/Overlay";
 import { nativeDriver, useLayout, useReducedMotion, useTheme } from "../../components/theme";
 import { Txt } from "../../components/Txt";
 import { Btn, Card, Inp, Screen, Stamp } from "../../components/ui";
-import { RECIPES, recipeById, recipeCost } from "../../constants/data";
+import { Recipe, recipePay } from "../../constants/data";
+import { STATIC_RECIPE_IDS, useRecipe } from "../../lib/useRecipe";
+import { Splash } from "../../components/Splash";
 import { fixed, font, rp } from "../../constants/theme";
 import { useStore } from "../../context/AppStore";
 
 // One pre-built page per recipe, so direct links work in the web export.
 export async function generateStaticParams() {
-  return RECIPES.map(r => ({ id: String(r.id) }));
+  return STATIC_RECIPE_IDS;
 }
 
 export default function Finish() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const r = useRecipe(id);
+  if (!r) return <Splash />;
+  return <FinishScreen r={r} />;
+}
+
+function FinishScreen({ r }: { r: Recipe }) {
   const { c } = useTheme();
   const { h } = useLayout();
   const toast = useToast();
   const reduced = useReducedMotion();
   const { budget, logSpend } = useStore();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const cost = recipeCost(recipeById(Number(id)));
-  const [spent, setSpent] = useState(String(cost));
+  const [spent, setSpent] = useState(String(recipePay(r)));
+  const [busy, setBusy] = useState(false);
+  const amount = Number(spent.replace(/\D/g, "")) || 0;
+  const diff = budget - amount;
 
   const drop = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -40,9 +50,13 @@ export default function Finish() {
     }).start();
   }, [drop, reduced]);
 
-  const log = () => {
-    logSpend(Number(spent.replace(/\D/g, "")) || 0);
-    toast("Tercatat. Dompet aman!");
+  const log = async () => {
+    if (busy) return;
+    setBusy(true);
+    const ok = await logSpend(amount, r.id);
+    setBusy(false);
+    if (!ok) return;
+    toast(diff >= 0 ? "Tercatat. Dompet aman!" : "Tercatat. Besok lebih hemat ya!");
     router.dismissTo("/akun");
   };
 
@@ -78,8 +92,8 @@ export default function Finish() {
               marginVertical: 4,
             }}
           />
-          <Txt v="cap" b color={c.daun}>
-            Hemat {rp(budget - cost)} dari budget
+          <Txt v="cap" b color={diff >= 0 ? c.daun : c.danger}>
+            {diff >= 0 ? `Hemat ${rp(diff)} dari budget` : `Lewat ${rp(-diff)} dari budget`}
           </Txt>
         </Card>
         <Btn size="xl" full title="Catat pengeluaran" onPress={log} />

@@ -16,6 +16,7 @@ import {
   useColorScheme,
   useWindowDimensions,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { dark, light, Palette } from "../constants/theme";
 
 export type Flavor = "page" | "hero" | "heroLt";
@@ -51,6 +52,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const system = useColorScheme();
   const [override, setOverride] = useState<"light" | "dark" | null>(null);
+  // Remember the manual dark-mode choice across restarts
+  useEffect(() => {
+    AsyncStorage.getItem("sab_theme")
+      .then(v => (v === "light" || v === "dark") && setOverride(v))
+      .catch(() => {});
+  }, []);
   const isDark = override ? override === "dark" : mounted && system === "dark";
 
   const dims = useWindowDimensions();
@@ -62,7 +69,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       c: isDark ? dark : light,
       flavor: "page",
       dark: isDark,
-      toggleDark: () => setOverride(isDark ? "light" : "dark"),
+      toggleDark: () => {
+        const next = isDark ? "light" : "dark";
+        setOverride(next);
+        AsyncStorage.setItem("sab_theme", next).catch(() => {});
+      },
     }),
     [isDark]
   );

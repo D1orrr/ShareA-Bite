@@ -48,7 +48,9 @@ export function AppHeader({ route }: { route: string }) {
   const { wide } = useLayout();
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  const { user } = useStore();
   const tab = tabOf(route);
+  const initial = user && !user.is_guest ? user.name.charAt(0).toUpperCase() : "?";
 
   return (
     <View
@@ -136,7 +138,7 @@ export function AppHeader({ route }: { route: string }) {
                 justifyContent: "center",
               }}
             >
-              <Text style={{ fontFamily: font.head, fontSize: 14, color: fixed.avatarInk }}>D</Text>
+              <Text style={{ fontFamily: font.head, fontSize: 14, color: fixed.avatarInk }}>{initial}</Text>
             </Pressable>
           </Link>
         </View>

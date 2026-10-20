@@ -18,7 +18,7 @@ import {
 } from "@expo-google-fonts/plus-jakarta-sans";
 import { ThemeProvider, useTheme } from "../components/theme";
 import { OverlayProvider } from "../components/Overlay";
-import { AppStoreProvider } from "../context/AppStore";
+import { AppStoreProvider, ToastBridge } from "../context/AppStore";
 
 // Without this, hidden tab screens on the web stay reachable with the Tab key.
 if (Platform.OS === "web") enableScreens(true);
@@ -43,6 +43,7 @@ export default function RootLayout() {
       <ThemeProvider>
         <AppStoreProvider>
           <OverlayProvider>
+            <ToastBridge />
             <RootStack />
           </OverlayProvider>
         </AppStoreProvider>
@@ -58,6 +59,7 @@ function RootStack() {
       <StatusBar style={dark ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.paper } }}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="auth" />
         <Stack.Screen name="onboard" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="loading" options={{ animation: "fade" }} />

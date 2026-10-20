@@ -1,14 +1,25 @@
-// Mock data from the ShareA'Bite design. Nothing here talks to the backend yet.
+// Data types + offline sample data. The real data comes from the FastAPI backend
+// (see lib/api.ts); these samples are only used when the backend is not running.
 
 export type Category = "Karbo" | "Protein" | "Bumbu" | "Sayuran";
 
+export type SwapTo = { to: string; qty: number; unit: string; saving: number };
+
 export type Ingredient = {
+  id?: number;
   name: string;
   qty: number;
   unit: string;
   price: number;
   cat: Category;
+  /** Human text of the cheaper swap, e.g. "Tahu 2 pcs, hemat Rp2.000". */
   swap?: string;
+  /** Structured swap the app can apply. */
+  swapTo?: SwapTo | null;
+  /** First cooking step that uses this ingredient. */
+  step?: number;
+  /** Staple usually already at the kos (rice, oil, kecap, salt). */
+  pantry?: boolean;
 };
 
 export type Step = { text: string; sec: number };
@@ -25,6 +36,17 @@ export type Recipe = {
   tip: string;
   ing: Ingredient[];
   steps: Step[];
+  /** Plate illustration (1-3). Falls back to the id for the sample recipes. */
+  art?: number;
+  /** Total cost from the backend (same as the sum of ingredient prices). */
+  cost?: number;
+  /** What the user pays, e.g. without staples when "Bahan ada" is on. */
+  pay?: number;
+  pantryCost?: number;
+  /** Set on "versi hemat" variants made by a cheaper swap. */
+  parentId?: number | null;
+  tools?: string[];
+  tags?: string[];
 };
 
 export const RECIPES: Recipe[] = [
@@ -40,7 +62,7 @@ export const RECIPES: Recipe[] = [
     tip: "Api kecil biar telurnya nggak gosong.",
     ing: [
       { name: "Nasi putih", qty: 1, unit: "porsi", price: 3000, cat: "Karbo" },
-      { name: "Telur ayam", qty: 2, unit: "btr", price: 4000, cat: "Protein", swap: "Tahu 2 pcs, hemat Rp2.000" },
+      { name: "Telur ayam", qty: 2, unit: "btr", price: 4000, cat: "Protein", swap: "Tahu 2 pcs, hemat Rp2.000", swapTo: { to: "Tahu", qty: 2, unit: "pcs", saving: 2000 } },
       { name: "Kecap manis", qty: 1, unit: "sdm", price: 500, cat: "Bumbu" },
       { name: "Cabai rawit", qty: 5, unit: "bh", price: 800, cat: "Bumbu" },
       { name: "Bawang merah", qty: 2, unit: "siung", price: 700, cat: "Bumbu" },
@@ -65,7 +87,7 @@ export const RECIPES: Recipe[] = [
     ing: [
       { name: "Nasi putih", qty: 1, unit: "porsi", price: 3000, cat: "Karbo" },
       { name: "Kangkung", qty: 1, unit: "ikat", price: 3000, cat: "Sayuran" },
-      { name: "Tempe", qty: 1, unit: "papan", price: 4000, cat: "Protein", swap: "Tahu putih, hemat Rp1.500" },
+      { name: "Tempe", qty: 1, unit: "papan", price: 4000, cat: "Protein", swap: "Tahu putih 2 pcs, hemat Rp2.000", swapTo: { to: "Tahu putih", qty: 2, unit: "pcs", saving: 2000 } },
       { name: "Bawang putih", qty: 2, unit: "siung", price: 600, cat: "Bumbu" },
       { name: "Cabai rawit", qty: 5, unit: "bh", price: 800, cat: "Bumbu" },
       { name: "Kecap manis", qty: 2, unit: "sdm", price: 1000, cat: "Bumbu" },
@@ -104,7 +126,10 @@ export const RECIPES: Recipe[] = [
 
 export const recipeById = (id: number) => RECIPES.find(r => r.id === id) ?? RECIPES[0];
 
-export const recipeCost = (r: Recipe) => r.ing.reduce((sum, x) => sum + x.price, 0);
+export const recipeCost = (r: Recipe) => r.cost ?? r.ing.reduce((sum, x) => sum + x.price, 0);
+
+/** What the user actually pays for this recipe. */
+export const recipePay = (r: Recipe) => r.pay ?? recipeCost(r);
 
 export const formatTimer = (sec: number) =>
   `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
@@ -113,6 +138,11 @@ export type PostType = "Resep" | "Info Warung" | "Trik Masak";
 
 export type Post = {
   key: string;
+  id?: number;
+  imageUrl?: string | null;
+  liked?: boolean;
+  saved?: boolean;
+  mine?: boolean;
   name: string;
   campus: string;
   time: string;
@@ -171,16 +201,19 @@ export const POSTS: Post[] = [
   },
 ];
 
-export const POST_FILTERS = ["Semua", "Di bawah Rp10k", "Info Warung Murah", "Trik Kos"];
+export const POST_FILTERS = ["Semua", "Di bawah Rp10k", "Info Warung Murah", "Trik Kos", "Disimpan"];
 
 export function postMatches(p: Post, filter: string) {
   if (filter === "Di bawah Rp10k") return !!p.cost && p.cost < 10000;
   if (filter === "Info Warung Murah") return p.type === "Info Warung";
   if (filter === "Trik Kos") return p.type === "Trik Masak";
+  if (filter === "Disimpan") return !!p.saved;
   return true;
 }
 
 export type Spot = {
+  id?: number;
+  openNow?: boolean;
   name: string;
   distance: string;
   hours: string;
@@ -199,6 +232,7 @@ export const SPOTS: Spot[] = [
 export const SPOT_FILTERS = ["Nasi", "Sayur", "Protein", "Buka sekarang"];
 
 export type CartItem = {
+  id?: number;
   name: string;
   qty: number;
   unit: string;

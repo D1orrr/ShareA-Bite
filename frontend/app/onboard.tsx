@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Mascot } from "../components/art";
 import { useLayout, useTheme } from "../components/theme";
 import { Txt } from "../components/Txt";
@@ -14,8 +14,18 @@ const WEEKLY = [70000, 105000, 175000];
 export default function Onboard() {
   const { c } = useTheme();
   const { w } = useLayout();
-  const { budget, setWeekly, pick, togglePick } = useStore();
-  const [step, setStep] = useState(1);
+  const params = useLocalSearchParams<{ step?: string }>();
+  const { budget, setWeekly, pick, togglePick, user, updateProfile } = useStore();
+  const [step, setStep] = useState(Math.min(3, Math.max(1, Number(params.step) || 1)));
+  const [allergies, setAllergies] = useState(user?.allergies ?? "");
+  const [campus, setCampus] = useState(user?.campus || "Universitas Indonesia, Depok");
+
+  // Budget and chips save as you tap; the two text fields are saved here.
+  const finish = () => {
+    updateProfile({ allergies: allergies.trim(), campus: campus.trim() });
+    if (params.step && router.canGoBack()) router.back();
+    else router.dismissTo("/home");
+  };
 
   const weekly = rp(budget * 7);
   // Card inner width: page column (max 620) minus the card padding.
@@ -54,7 +64,7 @@ export default function Onboard() {
               </Pxl>
               <View style={[row, wrap]}>
                 {WEEKLY.map(b => (
-                  <Chip key={b} kind="radio" label={rp(b)} on={budget * 7 === b} onPress={() => setWeekly(b)} />
+                  <Chip key={b} kind="radio" label={rp(b)} on={Math.round(budget * 7) === b} onPress={() => setWeekly(b)} />
                 ))}
               </View>
             </Card>
@@ -68,7 +78,8 @@ export default function Onboard() {
           <>
             <Txt v="h3">Diet</Txt>
             {chips(["Halal", "Vegetarian", "High protein"])}
-            <Inp placeholder="Alergi, contoh: udang, kacang tanah" aria-label="Alergi" />
+            <Inp value={allergies} onChangeText={setAllergies} placeholder="Alergi, contoh: udang, telur" aria-label="Alergi" />
+            <Txt v="cap">Resep yang mengandung bahan ini tidak akan disarankan.</Txt>
             <Txt v="h3">Rasa favorit</Txt>
             {chips(["Pedas", "Manis", "Gurih", "Asin"])}
           </>
@@ -78,8 +89,9 @@ export default function Onboard() {
           <>
             <Txt v="h3">Alat masak</Txt>
             {chips(["Rice cooker", "Kompor", "Microwave"])}
+            <Txt v="cap">Resep hanya disarankan kalau bisa dimasak dengan alat yang kamu pilih.</Txt>
             <Txt v="h3">Kampus dan kota</Txt>
-            <Inp defaultValue="Universitas Indonesia, Depok" aria-label="Kampus" />
+            <Inp value={campus} onChangeText={setCampus} placeholder="Kampus dan kota" aria-label="Kampus" />
             <Card style={[row, { gap: 12 }]}>
               <Mascot size={54} />
               <Txt v="cap" style={{ flexShrink: 1 }}>
@@ -90,12 +102,8 @@ export default function Onboard() {
         ) : null}
 
         <View style={[row, { marginTop: 12 }]}>
-          <Btn ghost grow title="Lewati" onPress={() => router.dismissTo("/home")} />
-          <Btn
-            grow
-            title={step < 3 ? "Lanjut" : "Mulai hemat"}
-            onPress={() => (step < 3 ? setStep(step + 1) : router.dismissTo("/home"))}
-          />
+          <Btn ghost grow title="Lewati" onPress={finish} />
+          <Btn grow title={step < 3 ? "Lanjut" : "Mulai hemat"} onPress={() => (step < 3 ? setStep(step + 1) : finish())} />
         </View>
       </View>
     </Screen>

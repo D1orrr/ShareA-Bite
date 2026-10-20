@@ -7,21 +7,28 @@ import { useToast } from "../../components/Overlay";
 import { useLayout, useTheme } from "../../components/theme";
 import { B, Txt, useType } from "../../components/Txt";
 import { between, Btn, Card, RoundBtn, row, Screen, Sticky, wrap } from "../../components/ui";
-import { formatTimer, RECIPES, recipeById } from "../../constants/data";
+import { formatTimer, Recipe } from "../../constants/data";
+import { STATIC_RECIPE_IDS, useRecipe } from "../../lib/useRecipe";
+import { Splash } from "../../components/Splash";
 import { clamp, font } from "../../constants/theme";
 
 // One pre-built page per recipe, so direct links work in the web export.
 export async function generateStaticParams() {
-  return RECIPES.map(r => ({ id: String(r.id) }));
+  return STATIC_RECIPE_IDS;
 }
 
 export default function Cook() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const r = useRecipe(id);
+  if (!r) return <Splash />;
+  return <CookMode r={r} />;
+}
+
+function CookMode({ r }: { r: Recipe }) {
   const { c } = useTheme();
   const { w } = useLayout();
   const t = useType();
   const toast = useToast();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const r = recipeById(Number(id));
   const [si, setSi] = useState(0);
   const [left, setLeft] = useState<number | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -34,6 +41,9 @@ export default function Cook() {
 
   const n = r.steps.length;
   const step = r.steps[si];
+  // Backend recipes say which step uses each ingredient; the samples fall back to slices.
+  const hasSteps = r.ing.some(x => x.step !== undefined);
+  const stepIng = hasSteps ? r.ing.filter(x => x.step === si) : r.ing.slice(si * 2, si * 2 + 3);
 
   const startTimer = () => {
     if (timer.current) return;
@@ -115,14 +125,15 @@ export default function Cook() {
         <Txt v="cap" b style={{ marginTop: 6 }}>
           Bahan di langkah ini
         </Txt>
+        {stepIng.length ? null : <Txt v="cap">Pakai bahan dari langkah sebelumnya.</Txt>}
         <View style={[row, wrap]}>
-          {r.ing.slice(si * 2, si * 2 + 3).map(x => (
+          {stepIng.map(x => (
             <Card key={x.name} style={{ flexGrow: 1, flexBasis: 110 }}>
               <Txt>
                 <B>{x.name}</B>
               </Txt>
               <Txt v="cap" m>
-                {x.qty} {x.unit}
+                {+x.qty.toFixed(2)} {x.unit}
               </Txt>
             </Card>
           ))}

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
+import { useFocusEffect } from "expo-router";
 import { View } from "react-native";
 import { PostCard } from "../../components/cards";
 import { Icon } from "../../components/Icon";
@@ -8,18 +9,25 @@ import { useLayout, useTheme } from "../../components/theme";
 import { Txt } from "../../components/Txt";
 import { alpha } from "../../constants/theme";
 import { Avatar, Btn, Card, Chip, Grid, HScroll, Inp, row, Screen, Stamp } from "../../components/ui";
-import { POST_FILTERS, postMatches, POSTS } from "../../constants/data";
+import { POST_FILTERS, postMatches } from "../../constants/data";
 import { useStore } from "../../context/AppStore";
 
 export default function Komunitas() {
   const { c } = useTheme();
   const { wide } = useLayout();
-  const { tab, setTab } = useStore();
+  const { tab, setTab, posts, refreshPosts } = useStore();
+  // Pull new posts, likes and comments whenever the tab is opened
+  useFocusEffect(
+    useCallback(() => {
+      refreshPosts();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+  );
   const { openSheet, closeSheet } = useSheet();
   const [query, setQuery] = useState("");
 
   const q = query.trim().toLowerCase();
-  const list = POSTS.filter(p => postMatches(p, tab) && p.title.toLowerCase().includes(q));
+  const list = posts.filter(p => postMatches(p, tab) && p.title.toLowerCase().includes(q));
 
   return (
     <View style={{ flex: 1 }}>
@@ -65,7 +73,9 @@ export default function Komunitas() {
             </Grid>
           ) : (
             <Card>
-              <Txt v="cap">Belum ada postingan di kategori ini.</Txt>
+              <Txt v="cap">
+                {tab === "Disimpan" ? "Belum ada postingan yang kamu simpan. Tap ikon bookmark di postingan." : "Belum ada postingan di kategori ini."}
+              </Txt>
             </Card>
           )}
         </View>

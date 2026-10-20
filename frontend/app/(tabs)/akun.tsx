@@ -4,33 +4,32 @@ import { Link, router } from "expo-router";
 import { Icon, IconName } from "../../components/Icon";
 import { useLayout, useTheme } from "../../components/theme";
 import { B, Txt } from "../../components/Txt";
-import { Avatar, between, Card, Chip, Hero, row, Rule, Screen, Two } from "../../components/ui";
+import { Avatar, Bar, between, Card, Chip, Hero, row, Rule, Screen, Two } from "../../components/ui";
 import { amountEm, fixed, font, rp } from "../../constants/theme";
 import { useStore } from "../../context/AppStore";
 
-const STATS = [
-  ["12", "Resep dibagi"],
-  ["34", "Tersimpan"],
-  ["Rp148rb", "Hemat bulan ini"],
-];
-
-const BADGES: [IconName, string][] = [
-  ["workspace_premium", "Hemat Hero"],
-  ["local_fire_department", "Spice Lord"],
-  ["shopping_basket", "Pasar Hunter"],
-];
-
-const CHART_MAX = 20000;
+const DAYS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+const rk = (n: number) => (n >= 1000 ? `Rp${Math.round(n / 1000)}rb` : rp(n));
 
 export default function Akun() {
   const { c, dark, toggleDark } = useTheme();
   const { w, wide } = useLayout();
-  const { budget, hist, pick } = useStore();
-  const week = hist.slice(-7);
+  const { budget, pick, user, stats, guest, mode, logout } = useStore();
+  const history = stats?.history ?? [];
+  const week = history.map(h => h.amount);
+  // Scale the chart so the tallest bar and the budget line both fit
+  const CHART_MAX = Math.max(20000, budget, ...week) * 1.1;
+  const STATS = [
+    [String(stats?.shared_count ?? 0), "Resep dibagi"],
+    [String(stats?.saved_count ?? 0), "Tersimpan"],
+    [rk(stats?.saved_this_month ?? 0), "Hemat bulan ini"],
+  ];
+  const name = guest ? "Tamu" : user?.name ?? "";
+  const campus = user?.campus || (guest ? "Daftar supaya datamu tersimpan aman" : "Kampus belum diisi");
 
   // Shrinks "Rp148rb" so it fits its card on small phones.
   const statInner = (wide ? 0 : (w - 32 - 20) / 3) - 24;
-  const statSize = wide ? 20 : Math.min(20, Math.floor(statInner / amountEm("Rp148rb")));
+  const statSize = wide ? 20 : Math.min(20, Math.floor(statInner / amountEm(STATS[2][0])));
 
   const settings: [string, React.ReactNode][] = [
     [
@@ -64,9 +63,31 @@ export default function Akun() {
         Buka
       </Link>,
     ],
-    ["Budget harian", <Txt key="b" v="cap" b m color={c.mut}>{rp(budget)}</Txt>],
-    ["Diet", <Txt key="d" v="cap">{pick.slice(0, 2).join(", ") || "Belum diatur"}</Txt>],
-    ["Pengingat udah makan belum", <Txt key="r" v="cap" b m color={c.mut}>19.00</Txt>],
+    [
+      "Budget harian",
+      <Link key="b" href="/home" style={{ fontFamily: font.bodyBold, fontSize: 13, color: c.mut }}>
+        {rp(budget)}
+      </Link>,
+    ],
+    [
+      "Diet & preferensi",
+      <Link key="d" href="/onboard?step=2" numberOfLines={1} style={{ fontFamily: font.body, fontSize: 13, color: c.mut, maxWidth: 170 }}>
+        {pick.slice(0, 3).join(", ") || "Belum diatur"}
+      </Link>,
+    ],
+    [
+      "Alergi",
+      <Link key="a" href="/onboard?step=2" style={{ fontFamily: font.body, fontSize: 13, color: c.mut }}>
+        {user?.allergies || "-"}
+      </Link>,
+    ],
+    ["Pengingat udah makan belum", <Txt key="r" v="cap" b m color={c.mut}>{(user?.reminder_time ?? "19:00").replace(":", ".")}</Txt>],
+    [
+      "Server",
+      <Txt key="s" v="cap" b color={mode === "online" ? c.daun : c.danger}>
+        {mode === "online" ? "Terhubung" : "Offline (data contoh)"}
+      </Txt>,
+    ],
   ];
 
   return (
@@ -74,11 +95,25 @@ export default function Akun() {
       <Two r>
         <View style={{ gap: 14 }}>
           <Hero lt style={[row, { gap: 18 }]}>
-            <Avatar label="D" size={80} fontSize={32} />
+            <Avatar label={guest ? "?" : name.charAt(0).toUpperCase()} size={80} fontSize={32} />
             <View style={{ flex: 1 }}>
-              <Txt v="h1">Dinda Aprilia</Txt>
-              <Txt v="cap">Universitas Indonesia, Depok</Txt>
-              <Chip sw label="Lv.3 Anak Kos Pintar" bg={c.kunyit} fg={fixed.levelInk} style={{ marginTop: 6, alignSelf: "flex-start" }} />
+              <Txt v="h1">{name}</Txt>
+              <Txt v="cap">{campus}</Txt>
+              <Chip
+                sw
+                label={stats?.level_title ?? "Lv.1 Anak Kos Baru"}
+                bg={c.kunyit}
+                fg={fixed.levelInk}
+                style={{ marginTop: 6, alignSelf: "flex-start" }}
+              />
+              {stats ? (
+                <View style={{ marginTop: 8 }}>
+                  <Bar pct={stats.xp % 100} color={c.kunyit} height={6} label="XP" />
+                  <Txt v="cap" style={{ fontSize: 11 }}>
+                    {stats.xp} XP · {stats.next_level_xp - stats.xp} XP lagi ke level berikutnya
+                  </Txt>
+                </View>
+              ) : null}
             </View>
           </Hero>
 
@@ -106,7 +141,11 @@ export default function Akun() {
             </View>
             <View
               role="img"
-              aria-label={`Pengeluaran ${week.length} hari terakhir: ${week.map(v => Math.round(v / 1000) + " ribu").join(", ")}`}
+              aria-label={
+                week.length
+                  ? `Pengeluaran ${week.length} hari terakhir: ${week.map(v => Math.round(v / 1000) + " ribu").join(", ")}`
+                  : "Belum ada catatan pengeluaran"
+              }
               style={{
                 flexDirection: "row",
                 alignItems: "flex-end",
@@ -124,7 +163,7 @@ export default function Akun() {
               />
               {week.map((v, i) => (
                 <View
-                  key={i}
+                  key={history[i].date}
                   style={{
                     flex: 1,
                     height: `${Math.min(100, (v / CHART_MAX) * 100)}%`,
@@ -151,13 +190,33 @@ export default function Akun() {
                 </View>
               ))}
             </View>
+            {week.length ? (
+              <View style={[row, { gap: 10, marginTop: 4 }]}>
+                {history.map(h => (
+                  <Text key={h.date} style={{ flex: 1, textAlign: "center", fontFamily: font.body, fontSize: 10, color: c.mut }}>
+                    {DAYS[new Date(h.date + "T00:00:00").getDay()]}
+                  </Text>
+                ))}
+              </View>
+            ) : (
+              <Txt v="cap" style={{ marginTop: 8 }}>
+                Belum ada catatan. Selesai masak, lalu tekan "Catat pengeluaran".
+              </Txt>
+            )}
           </Card>
 
           <View style={row}>
-            {BADGES.map(([icon, label]) => (
-              <Card key={label} style={{ flex: 1, flexDirection: "row", flexWrap: "wrap", justifyContent: "center", alignItems: "center", columnGap: 4 }}>
-                <Icon name={icon} size={38} fill color={c.sec} />
-                <Text style={{ fontFamily: font.bodyBold, fontSize: 13, color: c.ink, textAlign: "center" }}>{label}</Text>
+            {(stats?.badges ?? []).map(b => (
+              <Card
+                key={b.key}
+                aria-label={`${b.label}: ${b.earned ? "didapat" : b.hint}`}
+                style={{ flex: 1, flexDirection: "row", flexWrap: "wrap", justifyContent: "center", alignItems: "center", columnGap: 4, opacity: b.earned ? 1 : 0.5 }}
+              >
+                <Icon name={b.icon as IconName} size={38} fill color={b.earned ? c.sec : c.mut} />
+                <Text style={{ fontFamily: font.bodyBold, fontSize: 13, color: c.ink, textAlign: "center" }}>{b.label}</Text>
+                <Text style={{ fontFamily: font.body, fontSize: 11, color: c.mut, textAlign: "center", width: "100%" }}>
+                  {b.earned ? "Didapat!" : b.hint}
+                </Text>
               </Card>
             ))}
           </View>
@@ -173,13 +232,27 @@ export default function Akun() {
               {control}
             </View>
           ))}
+          {guest ? (
+            <Pressable
+              role="link"
+              onPress={() => router.push("/auth?mode=daftar")}
+              style={{ minHeight: 54, justifyContent: "center", borderTopWidth: 1, borderTopColor: c.bd }}
+            >
+              <Txt b color={c.chili}>
+                Daftar akun
+              </Txt>
+            </Pressable>
+          ) : null}
           <Pressable
             role="button"
-            onPress={() => router.dismissTo("/")}
+            onPress={async () => {
+              await logout();
+              router.dismissTo("/");
+            }}
             style={{ minHeight: 54, justifyContent: "center", borderTopWidth: 1, borderTopColor: c.bd }}
           >
             <Txt b color={c.danger}>
-              Logout
+              {guest ? "Keluar dari mode tamu" : "Logout"}
             </Txt>
           </Pressable>
         </Card>

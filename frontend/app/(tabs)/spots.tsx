@@ -1,5 +1,5 @@
-import React from "react";
-import { Platform, StyleSheet, TextStyle, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Linking, Platform, StyleSheet, TextStyle, View } from "react-native";
 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 import { Icon } from "../../components/Icon";
 import { goBack } from "../../components/nav";
@@ -7,7 +7,7 @@ import { useToast } from "../../components/Overlay";
 import { useTheme } from "../../components/theme";
 import { B, Txt } from "../../components/Txt";
 import { Btn, Card, Chip, RoundBtn, row, Screen, Two, wrap } from "../../components/ui";
-import { SPOT_FILTERS, SPOTS } from "../../constants/data";
+import { Spot, SPOT_FILTERS } from "../../constants/data";
 import { fixed, rp } from "../../constants/theme";
 import { useStore } from "../../context/AppStore";
 
@@ -19,8 +19,29 @@ const pinShadow = Platform.select<TextStyle>({
 export default function Spots() {
   const { c } = useTheme();
   const toast = useToast();
-  const { spot, toggleSpot } = useStore();
-  const list = SPOTS.filter(s => spot.every(f => s.tags.includes(f)));
+  const { spot, toggleSpot, fetchSpots } = useStore();
+  const [all, setAll] = useState<Spot[]>([]);
+  const [found, setFound] = useState<Spot[] | null>(null);
+  useEffect(() => {
+    fetchSpots([]).then(setAll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // "Buka sekarang" is worked out by the server from the current time (WIB)
+  useEffect(() => {
+    let alive = true;
+    setFound(null);
+    fetchSpots(spot).then(l => alive && setFound(l));
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spot.join(",")]);
+  const list = found ?? [];
+  const isFound = (s: Spot) => list.some(x => (x.id ?? x.name) === (s.id ?? s.name));
+  const openMaps = (s: Spot) => {
+    toast("Membuka Google Maps");
+    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.name} Depok`)}`).catch(() => {});
+  };
 
   return (
     <Screen>
@@ -51,13 +72,13 @@ export default function Spots() {
             <Rect x="46%" width="4%" height="100%" fill="#ffffff" opacity={0.6} />
             <Rect y="38%" width="100%" height="4%" fill="#ffffff" opacity={0.6} />
           </Svg>
-          {SPOTS.map((s, i) => (
-            <View key={s.name} style={{ position: "absolute", left: `${22 + i * 22}%`, top: `${28 + (i % 2) * 34}%` }}>
+          {all.map((s, i) => (
+            <View key={s.id ?? s.name} style={{ position: "absolute", left: `${12 + ((i * 19) % 76)}%`, top: `${18 + (i % 3) * 26}%` }}>
               <Icon
                 name="location_on"
                 size={42}
                 fill
-                color={list.includes(s) ? c.chili : fixed.pinOff}
+                color={isFound(s) ? c.chili : fixed.pinOff}
                 style={pinShadow}
               />
             </View>
@@ -77,15 +98,18 @@ export default function Spots() {
           />
         </View>
         <View style={{ gap: 14 }}>
-          {list.length ? (
+          {found === null ? (
+            <Txt v="cap">Mencari tempat...</Txt>
+          ) : list.length ? (
             list.map(s => (
-              <Card key={s.name} style={row}>
+              <Card key={s.id ?? s.name} style={row}>
                 <View style={{ flex: 1 }}>
                   <Txt>
                     <B>{s.name}</B>
                   </Txt>
                   <Txt v="cap">
                     {s.distance}, buka {s.hours}
+                    {s.openNow === false ? " · tutup sekarang" : ""}
                   </Txt>
                   <View style={[row, wrap, { gap: 12, marginTop: 4 }]}>
                     <Txt b m color={c.chili}>
@@ -94,7 +118,7 @@ export default function Spots() {
                     <Txt v="cap">Rating mahasiswa {s.rating}/5</Txt>
                   </View>
                 </View>
-                <Btn size="s" title="Buka Maps" onPress={() => toast("Membuka Google Maps")} />
+                <Btn size="s" title="Buka Maps" onPress={() => openMaps(s)} />
               </Card>
             ))
           ) : (

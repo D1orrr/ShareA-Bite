@@ -1,6 +1,8 @@
 import React from "react";
 import { Pressable, View } from "react-native";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
+import { useToast } from "../components/Overlay";
+import { Splash } from "../components/Splash";
 import { FoodPhoto } from "../components/art";
 import { useLayout, useTheme } from "../components/theme";
 import { B, Txt } from "../components/Txt";
@@ -10,7 +12,11 @@ import { useStore } from "../context/AppStore";
 export default function Welcome() {
   const { c } = useTheme();
   const { h, wide } = useLayout();
-  const { setGuest } = useStore();
+  const toast = useToast();
+  const { ready, user, loginGuest } = useStore();
+  // Logged-in users skip the landing page
+  if (!ready) return <Splash />;
+  if (user) return <Redirect href="/home" />;
 
   return (
     <Screen focus>
@@ -25,14 +31,22 @@ export default function Welcome() {
             Masukkan budget kamu dalam Rupiah. AI kami menyusun resep yang pas di dompet, sesuai alat masak di kosan.
           </Txt>
           <View style={[row, wrap, { marginTop: 6 }]}>
-            <Btn size="xl" title="Daftar dengan email" onPress={() => router.push("/onboard")} />
-            <Btn size="xl" ghost title="Lanjut dengan Google" onPress={() => router.push("/onboard")} />
+            <Btn size="xl" title="Daftar dengan email" onPress={() => router.push("/auth?mode=daftar")} />
+            <Btn size="xl" ghost title="Lanjut dengan Google" onPress={() => toast("Login Google segera hadir. Pakai email dulu ya!")} />
           </View>
           <Pressable
+            role="link"
+            onPress={() => router.push("/auth?mode=masuk")}
+            style={{ minHeight: 44, justifyContent: "center", alignSelf: "flex-start" }}
+          >
+            <Txt b color={c.chili} style={{ fontSize: 15, lineHeight: 23 }}>
+              Sudah punya akun? Masuk
+            </Txt>
+          </Pressable>
+          <Pressable
             role="button"
-            onPress={() => {
-              setGuest(true);
-              router.push("/home");
+            onPress={async () => {
+              if (await loginGuest()) router.replace("/home");
             }}
             style={{ minHeight: 48, justifyContent: "center", alignSelf: "flex-start" }}
           >

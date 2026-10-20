@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
 import { Mascot } from "../components/art";
@@ -14,9 +14,15 @@ const STEP_AT = [500, 1300, 2200];
 export default function Loading() {
   const { c } = useTheme();
   const { h } = useLayout();
-  const { budget } = useStore();
+  const { budget, generate } = useStore();
   const [done, setDone] = useState(-1);
   const [bar, setBar] = useState(4);
+  // The real request runs alongside the checklist; we only leave once both are done.
+  const result = useRef<Promise<unknown> | null>(null);
+  useEffect(() => {
+    result.current = generate(Date.now());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
@@ -29,8 +35,11 @@ export default function Loading() {
         i++;
         timers.push(setTimeout(next, wait));
       } else {
-        setBar(100);
-        timers.push(setTimeout(() => router.dismissTo("/results"), 350));
+        result.current!.then(res => {
+          if (!res) return router.dismissTo("/home");
+          setBar(100);
+          timers.push(setTimeout(() => router.dismissTo("/results"), 350));
+        });
       }
     };
     next();

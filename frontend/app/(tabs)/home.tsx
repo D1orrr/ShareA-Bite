@@ -23,18 +23,19 @@ import {
   usePxlSize,
   wrap,
 } from "../../components/ui";
-import { RECIPES, recipeCost } from "../../constants/data";
+import { recipeCost } from "../../constants/data";
 import { budgetStatus, font, rp } from "../../constants/theme";
 import { useStore } from "../../context/AppStore";
-
-// Hard-coded in the design.
-const SPENT_TODAY = 9500;
 
 export default function Home() {
   const { c } = useTheme();
   const { wide } = useLayout();
   const toast = useToast();
-  const { budget, setBudget, guest, pick, togglePick } = useStore();
+  const { budget, setBudget, guest, user, stats, today, pick, togglePick } = useStore();
+  const spent = stats?.today_spent ?? 0;
+  const hour = new Date().getHours();
+  const greet = hour < 11 ? "Selamat pagi" : hour < 15 ? "Selamat siang" : hour < 18 ? "Selamat sore" : "Selamat malam";
+  const firstName = user && !guest ? user.name.split(" ")[0] : "Kawan";
   const shown = useCountUp(budget);
   const [rowW, setRowW] = useState(0);
 
@@ -46,16 +47,20 @@ export default function Home() {
     <Screen>
       <View style={[row, between, { marginBottom: 18 }]}>
         <View>
-          <Txt v="cap">Selamat pagi{guest ? ", tamu" : ""}</Txt>
-          <Txt v="h1">Halo, {guest ? "Kawan" : "Dinda"}</Txt>
+          <Txt v="cap">
+            {greet}
+            {guest ? ", tamu" : ""}
+          </Txt>
+          <Txt v="h1">Halo, {firstName}</Txt>
         </View>
-        <Avatar label={guest ? "?" : "D"} />
+        <Avatar label={guest ? "?" : firstName.charAt(0).toUpperCase()} />
       </View>
 
       <Two r>
         <Hero style={{ gap: 16 }}>
           <HeroBody
             budget={budget}
+            spent={spent}
             amount={amount}
             size={size}
             onRow={setRowW}
@@ -92,11 +97,11 @@ export default function Home() {
         </Link>
       </View>
       <HScroll snap={222}>
-        {RECIPES.map(r => (
+        {today.map(r => (
           <Link key={r.id} href={`/recipe/${r.id}`} asChild>
             <Pressable role="link" aria-label={r.title}>
               <Card style={[{ padding: 10 }, wide ? { minWidth: 210 } : { width: 210 }]}>
-                <FoodPhoto art={r.id} color={r.color} height={110} />
+                <FoodPhoto art={r.art ?? r.id} color={r.color} height={110} />
                 <Txt v="h3" style={{ fontSize: 16, marginTop: 10, marginBottom: 4 }}>
                   {r.title}
                 </Txt>
@@ -115,6 +120,7 @@ export default function Home() {
 // Split out so useTheme() returns the panel's colors.
 function HeroBody({
   budget,
+  spent,
   amount,
   size,
   onRow,
@@ -124,6 +130,7 @@ function HeroBody({
   onCustom,
 }: {
   budget: number;
+  spent: number;
   amount: string;
   size: number;
   onRow: (w: number) => void;
@@ -133,13 +140,18 @@ function HeroBody({
   onCustom: () => void;
 }) {
   const { c } = useTheme();
-  const [statusColor, statusLabel] = budgetStatus(SPENT_TODAY, budget, c);
+  const [statusColor, statusLabel] = budgetStatus(spent, budget, c);
   return (
     <>
       <View style={[row, between, wrap]}>
-        <Txt v="cap" b color={c.ink}>
-          Budget makan hari ini
-        </Txt>
+        <View>
+          <Txt v="cap" b color={c.ink}>
+            Budget makan hari ini
+          </Txt>
+          <Txt v="cap" style={{ fontSize: 12 }}>
+            Sudah terpakai {rp(spent)}
+          </Txt>
+        </View>
         <Stamp label={statusLabel.toUpperCase()} color={statusColor} />
       </View>
       <View style={[row, { gap: 14 }]} onLayout={e => onRow(e.nativeEvent.layout.width)}>
