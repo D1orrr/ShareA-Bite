@@ -1,38 +1,40 @@
 import React from "react";
 import { View } from "react-native";
-import { useRouter } from "expo-router";
-import { RecipeCard } from "../../components/blocks";
-import { Btn, Chip, Grid, Row, Screen, Txt } from "../../components/ui";
-import { useApp } from "../../context/AppContext";
-import { RECIPES } from "../../data/seed";
-import { R } from "../../lib/format";
+import { router } from "expo-router";
+import { RecipeCard } from "../../components/cards";
+import { useTheme } from "../../components/theme";
+import { B, Txt } from "../../components/Txt";
+import { between, Btn, Chip, Grid, row, Screen, wrap } from "../../components/ui";
+import { RECIPES } from "../../constants/data";
+import { rp } from "../../constants/theme";
+import { useStore } from "../../context/AppStore";
 
 export default function Results() {
-  const router = useRouter();
-  const { budget } = useApp();
+  const { c } = useTheme();
+  const { budget } = useStore();
   return (
     <Screen>
-      <Row sp wrap style={{ marginBottom: 18 }}>
+      <View style={[row, between, wrap, { marginBottom: 18 }]}>
         <View>
           <Txt v="cap">Hasil untuk kamu</Txt>
-          <Txt v="h1" accessibilityRole="header">
+          <Txt v="h1">
             Budget:{" "}
-            <Txt v="h1" c="chili" num>
-              {R(budget)}
-            </Txt>
+            <B m style={{ color: c.chili }}>
+              {rp(budget)}
+            </B>
           </Txt>
         </View>
         <Chip label="Edit budget" onPress={() => router.navigate("/home")} />
-      </Row>
+      </View>
       <Grid>
-        {RECIPES.map((r) => (
+        {RECIPES.map(r => (
           <RecipeCard key={r.id} r={r} />
         ))}
       </Grid>
-      <Row wrap style={{ marginTop: 24 }}>
+      <View style={[row, wrap, { marginTop: 24 }]}>
         <Btn ghost title="Ubah filter" onPress={() => router.navigate("/home")} />
-        <Btn icon="spark" title="Regenerate" onPress={() => router.push("/loading")} />
-      </Row>
+        <Btn icon="auto_awesome" title="Regenerate" onPress={() => router.push("/loading")} />
+      </View>
     </Screen>
   );
 }

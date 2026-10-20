@@ -1,148 +1,184 @@
-import React, { ReactNode } from "react";
-import { Pressable, View } from "react-native";
-import { useRouter } from "expo-router";
-import { Avatar, Card, Col, Hero, Icon, IconName, Row, Screen, Two, Txt } from "../../components/ui";
-import { useApp } from "../../context/AppContext";
-import { PROFILE } from "../../data/seed";
-import { R } from "../../lib/format";
-import { C, useT, useTheme } from "../../theme";
+import React from "react";
+import { Pressable, Text, View } from "react-native";
+import { Link, router } from "expo-router";
+import { Icon, IconName } from "../../components/Icon";
+import { useLayout, useTheme } from "../../components/theme";
+import { B, Txt } from "../../components/Txt";
+import { Avatar, between, Card, Chip, Hero, row, Rule, Screen, Two } from "../../components/ui";
+import { amountEm, fixed, font, rp } from "../../constants/theme";
+import { useStore } from "../../context/AppStore";
 
-const CHART_MAX = 20000; // Rp at full chart height
-const CHART_H = 150;
-const BADGES: [IconName, string][] = [
-  ["premium", "Hemat Hero"],
-  ["fire", "Spice Lord"],
-  ["basket", "Pasar Hunter"],
+const STATS = [
+  ["12", "Resep dibagi"],
+  ["34", "Tersimpan"],
+  ["Rp148rb", "Hemat bulan ini"],
 ];
 
-export default function Akun() {
-  const router = useRouter();
-  const t = useT();
-  const { isDark, toggleDark } = useTheme();
-  const { history, budget, prefs, saved, setGuest } = useApp();
-  const week = history.slice(-7);
+const BADGES: [IconName, string][] = [
+  ["workspace_premium", "Hemat Hero"],
+  ["local_fire_department", "Spice Lord"],
+  ["shopping_basket", "Pasar Hunter"],
+];
 
-  const settings: [string, ReactNode][] = [
+const CHART_MAX = 20000;
+
+export default function Akun() {
+  const { c, dark, toggleDark } = useTheme();
+  const { w, wide } = useLayout();
+  const { budget, hist, pick } = useStore();
+  const week = hist.slice(-7);
+
+  // Shrinks "Rp148rb" so it fits its card on small phones.
+  const statInner = (wide ? 0 : (w - 32 - 20) / 3) - 24;
+  const statSize = wide ? 20 : Math.min(20, Math.floor(statInner / amountEm("Rp148rb")));
+
+  const settings: [string, React.ReactNode][] = [
     [
       "Dark mode",
       <Pressable
-        key="dm"
+        key="dark"
+        role="switch"
+        aria-checked={dark}
+        aria-label="Dark mode"
         onPress={toggleDark}
-        accessibilityRole="switch"
-        accessibilityState={{ checked: isDark }}
-        accessibilityLabel="Dark mode"
-        style={{ width: 52, height: 30, borderRadius: 99, backgroundColor: isDark ? t.daun : t.bd, justifyContent: "center", paddingHorizontal: 3, alignItems: isDark ? "flex-end" : "flex-start" }}
+        hitSlop={8}
+        style={{ width: 52, height: 30, borderRadius: 99, backgroundColor: dark ? c.daun : c.bd }}
       >
-        <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#fff" }} />
+        <View
+          style={{
+            position: "absolute",
+            top: 3,
+            left: dark ? undefined : 3,
+            right: dark ? 3 : undefined,
+            width: 24,
+            height: 24,
+            borderRadius: 12,
+            backgroundColor: "#ffffff",
+          }}
+        />
       </Pressable>,
     ],
     [
       "Resep tersimpan",
-      <Pressable key="rs" onPress={() => router.push("/simpan")} accessibilityRole="link">
-        <Txt f="vn7" c="chili">
-          Buka
-        </Txt>
-      </Pressable>,
+      <Link key="saved" href="/simpan" style={{ fontFamily: font.bodyBold, fontSize: 13, color: c.chili, textDecorationLine: "underline" }}>
+        Buka
+      </Link>,
     ],
-    ["Budget harian", <Txt key="b" f="jk7" num>{R(budget)}</Txt>],
-    ["Diet", <Txt key="d" v="cap">{prefs.slice(0, 2).join(", ") || "Belum diatur"}</Txt>],
-    ["Pengingat udah makan belum", <Txt key="p" f="jk7" num>19.00</Txt>],
+    ["Budget harian", <Txt key="b" v="cap" b m color={c.mut}>{rp(budget)}</Txt>],
+    ["Diet", <Txt key="d" v="cap">{pick.slice(0, 2).join(", ") || "Belum diatur"}</Txt>],
+    ["Pengingat udah makan belum", <Txt key="r" v="cap" b m color={c.mut}>19.00</Txt>],
   ];
 
   return (
     <Screen>
       <Two r>
-        <Col>
-          <Hero light>
-            <Row gap={18}>
-              <Avatar letter="D" size={80} />
-              <View style={{ flex: 1 }}>
-                <Txt v="h1">{PROFILE.name}</Txt>
-                <Txt v="cap">{PROFILE.campus}</Txt>
-                <View style={{ marginTop: 6, alignSelf: "flex-start", backgroundColor: t.kunyit, borderRadius: 8, paddingHorizontal: 10, minHeight: 28, justifyContent: "center" }}>
-                  <Txt f="jk6" s={11.5} c="#1C1A17">
-                    {PROFILE.level}
-                  </Txt>
-                </View>
-              </View>
-            </Row>
+        <View style={{ gap: 14 }}>
+          <Hero lt style={[row, { gap: 18 }]}>
+            <Avatar label="D" size={80} fontSize={32} />
+            <View style={{ flex: 1 }}>
+              <Txt v="h1">Dinda Aprilia</Txt>
+              <Txt v="cap">Universitas Indonesia, Depok</Txt>
+              <Chip sw label="Lv.3 Anak Kos Pintar" bg={c.kunyit} fg={fixed.levelInk} style={{ marginTop: 6, alignSelf: "flex-start" }} />
+            </View>
           </Hero>
 
-          <Row>
-            {[
-              [String(PROFILE.shared), "Resep dibagi"],
-              [String(saved.length), "Tersimpan"],
-              [PROFILE.savedThisMonth, "Hemat bulan ini"],
-            ].map(([v, k]) => (
-              <Card key={k} style={{ flex: 1, alignItems: "center", padding: 12 }}>
-                <Txt f="jk7" s={20} c="daun" num>
-                  {v}
+          <View style={row}>
+            {STATS.map(([value, label]) => (
+              <Card key={label} style={{ flex: 1, alignItems: "center", padding: 12 }}>
+                <Txt b m color={c.daun} style={{ fontSize: statSize, lineHeight: Math.round(statSize * 1.4) }}>
+                  {value}
                 </Txt>
-                <Txt v="cap" center>
-                  {k}
-                </Txt>
-              </Card>
-            ))}
-          </Row>
-
-          <Card>
-            <Row sp>
-              <Txt f="vn7">Pengeluaran vs budget</Txt>
-              <Txt v="cap" num>
-                garis = {R(budget)}
-              </Txt>
-            </Row>
-            <View
-              accessibilityLabel={`Pengeluaran 7 hari terakhir: ${week.map((v) => R(v)).join(", ")}`}
-              style={{ flexDirection: "row", alignItems: "flex-end", gap: 10, height: CHART_H, marginTop: 24, borderBottomWidth: 1, borderColor: t.bd }}
-            >
-              <View
-                style={{ position: "absolute", left: 0, right: 0, bottom: Math.min(1, budget / CHART_MAX) * CHART_H, borderTopWidth: 2, borderStyle: "dashed", borderColor: t.chili }}
-              />
-              {week.map((v, i) => {
-                const color = v > budget ? t.err : v / budget > 0.7 ? t.kunyit : t.daun;
-                return (
-                  <View key={i} style={{ flex: 1, height: Math.min(1, v / CHART_MAX) * CHART_H, backgroundColor: color, borderTopLeftRadius: 8, borderTopRightRadius: 8 }}>
-                    <Txt v="cap" s={10} center num style={{ position: "absolute", top: -18, left: -6, right: -6 }}>
-                      {Math.round(v / 1000)}rb
-                    </Txt>
-                  </View>
-                );
-              })}
-            </View>
-          </Card>
-
-          <Row>
-            {BADGES.map(([ic, label]) => (
-              <Card key={label} style={{ flex: 1, alignItems: "center" }}>
-                <Icon n={ic} size={38} c="sec" />
-                <Txt f="vn7" s={13} center>
+                <Txt v="cap" style={{ textAlign: "center" }}>
                   {label}
                 </Txt>
               </Card>
             ))}
-          </Row>
-        </Col>
+          </View>
+
+          <Card>
+            <View style={[row, between]}>
+              <Txt>
+                <B>Pengeluaran vs budget</B>
+              </Txt>
+              <Txt v="cap" m>
+                garis = {rp(budget)}
+              </Txt>
+            </View>
+            <View
+              role="img"
+              aria-label={`Pengeluaran ${week.length} hari terakhir: ${week.map(v => Math.round(v / 1000) + " ribu").join(", ")}`}
+              style={{
+                flexDirection: "row",
+                alignItems: "flex-end",
+                gap: 10,
+                height: 150,
+                marginTop: 14,
+                borderBottomWidth: 1,
+                borderBottomColor: c.bd,
+              }}
+            >
+              <Rule
+                dashed
+                color={c.chili}
+                style={{ position: "absolute", left: 0, right: 0, bottom: `${(budget / CHART_MAX) * 100}%` }}
+              />
+              {week.map((v, i) => (
+                <View
+                  key={i}
+                  style={{
+                    flex: 1,
+                    height: `${Math.min(100, (v / CHART_MAX) * 100)}%`,
+                    backgroundColor: v > budget ? c.err : v / budget > 0.7 ? c.kunyit : c.daun,
+                    borderTopLeftRadius: 8,
+                    borderTopRightRadius: 8,
+                  }}
+                >
+                  <Text
+                    style={{
+                      position: "absolute",
+                      top: -18,
+                      left: 0,
+                      right: 0,
+                      textAlign: "center",
+                      fontFamily: font.headMedium,
+                      fontSize: 10,
+                      color: c.mut,
+                      fontVariant: ["tabular-nums"],
+                    }}
+                  >
+                    {Math.round(v / 1000)}rb
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </Card>
+
+          <View style={row}>
+            {BADGES.map(([icon, label]) => (
+              <Card key={label} style={{ flex: 1, flexDirection: "row", flexWrap: "wrap", justifyContent: "center", alignItems: "center", columnGap: 4 }}>
+                <Icon name={icon} size={38} fill color={c.sec} />
+                <Text style={{ fontFamily: font.bodyBold, fontSize: 13, color: c.ink, textAlign: "center" }}>{label}</Text>
+              </Card>
+            ))}
+          </View>
+        </View>
 
         <Card style={{ paddingVertical: 6, paddingHorizontal: 18 }}>
           <Txt v="h2" style={{ paddingVertical: 14 }}>
             Pengaturan
           </Txt>
-          {settings.map(([k, v]) => (
-            <Row key={k} sp style={{ minHeight: 54, borderTopWidth: 1, borderColor: t.bd }}>
-              <Txt style={{ flex: 1 }}>{k}</Txt>
-              {v}
-            </Row>
+          {settings.map(([label, control]) => (
+            <View key={label} style={[row, between, { minHeight: 54, borderTopWidth: 1, borderTopColor: c.bd }]}>
+              <Txt style={{ flexShrink: 1 }}>{label}</Txt>
+              {control}
+            </View>
           ))}
           <Pressable
-            onPress={() => {
-              setGuest(false);
-              router.replace("/welcome");
-            }}
-            accessibilityRole="button"
-            style={{ minHeight: 54, borderTopWidth: 1, borderColor: t.bd, justifyContent: "center" }}
+            role="button"
+            onPress={() => router.dismissTo("/")}
+            style={{ minHeight: 54, justifyContent: "center", borderTopWidth: 1, borderTopColor: c.bd }}
           >
-            <Txt f="vn7" c="err">
+            <Txt b color={c.danger}>
               Logout
             </Txt>
           </Pressable>

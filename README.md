@@ -1,14 +1,13 @@
-# ShareA'Bite 🍳 (Monorepo MVP)
+# Share'N'Bite 🍳 (Monorepo MVP)
 
 > **Budget-first recipe generator, smart financial tracker, and UGC community for university students ("anak kos").**
-> *Mobile-first Expo app (iOS, Android & Web) with a fresh green "struk anak kos" design system.*
+> *Warm, clean design for Mobile & Web.*
 
 ---
 
 ## 📁 Monorepo Structure
 
 ```text
-├── design/                   # Original HTML prototype of the design
 ├── backend/                  # FastAPI + SQLite + SQLAlchemy
 │   ├── app/
 │   │   ├── __init__.py
@@ -20,42 +19,37 @@
 │   └── requirements.txt      # Python dependencies
 │
 ├── frontend/                 # Universal Expo App (Mobile & Web)
-│   ├── app/                  # Expo Router routes (every file = a screen)
-│   │   ├── _layout.tsx       # Fonts, theme + app providers, root stack
-│   │   ├── index.tsx         # Redirects to /welcome
-│   │   ├── welcome.tsx       # Landing / sign-up
-│   │   ├── onboard.tsx       # 3-step onboarding (budget, diet, tools)
-│   │   ├── loading.tsx       # "Lagi masak ide" generation screen
+│   ├── app/
+│   │   ├── _layout.tsx       # Root layout: fonts, theme, toast, screen stack
+│   │   ├── +html.tsx         # Web page shell (language, focus ring)
+│   │   ├── index.tsx         # Welcome: sign-up buttons or continue as guest
+│   │   ├── onboard.tsx       # 3 steps: weekly budget, diet, cooking tools
+│   │   ├── loading.tsx       # Si Mangkok "cooking" while recipes are generated
 │   │   ├── cook/[id].tsx     # Step-by-step cooking mode with timers
-│   │   ├── finish/[id].tsx   # Log what you spent
-│   │   └── (tabs)/           # Main shell: top bar + bottom tabs (mobile) / top nav (desktop)
-│   │       ├── home.tsx      # Explore: budget picker + Generate
-│   │       ├── belanja.tsx   # Daftar Belanja (shopping list)
-│   │       ├── komunitas.tsx # Community feed + share sheet
-│   │       ├── akun.tsx      # Profile, spending chart, settings (dark mode)
-│   │       ├── results.tsx   # Generated recipes
-│   │       ├── recipe/[id].tsx # Recipe detail (struk / langkah / nutrisi)
+│   │   ├── finish/[id].tsx   # Log what the meal cost
+│   │   └── (tabs)/
+│   │       ├── _layout.tsx   # Header and tab bar (bottom on phones, top on desktop)
+│   │       ├── home.tsx      # Explore: daily budget, filters, Generate Recipe
+│   │       ├── results.tsx   # Three recipes for the budget
+│   │       ├── recipe/[id].tsx # Recipe: receipt, steps, nutrition
 │   │       ├── simpan.tsx    # Saved recipes
-│   │       └── spots.tsx     # Cheap places nearby
-│   ├── components/
-│   │   ├── ui.tsx            # Design-system primitives (Txt, Btn, Chip, Card, Hero, Slider, …)
-│   │   ├── art.tsx           # Si Mangkok mascot + food plate SVG illustrations
-│   │   ├── blocks.tsx        # RecipeCard, PostCard, SpotCard
-│   │   ├── chrome.tsx        # TopBar + TabBar
-│   │   └── ShareSheet.tsx    # Post-to-community bottom sheet
-│   ├── theme/index.tsx       # Colour tokens (light/dark), fonts, responsive helpers
-│   ├── context/AppContext.tsx# In-memory app state + toast (swap for API later)
-│   ├── data/seed.ts          # Mock recipes, posts, spots, cart
-│   ├── lib/format.ts         # Rupiah formatting & budget helpers
-│   ├── assets/               # Icons & app images
+│   │       ├── belanja.tsx   # Daftar Belanja: shopping checklist and total
+│   │       ├── spots.tsx     # Tempat Murah: cheap places near campus
+│   │       ├── komunitas.tsx # Komunitas: posts, filters, share sheet
+│   │       └── akun.tsx      # Profil: stats, spending chart, settings
+│   ├── components/           # Shared UI: ui.tsx (buttons, cards, chips, ...), nav, mascot and food art, icons
+│   ├── constants/            # theme.ts (colors, fonts, Rupiah format), data.ts (mock data)
+│   ├── context/
+│   │   └── AppStore.tsx      # App state (budget, saved recipes, cart, ...)
+│   ├── assets/               # App icons and the Material Symbols icon fonts
 │   ├── app.json              # Expo configuration (Expo Router & web static enabled)
 │   ├── babel.config.js       # Babel preset for NativeWind v4
 │   ├── metro.config.js       # Metro configuration for NativeWind CSS
-│   ├── tailwind.config.js    # Tailwind theme (brand colours mirror theme/index.tsx)
+│   ├── tailwind.config.js    # Tailwind theme (Cozy tokens)
 │   ├── global.css            # Tailwind directives
 │   ├── nativewind-env.d.ts   # TypeScript typings for NativeWind & CSS modules
 │   ├── tsconfig.json         # Strict TypeScript configuration
-│   └── package.json          # Expo SDK 57, React Native 0.86, Expo Router, NativeWind
+│   └── package.json          # Expo SDK 57, React Native 0.86, Expo Router, react-native-svg
 │
 └── README.md
 ```
@@ -118,17 +112,19 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ## Design
 
-Warm off-white background, white cards, and one tomato-orange accent for the main action on each screen. Green marks savings and finished items. Price lists use a receipt layout: amounts aligned on the right, with a dashed line before the totals.
+Deep green on a soft lavender-white page, with a warm orange for highlights. Recipe costs are shown as a shop receipt (dotted lines, dashed total, barcode), and Si Mangkok, a rice-bowl mascot, appears on the loading, empty and finish screens. Headings and numbers use Plus Jakarta Sans, body text uses Be Vietnam Pro, and icons are Material Symbols.
 
-The palette lives in `frontend/constants/colors.js` and feeds `tailwind.config.js`, so change colors there. Text and background pairs meet WCAG AA contrast.
+Phones get a bottom tab bar. From 900px wide the tabs move into the top bar and screens use two columns. Dark mode follows the device setting and can be switched in Profil.
+
+Colors, fonts and the Rupiah formatter live in `frontend/constants/theme.ts`.
 
 ---
 
 ## Known Limitations
 
-- All data is mock data in `frontend/context/AppContext.tsx`. Nothing is saved, so reloading the app resets everything.
-- AI Racik is simulated. The generate button waits briefly, then shows the same two sample recipes whatever you pick. The frontend does not call the backend yet.
-- "Selesai Belanja • Simpan ke Pengeluaran Kos" shows a confirmation but does not record the expense or update the spending chart.
-- On very narrow phones (about 320px wide, such as the first-generation iPhone SE), the "Buat Resep" and "Cuan & Kos" tab labels are cut off by a few pixels.
-- Light theme only.
+- All data is mock data in `frontend/constants/data.ts`. Nothing is saved, so reloading the app resets everything, including the dark mode switch.
+- Recipe generation is simulated. Generate Recipe shows the loading animation, then the same three recipes whatever you pick. The frontend does not call the backend yet.
+- "Daftar dengan email" and "Lanjut dengan Google" go straight to onboarding; there is no sign-in yet.
+- Notifications, Buka Maps, sharing, drafts and photo upload only show a short message. The map on Tempat Murah is a drawing, not a real map.
+- On phones narrower than about 360px, the "Daftar Belanja" tab label wraps onto two lines.
 - The UI has been tested in the browser at phone, tablet, and desktop sizes, but not yet on physical iOS or Android devices.

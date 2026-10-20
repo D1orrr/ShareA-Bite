@@ -1,170 +1,198 @@
-import React, { useState } from "react";
+import React from "react";
 import { View } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { FoodPlate } from "../../../components/art";
+import { router, useLocalSearchParams } from "expo-router";
+import { FoodPhoto } from "../../../components/art";
+import { useSaveRecipe } from "../../../components/cards";
+import { Icon } from "../../../components/Icon";
+import { goBack } from "../../../components/nav";
+import { useToast } from "../../../components/Overlay";
+import { useLayout, useTheme } from "../../../components/theme";
+import { Txt } from "../../../components/Txt";
 import {
   Avatar,
   Bar,
   Barcode,
+  between,
   Btn,
   Card,
   Chip,
-  Col,
-  Dashed,
-  Icon,
-  IconBtn,
-  Line,
+  LineRow,
+  Pill,
   Ring,
-  Row,
+  RoundBtn,
+  row,
+  Rule,
   Screen,
-  Segmented,
   Stamp,
   Sticky,
   Two,
-  Txt,
+  wrap,
 } from "../../../components/ui";
-import { useApp } from "../../../context/AppContext";
-import { getRecipe, RECIPES } from "../../../data/seed";
-import { cost, mmss, R } from "../../../lib/format";
-import { C, clamp, useLayout } from "../../../theme";
+import { formatTimer, RECIPES, recipeById, recipeCost } from "../../../constants/data";
+import { clamp, rp } from "../../../constants/theme";
+import { RecipeTab, useStore } from "../../../context/AppStore";
 
-export function generateStaticParams() {
-  return RECIPES.map((r) => ({ id: String(r.id) }));
+// One pre-built page per recipe, so direct links work in the web export.
+export async function generateStaticParams() {
+  return RECIPES.map(r => ({ id: String(r.id) }));
 }
 
-const TABS = ["Struk", "Langkah", "Nutrisi"] as const;
-type Tab = (typeof TABS)[number];
-
 export default function RecipeDetail() {
+  const { c } = useTheme();
+  const { w } = useLayout();
+  const toast = useToast();
+  const save = useSaveRecipe();
+  const { budget, saved, tabD, setTabD, addToCart } = useStore();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const { width } = useLayout();
-  const { budget, saved, toggleSaved, addRecipeToCart, toast } = useApp();
-  const [tab, setTab] = useState<Tab>("Struk");
-  const r = getRecipe(id);
-  const c = cost(r);
-  const ok = c <= budget;
-  const back = () => (router.canGoBack() ? router.back() : router.replace("/home"));
+  const r = recipeById(Number(id));
+  const cost = recipeCost(r);
+  const ok = cost <= budget;
+  const isSaved = saved.includes(r.id);
 
   const nutrition: [string, string, number][] = [
-    ["Kalori", `${r.kcal} kkal`, r.kcal / 8],
-    ["Protein", `${r.protein} g`, r.protein * 2.4],
-    ["Karbo", `${r.carbs} g`, r.carbs],
+    ["Kalori", `${r.cal} kkal`, r.cal / 8],
+    ["Protein", `${r.pro} g`, r.pro * 2.4],
+    ["Karbo", `${r.carb} g`, r.carb],
   ];
 
   return (
     <Screen>
       <Two>
-        <Col>
+        <View style={{ gap: 14 }}>
           <View>
-            <FoodPlate dish={r.id} color={r.color} height={clamp(220, width * 0.34, 380)} />
-            <Row sp style={{ position: "absolute", top: 14, left: 14, right: 14 }}>
-              <IconBtn n="back" label="Kembali" bg="card" c="ink" size={48} onPress={back} />
-              <IconBtn n="heart" fill={saved.includes(r.id)} label="Simpan" bg="card" c="chili" size={48} onPress={() => toggleSaved(r.id)} />
-            </Row>
+            <FoodPhoto art={r.id} color={r.color} height={clamp(220, 0.34 * w, 380)} />
+            <View style={[row, between, { position: "absolute", top: 14, left: 14, right: 14 }]}>
+              <RoundBtn icon="arrow_back" label="Kembali" onPress={goBack} />
+              <RoundBtn
+                icon="favorite"
+                label={isSaved ? "Hapus dari Simpan" : "Simpan"}
+                fill={isSaved}
+                color={c.chili}
+                onPress={() => save(r.id)}
+              />
+            </View>
           </View>
-          <Txt v="h1" accessibilityRole="header">
-            {r.title}
-          </Txt>
-          <Row wrap>
-            <Row gap={4}>
-              <Icon n="clock" c="mut" />
-              <Txt v="cap" num>
-                {r.minutes} mnt
+          <Txt v="h1">{r.title}</Txt>
+          <View style={[row, wrap]}>
+            <View style={[row, { gap: 4 }]}>
+              <Icon name="schedule" color={c.mut} />
+              <Txt v="cap" m>
+                {r.min} mnt
               </Txt>
-            </Row>
-            <Txt v="cap">1 porsi</Txt>
-            <Stamp label={ok ? "UNDER BUDGET" : "LEWAT BUDGET"} bad={!ok} />
-          </Row>
-          {nutrition.map(([k, v, p]) => (
-            <View key={k}>
-              <Row sp>
-                <Txt v="cap">{k}</Txt>
-                <Txt v="cap" num>
-                  {v}
+            </View>
+            <Txt v="cap" m>
+              1 porsi
+            </Txt>
+            <Stamp bad={!ok} label={ok ? "UNDER BUDGET" : "LEWAT BUDGET"} />
+          </View>
+          {nutrition.map(([label, value, pct]) => (
+            <View key={label}>
+              <View style={[row, between]}>
+                <Txt v="cap" m>
+                  {label}
                 </Txt>
-              </Row>
-              <Bar pct={Math.min(100, p)} color="daun" h={8} />
+                <Txt v="cap" m>
+                  {value}
+                </Txt>
+              </View>
+              <Bar pct={Math.min(100, pct)} color={c.daun} height={8} />
             </View>
           ))}
-        </Col>
+        </View>
 
-        <Col>
-          <Segmented items={TABS} value={tab} onChange={setTab} />
+        <View style={{ gap: 14 }}>
+          <Pill<RecipeTab>
+            options={[
+              { value: "Detail", label: "Struk" },
+              { value: "Langkah", label: "Langkah" },
+              { value: "Nutrisi", label: "Nutrisi" },
+            ]}
+            value={tabD}
+            onChange={setTabD}
+          />
 
-          {tab === "Struk" ? (
-            <Card torn style={{ padding: 20 }}>
-              <Col gap={6}>
-                <Row sp>
-                  <Txt v="cap" f="vn7">
-                    STRUK ANAK KOS
-                  </Txt>
-                  <Txt v="cap" num>
-                    No. 04{r.id}8
-                  </Txt>
-                </Row>
-                {r.ingredients.map((x) => (
-                  <View key={x.name}>
-                    <Line left={`${x.name} ${x.qty} ${x.unit}`} right={R(x.price)} />
-                    {x.swap ? <Chip sw label={`Cheaper swap: ${x.swap}`} onPress={() => toast(`Swap: ${x.swap}`)} /> : null}
-                  </View>
-                ))}
-                <Dashed style={{ marginTop: 6 }} />
-                <Row sp style={{ paddingTop: 4 }}>
-                  <Txt v="h2">TOTAL</Txt>
-                  <Txt f="jk7" s={28} c="chili" num>
-                    {R(c)}
-                  </Txt>
-                </Row>
-                <Txt v="cap" f="vn7" c={ok ? "daun" : "err"}>
-                  {ok ? `Sisa ${R(budget - c)}. Dompet aman.` : `Lewat ${R(c - budget)} dari budget.`}
+          {tabD === "Detail" ? (
+            <Card torn style={{ gap: 6, padding: 20 }}>
+              <View style={[row, between]}>
+                <Txt v="cap" b m>
+                  STRUK ANAK KOS
                 </Txt>
-                <Barcode />
-              </Col>
+                <Txt v="cap" m>
+                  No. 04{r.id}8
+                </Txt>
+              </View>
+              {r.ing.map(x => (
+                <View key={x.name}>
+                  <LineRow label={`${x.name} ${x.qty} ${x.unit}`} value={rp(x.price)} />
+                  {x.swap ? <Chip
+                      sw
+                      label={`Cheaper swap: ${x.swap}`}
+                      onPress={() => toast(`Swap: ${x.swap}`)}
+                      style={{ alignSelf: "flex-start" }}
+                    /> : null}
+                </View>
+              ))}
+              <Rule dashed color={c.mut} style={{ marginTop: 6 }} />
+              <View style={[row, between, { paddingTop: 4 }]}>
+                <Txt v="h2">TOTAL</Txt>
+                <Txt b m color={c.chili} style={{ fontSize: 28, lineHeight: 34 }}>
+                  {rp(cost)}
+                </Txt>
+              </View>
+              <Txt v="cap" b color={ok ? c.daun : c.danger}>
+                {ok ? `Sisa ${rp(budget - cost)}. Dompet aman.` : `Lewat ${rp(cost - budget)} dari budget.`}
+              </Txt>
+              <Barcode />
             </Card>
           ) : null}
 
-          {tab === "Langkah" ? (
+          {tabD === "Langkah" ? (
             <>
               {r.steps.map((s, i) => (
-                <Card key={i}>
-                  <Row align="flex-start">
-                    <Avatar letter={String(i + 1)} bg={C.heroFrom} fg="#fff" />
-                    <View style={{ flex: 1 }}>
-                      <Txt>{s.text}</Txt>
-                      {s.seconds ? (
-                        <Txt v="cap" num>
-                          Timer {mmss(s.seconds)}
-                        </Txt>
-                      ) : null}
-                    </View>
-                  </Row>
+                <Card key={i} style={[row, { alignItems: "flex-start" }]}>
+                  <Avatar label={String(i + 1)} bg={c.chili} fg={c.onp} />
+                  <View style={{ flex: 1 }}>
+                    <Txt>{s.text}</Txt>
+                    {s.sec ? (
+                      <Txt v="cap" m>
+                        Timer {formatTimer(s.sec)}
+                      </Txt>
+                    ) : null}
+                  </View>
                 </Card>
               ))}
               <Sticky>{r.tip}</Sticky>
             </>
           ) : null}
 
-          {tab === "Nutrisi" ? (
-            <Card>
-              <Row gap={20}>
-                <Ring p={r.score} size={90} stroke={10} fs={22} />
-                <View style={{ flex: 1 }}>
-                  <Txt v="h2">Skor nutrisi</Txt>
-                  <Txt v="cap">
-                    {r.kcal} kkal, {r.protein} g protein, {r.carbs} g karbo. Seimbang untuk satu kali makan.
-                  </Txt>
-                </View>
-              </Row>
+          {tabD === "Nutrisi" ? (
+            <Card style={[row, { gap: 20 }]}>
+              <Ring p={r.score} size={90} inner={70} fontSize={22} />
+              <View style={{ flexShrink: 1 }}>
+                <Txt v="h2">Skor nutrisi</Txt>
+                <Txt v="cap">
+                  {r.cal} kkal, {r.pro} g protein, {r.carb} g karbo. Seimbang untuk satu kali makan.
+                </Txt>
+              </View>
             </Card>
           ) : null}
 
-          <Row wrap style={{ marginTop: 6 }}>
-            <Btn grow ghost icon="cart" title="Ke Belanjaan" onPress={() => addRecipeToCart(r)} />
+          <View style={[row, wrap, { marginTop: 6 }]}>
+            <Btn
+              ghost
+              grow
+              icon="shopping_bag"
+              title="Ke Belanjaan"
+              onPress={() => {
+                addToCart(r);
+                toast("Bahan masuk ke Belanja");
+              }}
+            />
             <Btn grow title="Mulai Masak" onPress={() => router.push(`/cook/${r.id}`)} />
-          </Row>
-        </Col>
+          </View>
+        </View>
       </Two>
     </Screen>
   );
 }
+

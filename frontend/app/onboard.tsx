@@ -1,86 +1,103 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
 import { Mascot } from "../components/art";
-import { Bar, Btn, Card, Chip, Chips, Col, FitPxl, Input, Row, Screen, Txt } from "../components/ui";
-import { useApp } from "../context/AppContext";
-import { R } from "../lib/format";
+import { useLayout, useTheme } from "../components/theme";
+import { Txt } from "../components/Txt";
+import { Bar, Btn, Card, Chip, Inp, Pxl, row, Screen, usePxlSize, wrap } from "../components/ui";
+import { rp } from "../constants/theme";
+import { useStore } from "../context/AppStore";
 
 const TITLES = ["Budget kamu", "Makan apa aja", "Alat dan kampus"];
 const WEEKLY = [70000, 105000, 175000];
 
 export default function Onboard() {
-  const router = useRouter();
-  const { budget, setBudget, prefs, togglePref } = useApp();
+  const { c } = useTheme();
+  const { w } = useLayout();
+  const { budget, setWeekly, pick, togglePick } = useStore();
   const [step, setStep] = useState(1);
-  const isOn = (x: string) => prefs.includes(x);
-  const finish = () => router.replace("/home");
+
+  const weekly = rp(budget * 7);
+  // Card inner width: page column (max 620) minus the card padding.
+  const size = usePxlSize(weekly, Math.min(620, w - 32) - 32, 54);
+
+  const chips = (list: string[]) => (
+    <View style={[row, wrap]}>
+      {list.map(x => (
+        <Chip key={x} kind="checkbox" label={x} on={pick.includes(x)} onPress={() => togglePick(x)} />
+      ))}
+    </View>
+  );
 
   return (
     <Screen focus>
-      <Col style={{ maxWidth: 620, width: "100%", alignSelf: "center" }}>
-        <Row>
-          <View style={{ flex: 1 }}>
-            <Bar pct={step * 33.4} />
-          </View>
-          <Txt v="cap" num>
+      <View style={{ maxWidth: 620, width: "100%", alignSelf: "center", gap: 14 }}>
+        <View style={row}>
+          <Bar pct={step * 33.4} color={c.chili} label={`Langkah ${step} dari 3`} style={{ flex: 1 }} />
+          <Txt v="cap" m>
             {step}/3
           </Txt>
-        </Row>
-        <Txt v="h1" style={{ marginTop: 14 }} accessibilityRole="header">
+        </View>
+        <Txt v="h1" style={{ marginTop: 14 }}>
           {TITLES[step - 1]}
         </Txt>
 
         {step === 1 ? (
           <>
-            <Txt v="cap" s={16}>
+            <Txt v="cap" style={{ fontSize: 16, lineHeight: 25 }}>
               Bisa diubah kapan saja di Akun.
             </Txt>
             <Card>
               <Txt v="cap">Budget mingguan</Txt>
-              <FitPxl s={54} style={{ marginTop: 6, marginBottom: 12 }}>
-                {R(budget * 7)}
-              </FitPxl>
-              <Row wrap>
-                {WEEKLY.map((b) => (
-                  <Chip key={b} label={R(b)} on={Math.round(budget * 7) === b} onPress={() => setBudget(b / 7)} />
+              <Pxl size={size} style={{ marginTop: 6, marginBottom: 12 }}>
+                {weekly}
+              </Pxl>
+              <View style={[row, wrap]}>
+                {WEEKLY.map(b => (
+                  <Chip key={b} kind="radio" label={rp(b)} on={budget * 7 === b} onPress={() => setWeekly(b)} />
                 ))}
-              </Row>
+              </View>
             </Card>
-            <Txt v="cap">Default harian: {R(budget)}</Txt>
+            <Txt v="cap" style={{ marginVertical: 13 }}>
+              Default harian: {rp(budget)}
+            </Txt>
           </>
         ) : null}
 
         {step === 2 ? (
           <>
             <Txt v="h3">Diet</Txt>
-            <Chips items={["Halal", "Vegetarian", "High protein"]} isOn={isOn} onToggle={togglePref} />
-            <Input placeholder="Alergi, contoh: udang, kacang tanah" accessibilityLabel="Alergi" />
+            {chips(["Halal", "Vegetarian", "High protein"])}
+            <Inp placeholder="Alergi, contoh: udang, kacang tanah" aria-label="Alergi" />
             <Txt v="h3">Rasa favorit</Txt>
-            <Chips items={["Pedas", "Manis", "Gurih", "Asin"]} isOn={isOn} onToggle={togglePref} />
+            {chips(["Pedas", "Manis", "Gurih", "Asin"])}
           </>
         ) : null}
 
         {step === 3 ? (
           <>
             <Txt v="h3">Alat masak</Txt>
-            <Chips items={["Rice cooker", "Kompor", "Microwave"]} isOn={isOn} onToggle={togglePref} />
+            {chips(["Rice cooker", "Kompor", "Microwave"])}
             <Txt v="h3">Kampus dan kota</Txt>
-            <Input defaultValue="Universitas Indonesia, Depok" accessibilityLabel="Kampus" />
-            <Card>
-              <Row gap={12}>
-                <Mascot size={54} />
-                <Txt v="cap">Lengkap! Sisanya bisa nanti.</Txt>
-              </Row>
+            <Inp defaultValue="Universitas Indonesia, Depok" aria-label="Kampus" />
+            <Card style={[row, { gap: 12 }]}>
+              <Mascot size={54} />
+              <Txt v="cap" style={{ flexShrink: 1 }}>
+                Lengkap! Sisanya bisa nanti.
+              </Txt>
             </Card>
           </>
         ) : null}
 
-        <Row style={{ marginTop: 12 }}>
-          <Btn grow ghost title="Lewati" onPress={finish} />
-          <Btn grow title={step < 3 ? "Lanjut" : "Mulai hemat"} onPress={() => (step < 3 ? setStep(step + 1) : finish())} />
-        </Row>
-      </Col>
+        <View style={[row, { marginTop: 12 }]}>
+          <Btn ghost grow title="Lewati" onPress={() => router.dismissTo("/home")} />
+          <Btn
+            grow
+            title={step < 3 ? "Lanjut" : "Mulai hemat"}
+            onPress={() => (step < 3 ? setStep(step + 1) : router.dismissTo("/home"))}
+          />
+        </View>
+      </View>
     </Screen>
   );
 }

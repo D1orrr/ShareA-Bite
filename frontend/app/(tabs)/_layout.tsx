@@ -1,19 +1,21 @@
 import React from "react";
 import { Tabs } from "expo-router";
-import { TabBar, TopBar } from "../../components/chrome";
-import { useT } from "../../theme";
+import { AppHeader, AppTabBar } from "../../components/nav";
+import { useTheme } from "../../components/theme";
 
-/**
- * Main app shell: sticky top bar + bottom tab bar (mobile) / top nav (desktop).
- * Screens with `href: null` live inside the shell but have no tab of their own.
- */
+export const unstable_settings = { initialRouteName: "home" };
+
+// The hidden screens live here too so they keep the header and tab bar.
 export default function TabsLayout() {
-  const t = useT();
+  const { c } = useTheme();
   return (
     <Tabs
-      initialRouteName="home"
-      tabBar={() => <TabBar />}
-      screenOptions={{ header: () => <TopBar />, sceneStyle: { backgroundColor: t.paper } }}
+      backBehavior="history"
+      tabBar={props => <AppTabBar {...props} />}
+      screenOptions={{
+        header: ({ route }) => <AppHeader route={route.name} />,
+        sceneStyle: { backgroundColor: c.paper },
+      }}
     >
       <Tabs.Screen name="home" />
       <Tabs.Screen name="belanja" />
@@ -21,8 +23,8 @@ export default function TabsLayout() {
       <Tabs.Screen name="akun" />
       <Tabs.Screen name="results" options={{ href: null }} />
       <Tabs.Screen name="recipe/[id]" options={{ href: null }} />
-      <Tabs.Screen name="simpan" options={{ href: null }} />
       <Tabs.Screen name="spots" options={{ href: null }} />
+      <Tabs.Screen name="simpan" options={{ href: null }} />
     </Tabs>
   );
 }

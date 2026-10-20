@@ -1,65 +1,90 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, Easing, Platform, TextInput } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Animated, Easing, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
 import { Mascot } from "../../components/art";
-import { Btn, Card, Col, Icon, Screen, Stamp, Txt } from "../../components/ui";
-import { useApp } from "../../context/AppContext";
-import { getRecipe, RECIPES } from "../../data/seed";
-import { cost, digits, R } from "../../lib/format";
-import { FONT, useT } from "../../theme";
+import { Icon } from "../../components/Icon";
+import { useToast } from "../../components/Overlay";
+import { nativeDriver, useLayout, useReducedMotion, useTheme } from "../../components/theme";
+import { Txt } from "../../components/Txt";
+import { Btn, Card, Inp, Screen, Stamp } from "../../components/ui";
+import { RECIPES, recipeById, recipeCost } from "../../constants/data";
+import { fixed, font, rp } from "../../constants/theme";
+import { useStore } from "../../context/AppStore";
 
-export function generateStaticParams() {
-  return RECIPES.map((r) => ({ id: String(r.id) }));
+// One pre-built page per recipe, so direct links work in the web export.
+export async function generateStaticParams() {
+  return RECIPES.map(r => ({ id: String(r.id) }));
 }
 
 export default function Finish() {
+  const { c } = useTheme();
+  const { h } = useLayout();
+  const toast = useToast();
+  const reduced = useReducedMotion();
+  const { budget, logSpend } = useStore();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const t = useT();
-  const { budget, logSpend, toast } = useApp();
-  const r = getRecipe(id);
-  const [spent, setSpent] = useState(String(cost(r)));
-  const amount = digits(spent);
+  const cost = recipeCost(recipeById(Number(id)));
+  const [spent, setSpent] = useState(String(cost));
+
   const drop = useRef(new Animated.Value(0)).current;
-
   useEffect(() => {
-    Animated.timing(drop, { toValue: 1, duration: 900, easing: Easing.bezier(0.3, 1.6, 0.5, 1), useNativeDriver: Platform.OS !== "web" }).start();
-  }, [drop]);
+    if (reduced) {
+      drop.setValue(1);
+      return;
+    }
+    Animated.timing(drop, {
+      toValue: 1,
+      duration: 900,
+      easing: Easing.bezier(0.3, 1.6, 0.5, 1),
+      useNativeDriver: nativeDriver,
+    }).start();
+  }, [drop, reduced]);
 
-  const save = () => {
-    logSpend(amount);
+  const log = () => {
+    logSpend(Number(spent.replace(/\D/g, "")) || 0);
     toast("Tercatat. Dompet aman!");
-    router.replace("/akun");
+    router.dismissTo("/akun");
   };
 
-  const diff = budget - amount;
   return (
     <Screen focus>
-      <Col gap={16} style={{ alignItems: "center", maxWidth: 460, width: "100%", alignSelf: "center", marginTop: 32 }}>
-        <Animated.View style={{ opacity: drop, transform: [{ translateY: drop.interpolate({ inputRange: [0, 1], outputRange: [-60, 0] }) }] }}>
-          <Icon n="paid" fill size={48} c="#ffb95f" />
+      <View style={{ alignItems: "center", maxWidth: 460, width: "100%", alignSelf: "center", marginTop: h * 0.05, gap: 16 }}>
+        <Animated.View
+          style={{
+            opacity: drop.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: "clamp" }),
+            transform: [{ translateY: drop.interpolate({ inputRange: [0, 1], outputRange: [-60, 0] }) }],
+          }}
+        >
+          <Icon name="paid" size={48} fill color={fixed.coin} />
         </Animated.View>
         <Mascot size={180} mood="cheer" />
-        <Stamp label="HEMAT BANGET!" size={15} style={{ transform: [{ rotate: "3deg" }] }} />
-        <Txt v="h1" center accessibilityRole="header">
+        <Stamp label="HEMAT BANGET!" size={15} rotate="3deg" style={{ alignSelf: "center" }} />
+        <Txt v="h1" style={{ textAlign: "center" }}>
           Selesai masak!
         </Txt>
         <Card style={{ width: "100%", alignItems: "center" }}>
           <Txt v="cap">Berapa habisnya?</Txt>
-          <TextInput
+          <Inp
+            aria-label="Berapa habisnya?"
+            inputMode="numeric"
             value={spent}
             onChangeText={setSpent}
-            inputMode="numeric"
-            accessibilityLabel="Jumlah pengeluaran"
-            style={{ fontFamily: FONT.jk7, fontSize: 30, color: t.chili, textAlign: "center", width: "100%", minHeight: 46, outlineWidth: 0 }}
+            style={{
+              fontFamily: font.head,
+              fontSize: 30,
+              textAlign: "center",
+              color: c.chili,
+              fontVariant: ["tabular-nums"],
+              marginVertical: 4,
+            }}
           />
-          <Txt v="cap" f="vn7" c={diff >= 0 ? "daun" : "err"}>
-            {diff >= 0 ? `Hemat ${R(diff)} dari budget` : `Lewat ${R(-diff)} dari budget`}
+          <Txt v="cap" b color={c.daun}>
+            Hemat {rp(budget - cost)} dari budget
           </Txt>
         </Card>
-        <Btn size="xl" full title="Catat pengeluaran" onPress={save} />
-        <Btn ghost full title="Lewati" onPress={() => router.replace("/home")} />
-      </Col>
+        <Btn size="xl" full title="Catat pengeluaran" onPress={log} />
+        <Btn ghost full title="Lewati" onPress={() => router.dismissTo("/home")} />
+      </View>
     </Screen>
   );
 }

@@ -1,117 +1,143 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Pressable, Vibration, View } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Btn, Card, Icon, IconBtn, Row, Screen, Sticky, Txt, Col } from "../../components/ui";
-import { useApp } from "../../context/AppContext";
-import { getRecipe, RECIPES } from "../../data/seed";
-import { mmss } from "../../lib/format";
-import { FONT, clamp, useLayout, useT } from "../../theme";
+import { Pressable, Text, Vibration, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { Icon } from "../../components/Icon";
+import { goBack } from "../../components/nav";
+import { useToast } from "../../components/Overlay";
+import { useLayout, useTheme } from "../../components/theme";
+import { B, Txt, useType } from "../../components/Txt";
+import { between, Btn, Card, RoundBtn, row, Screen, Sticky, wrap } from "../../components/ui";
+import { formatTimer, RECIPES, recipeById } from "../../constants/data";
+import { clamp, font } from "../../constants/theme";
 
-export function generateStaticParams() {
-  return RECIPES.map((r) => ({ id: String(r.id) }));
+// One pre-built page per recipe, so direct links work in the web export.
+export async function generateStaticParams() {
+  return RECIPES.map(r => ({ id: String(r.id) }));
 }
 
-/** Full-screen, one-step-at-a-time cooking mode with a per-step timer. */
 export default function Cook() {
+  const { c } = useTheme();
+  const { w } = useLayout();
+  const t = useType();
+  const toast = useToast();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const t = useT();
-  const { width } = useLayout();
-  const { toast } = useApp();
-  const r = getRecipe(id);
-  const n = r.steps.length;
+  const r = recipeById(Number(id));
   const [si, setSi] = useState(0);
-  const step = r.steps[si];
-  const [left, setLeft] = useState(step.seconds);
+  const [left, setLeft] = useState<number | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const stop = () => {
+  const stopTimer = () => {
     if (timer.current) clearInterval(timer.current);
     timer.current = null;
   };
-  useEffect(() => {
-    stop();
-    setLeft(r.steps[si].seconds);
-  }, [si, r]);
-  useEffect(() => stop, []);
+  useEffect(() => stopTimer, []);
 
-  const start = () => {
+  const n = r.steps.length;
+  const step = r.steps[si];
+
+  const startTimer = () => {
     if (timer.current) return;
+    let sec = step.sec;
+    setLeft(sec);
     timer.current = setInterval(() => {
-      setLeft((s) => {
-        if (s <= 1) {
-          stop();
-          Vibration.vibrate(300);
-          toast("Timer selesai!");
-          return 0;
-        }
-        return s - 1;
-      });
+      sec--;
+      setLeft(sec);
+      if (sec <= 0) {
+        stopTimer();
+        Vibration.vibrate(300);
+        toast("Timer selesai!");
+      }
     }, 1000);
   };
 
-  const next = () => (si < n - 1 ? setSi(si + 1) : router.replace(`/finish/${r.id}`));
-  const exit = () => (router.canGoBack() ? router.back() : router.replace(`/recipe/${r.id}`));
+  const go = (to: number) => {
+    stopTimer();
+    setLeft(null);
+    setSi(to);
+  };
 
   return (
     <Screen focus>
-      <Col style={{ maxWidth: 720, width: "100%", alignSelf: "center" }}>
-        <Row sp>
-          <IconBtn n="x" label="Keluar" bg="card" c="ink" size={48} onPress={exit} />
-          <Row gap={6}>
+      <View style={{ maxWidth: 720, width: "100%", alignSelf: "center", gap: 14 }}>
+        <View style={[row, between]}>
+          <RoundBtn icon="close" label="Keluar" onPress={goBack} />
+          <View style={[row, { gap: 6 }]} aria-hidden>
             {r.steps.map((_, i) => (
-              <View key={i} style={{ width: i === si ? 36 : 14, height: 9, borderRadius: 9, backgroundColor: i <= si ? t.chili : t.bd }} />
+              <View
+                key={i}
+                style={{
+                  width: i === si ? 36 : 14,
+                  height: 9,
+                  borderRadius: 9,
+                  backgroundColor: i <= si ? c.chili : c.bd,
+                }}
+              />
             ))}
-          </Row>
-          <Txt v="cap" num>
+          </View>
+          <Txt v="cap" m>
             {si + 1}/{n}
           </Txt>
-        </Row>
+        </View>
 
         <Txt v="cap" style={{ marginTop: 12 }}>
           Langkah {si + 1} dari {n}
         </Txt>
-        <Txt v="h1" s={clamp(32, width * 0.06, 52)} style={{ lineHeight: Math.round(clamp(32, width * 0.06, 52) * 1.12) }} accessibilityRole="header">
+        <Txt v="h1" style={t.head(clamp(32, 0.06 * w, 52), 1.12)}>
           {step.text}
         </Txt>
 
-        {step.seconds ? (
-          <Row>
+        {step.sec ? (
+          <View style={row}>
             <Pressable
-              onPress={start}
-              accessibilityRole="button"
-              accessibilityLabel="Mulai timer"
-              style={{ minHeight: 60, paddingHorizontal: 26, borderRadius: 8, backgroundColor: t.ink, flexDirection: "row", alignItems: "center", gap: 8 }}
+              role="button"
+              aria-label={`Timer ${formatTimer(left ?? step.sec)}, tap untuk mulai`}
+              onPress={startTimer}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 6,
+                minHeight: 60,
+                paddingHorizontal: 26,
+                borderRadius: 8,
+                backgroundColor: c.ink,
+              }}
             >
-              <Icon n="clock" c="paper" />
-              <Txt c="paper" style={{ fontFamily: FONT.jk5, fontSize: 30, lineHeight: 36 }} num accessibilityLiveRegion="polite">
-                {mmss(left)}
-              </Txt>
+              <Icon name="schedule" color={c.paper} />
+              <Text style={{ fontFamily: font.headMedium, fontSize: 30, color: c.paper, fontVariant: ["tabular-nums"] }}>
+                {formatTimer(left ?? step.sec)}
+              </Text>
             </Pressable>
             <Txt v="cap">Tap untuk mulai</Txt>
-          </Row>
+          </View>
         ) : null}
 
         <Sticky size={17}>{r.tip}</Sticky>
-        <Txt v="cap" f="vn7" style={{ marginTop: 6 }}>
+        <Txt v="cap" b style={{ marginTop: 6 }}>
           Bahan di langkah ini
         </Txt>
-        <Row wrap>
-          {r.ingredients.slice(si * 2, si * 2 + 3).map((x) => (
-            <Card key={x.name} style={{ flexGrow: 1, flexBasis: 110, minWidth: 110 }}>
-              <Txt f="vn7">{x.name}</Txt>
-              <Txt v="cap" num>
+        <View style={[row, wrap]}>
+          {r.ing.slice(si * 2, si * 2 + 3).map(x => (
+            <Card key={x.name} style={{ flexGrow: 1, flexBasis: 110 }}>
+              <Txt>
+                <B>{x.name}</B>
+              </Txt>
+              <Txt v="cap" m>
                 {x.qty} {x.unit}
               </Txt>
             </Card>
           ))}
-        </Row>
+        </View>
 
-        <Row style={{ marginTop: 14 }}>
-          {si ? <Btn ghost title="Kembali" onPress={() => setSi(si - 1)} /> : null}
-          <Btn grow size="xl" title={si < n - 1 ? "Langkah berikutnya" : "Selesai masak"} onPress={next} />
-        </Row>
-      </Col>
+        <View style={[row, { marginTop: 14 }]}>
+          {si ? <Btn ghost title="Kembali" onPress={() => go(si - 1)} /> : null}
+          <Btn
+            size="xl"
+            grow
+            title={si < n - 1 ? "Langkah berikutnya" : "Selesai masak"}
+            onPress={() => (si < n - 1 ? go(si + 1) : (stopTimer(), router.replace(`/finish/${r.id}`)))}
+          />
+        </View>
+      </View>
     </Screen>
   );
 }
