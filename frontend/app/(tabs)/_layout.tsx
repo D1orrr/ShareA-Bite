@@ -1,120 +1,35 @@
 import React from "react";
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { View, Platform } from "react-native";
+import { Redirect, Tabs } from "expo-router";
+import { AppHeader, AppTabBar } from "../../components/nav";
+import { useTheme } from "../../components/theme";
+import { Splash } from "../../components/Splash";
+import { useStore } from "../../context/AppStore";
 
+export const unstable_settings = { initialRouteName: "home" };
+
+// The hidden screens live here too so they keep the header and tab bar.
 export default function TabsLayout() {
+  const { c } = useTheme();
+  const { ready, user } = useStore();
+  if (!ready) return <Splash />;
+  if (!user) return <Redirect href="/" />;
   return (
     <Tabs
+      backBehavior="history"
+      tabBar={props => <AppTabBar {...props} />}
       screenOptions={{
-        headerStyle: {
-          backgroundColor: "#FAF7F2", // Soft warm cream header
-          borderBottomWidth: 1,
-          borderBottomColor: "#EFE8E1",
-        },
-        headerTitleStyle: {
-          fontWeight: "800",
-          fontSize: 18,
-          color: "#2D2522", // Warm deep charcoal
-        },
-        headerShadowVisible: false,
-        tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopWidth: 1,
-          borderTopColor: "#EFE8E1",
-          height: Platform.OS === "ios" ? 88 : 72,
-          paddingBottom: Platform.OS === "ios" ? 24 : 10,
-          paddingTop: 8,
-          boxShadow: "0 -8px 24px rgba(45, 37, 34, 0.04)",
-        },
-        tabBarActiveTintColor: "#E06D53", // Terracotta Primary Accent
-        tabBarInactiveTintColor: "#A89F9A", // Warm Muted Stone
-        tabBarLabelStyle: {
-          fontWeight: "700",
-          fontSize: 10,
-        },
+        header: ({ route }) => <AppHeader route={route.name} />,
+        sceneStyle: { backgroundColor: c.paper },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "AI Racik",
-          headerTitle: "Share'N'Bite • AI Racik 🍳",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1.5 rounded-full ${
-                focused ? "bg-[#FDEEE9]" : "bg-transparent"
-              }`}
-            >
-              <Ionicons name="sparkles" size={20} color={color} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="shopping"
-        options={{
-          title: "Belanja",
-          headerTitle: "Daftar Belanja Warung 🛒",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1.5 rounded-full ${
-                focused ? "bg-[#FDEEE9]" : "bg-transparent"
-              }`}
-            >
-              <Ionicons name="cart" size={20} color={color} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="create"
-        options={{
-          title: "Buat Resep",
-          headerTitle: "Resep Kreator 👨‍🍳",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1.5 rounded-full ${
-                focused ? "bg-[#FEF3C7]" : "bg-transparent"
-              }`}
-            >
-              <Ionicons name="add-circle" size={22} color={color} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="community"
-        options={{
-          title: "Komunitas",
-          headerTitle: "Komunitas Resep Anak Kos 🌐",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1.5 rounded-full ${
-                focused ? "bg-[#E0F2FE]" : "bg-transparent"
-              }`}
-            >
-              <Ionicons name="people" size={20} color={color} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Cuan & Kos",
-          headerTitle: "Finansial Kos & Level 📊",
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              className={`p-1.5 rounded-full ${
-                focused ? "bg-[#DCFCE7]" : "bg-transparent"
-              }`}
-            >
-              <Ionicons name="stats-chart" size={20} color={color} />
-            </View>
-          ),
-        }}
-      />
+      <Tabs.Screen name="home" />
+      <Tabs.Screen name="belanja" />
+      <Tabs.Screen name="komunitas" />
+      <Tabs.Screen name="akun" />
+      <Tabs.Screen name="results" options={{ href: null }} />
+      <Tabs.Screen name="recipe/[id]" options={{ href: null }} />
+      <Tabs.Screen name="spots" options={{ href: null }} />
+      <Tabs.Screen name="simpan" options={{ href: null }} />
     </Tabs>
   );
 }

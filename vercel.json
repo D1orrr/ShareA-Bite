@@ -14,13 +14,10 @@
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/$1"
-    }
+    { "src": "/api/(.*)", "dest": "/api/index.py" },
+    { "src": "/(recipe|cook|finish)/([0-9]+)/?", "dest": "/frontend/$1/$2.html" },
+    { "src": "/(.*\\.[a-zA-Z0-9]+)", "dest": "/frontend/$1" },
+    { "src": "/", "dest": "/frontend/index.html" },
+    { "src": "/(.+?)/?", "dest": "/frontend/$1.html" }
   ]
 }
