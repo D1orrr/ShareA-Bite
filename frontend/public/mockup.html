@@ -1,0 +1,2509 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ShareA’Bite · Mobile</title>
+<meta name="theme-color" content="#006948">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="ShareA’Bite">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23006948'/%3E%3Cpath d='M18 48h64c0 22-14 34-32 34S18 70 18 48z' fill='%23fff'/%3E%3Ccircle cx='50' cy='28' r='10' fill='%23ffb95f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#faf8ff;--ink:#131b2e;--chili:#006948;--sec:#a73a00;--daun:#006948;--kunyit:#ffb95f;--sirup:#f2f3ff;--mut:#4a5850;--card:#ffffff;--bd:#dae2fd;--ov:#bccac0;--err:#ba1a1a;--onp:#fff;--ons:#fff;--sh:rgba(19,27,46,.1);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0d1322;--ink:#e6ebff;--chili:#68dba9;--sec:#ffb599;--daun:#68dba9;--sirup:#1a2540;--mut:#a9b6ad;--card:#162036;--bd:#2a3550;--ov:#3d4b5e;--err:#ffb4ab;--onp:#002114;--ons:#370e00;--sh:rgba(0,0,0,.5)}}
+:root[data-theme="dark"]{--paper:#0d1322;--ink:#e6ebff;--chili:#68dba9;--sec:#ffb599;--daun:#68dba9;--sirup:#1a2540;--mut:#a9b6ad;--card:#162036;--bd:#2a3550;--ov:#3d4b5e;--err:#ffb4ab;--onp:#002114;--ons:#370e00;--sh:rgba(0,0,0,.5)}
+*{box-sizing:border-box}html,body{min-height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font:400 15px/1.55 'Be Vietnam Pro',system-ui,sans-serif;overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{display:none}
+button,input{font:inherit;color:inherit}button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--chili);outline-offset:2px}
+.material-symbols-outlined{font-family:'Material Symbols Outlined';font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;direction:ltr;font-feature-settings:'liga';-webkit-font-smoothing:antialiased}
+.material-symbols-outlined{width:1em;height:1em;overflow:hidden}
+.i{font-size:22px;flex:none}
+.shell{display:flex;flex-direction:column;min-height:100%}
+.side{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;height:64px;padding:0 16px;background:color-mix(in srgb,var(--paper) 86%,transparent);backdrop-filter:blur(20px);box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.bl{font:600 12px 'Plus Jakarta Sans',sans-serif;color:var(--chili);letter-spacing:.02em}.ht{font:600 20px/1.2 'Plus Jakarta Sans',sans-serif;letter-spacing:-.01em}
+.dn{display:none;gap:4px}.nv{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:99px;font:600 14px 'Plus Jakarta Sans';color:var(--mut);text-decoration:none}.nv:hover{background:var(--sirup)}.nv.on{background:var(--chili);color:var(--onp)}.nv .i{font-size:20px}
+.ib{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--mut)}.ib:hover{background:var(--sirup)}
+.view{flex:1;min-width:0;padding:16px 16px 120px;width:100%;animation:in .35s ease-out}
+.tb{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:space-around;padding:0 16px env(safe-area-inset-bottom,0px);height:calc(64px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(20px);box-shadow:0 -2px 12px rgba(0,0,0,.05)}
+.tb a{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:700 11px 'Plus Jakarta Sans';color:var(--mut);text-decoration:none;letter-spacing:.03em}.tb a .i{font-size:24px}.tb .on{color:var(--chili)}
+.bw{position:relative;display:flex}.bg{position:absolute;top:-4px;right:-9px;background:var(--sec);color:var(--ons);border-radius:99px;font:700 10px/1 'Plus Jakarta Sans';padding:3px 6px}
+.focus .tb,.focus .side{display:none!important}.focus .view{padding-bottom:48px}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.h{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;letter-spacing:-.02em;line-height:1.2;margin:0}
+.d{font-size:42px;line-height:1.1}.h1{font-size:26px}.h2{font-size:22px}.h3{font-size:17px;font-weight:600}
+.m{font-family:'Plus Jakarta Sans',sans-serif;font-variant-numeric:tabular-nums}.cap{font-size:13px;color:var(--mut)}
+.row{display:flex;align-items:center;gap:10px}.sp{justify-content:space-between}.wrap{flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:14px}.g{flex:1;min-width:0}
+.grid{display:grid;gap:16px;grid-template-columns:1fr}
+.two{display:grid;gap:20px;grid-template-columns:1fr}
+.card{background:var(--card);border-radius:12px;padding:16px;position:relative;box-shadow:0 1px 3px var(--sh)}
+.torn{margin-bottom:8px}.torn::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:7px;background:linear-gradient(135deg,var(--card) 50%,transparent 50%) 0 0/12px 7px,linear-gradient(225deg,var(--card) 50%,transparent 50%) 0 0/12px 7px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 26px;border-radius:99px;background:var(--chili);color:var(--onp);font:700 15px 'Plus Jakarta Sans';text-decoration:none;box-shadow:0 1px 3px var(--sh);transition:transform .15s,box-shadow .15s}
+.btn:hover{box-shadow:0 8px 18px -6px var(--sh)}.btn:active{transform:scale(.96)}
+.btn.gh{background:transparent;color:var(--ink);border:1.5px solid var(--ov);box-shadow:none}.btn.s{min-height:40px;padding:0 16px;font-size:13px}.btn.w{width:100%}.btn.xl{min-height:60px;font-size:17px}
+.fab{background:var(--sec);color:var(--ons);position:fixed;right:16px;bottom:84px;z-index:35;box-shadow:0 10px 24px -6px rgba(0,0,0,.35);min-height:48px;padding:0 18px 0 14px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:8px;border:0;background:var(--card);color:var(--mut);font:600 12.5px 'Plus Jakarta Sans';white-space:nowrap;box-shadow:0 1px 2px var(--sh);flex:none}
+.chip.on{background:var(--chili);color:var(--onp)}.chip.sw{background:color-mix(in srgb,var(--chili) 14%,transparent);color:var(--chili);min-height:28px;font-size:11.5px;padding:0 10px;box-shadow:none}
+.stamp,.bdg{display:inline-block;background:color-mix(in srgb,var(--daun) 15%,transparent);color:var(--daun);font:700 11px 'Plus Jakarta Sans';padding:4px 10px;border-radius:99px;letter-spacing:.04em;white-space:nowrap}.stamp.bad,.bdg.bad{background:color-mix(in srgb,var(--err) 14%,transparent);color:var(--err)}
+.tag{background:var(--chili);color:var(--onp);font:700 14px 'Plus Jakarta Sans';padding:4px 12px;border-radius:99px;display:inline-block}
+.pxl{font:700 46px/1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.04em;color:var(--chili);font-variant-numeric:tabular-nums}
+.fp{display:grid;place-items:center;border-radius:12px;flex:none;position:relative;overflow:hidden}
+.ring{width:44px;height:44px;border-radius:50%;background:conic-gradient(var(--daun) calc(var(--p)*1%),var(--bd) 0);display:grid;place-items:center;flex:none}.ring b{width:34px;height:34px;border-radius:50%;background:var(--card);display:grid;place-items:center;font:700 12px 'Plus Jakarta Sans'}
+.bar{height:10px;border-radius:9px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;border-radius:9px;transition:width .6s,background .3s}
+.lr{display:flex;align-items:baseline;gap:8px;font:500 14px 'Be Vietnam Pro';font-variant-numeric:tabular-nums;padding:4px 0}.lr i{flex:1;border-bottom:2px dotted var(--ov);transform:translateY(-3px)}
+.bc{height:28px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 9px,var(--ink) 9px 12px,transparent 12px 14px);opacity:.7}
+.pill{display:flex;gap:4px;padding:4px;background:var(--bd);border-radius:12px;width:100%;max-width:480px}.pill button{flex:1;min-height:42px;border-radius:9px;font:700 13px 'Plus Jakarta Sans';color:var(--mut)}.pill .on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px var(--sh)}
+.sticky{background:#ffddb8;color:#2a1700;border-radius:12px;padding:16px;transform:none!important;font-weight:500}
+.av{width:44px;height:44px;border-radius:50%;background:#85f8c4;color:#002114;display:grid;place-items:center;font:700 16px 'Plus Jakarta Sans';flex:none}
+.ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--ov);display:grid;place-items:center;flex:none;color:#fff}.ck .i{font-size:18px}.ck.on{background:var(--daun);border-color:var(--daun);color:var(--onp)}
+.done{opacity:.45;text-decoration:line-through}
+.inp{width:100%;border:0;background:var(--card);border-radius:8px;min-height:46px;padding:0 14px;outline:0;box-shadow:0 1px 2px var(--sh)}.inp:focus{box-shadow:0 0 0 2px var(--chili)}
+input[type=range]{width:100%;accent-color:var(--kunyit);height:34px}
+.hero{--ink:#fff;--mut:rgba(255,255,255,.8);--paper:#005137;--chili:#fff;--onp:#005137;--card:rgba(255,255,255,.13);--bd:rgba(255,255,255,.25);--ov:rgba(255,255,255,.5);--sh:rgba(0,0,0,.2);color:#fff;background:radial-gradient(circle at 92% 0,rgba(255,185,95,.35),transparent 45%),linear-gradient(150deg,#005137,#00855d);border-radius:16px;padding:20px;box-shadow:0 20px 40px -22px rgba(0,105,72,.7)}
+.hero .stamp{background:#fff}.hero.lt .stamp{background:color-mix(in srgb,var(--daun) 15%,transparent)}.hero .pxl{color:#ffddb8}.hero .chip{background:rgba(255,255,255,.14);color:#fff;box-shadow:none}.hero .chip.on{background:#fff;color:#005137}
+.hero.lt{--ink:#131b2e;--mut:#4a5850;--paper:#faf8ff;--chili:#006948;--onp:#fff;--card:#fff;--bd:#dae2fd;--ov:#bccac0;--sh:rgba(19,27,46,.1);color:#131b2e;background:var(--sirup);box-shadow:none}.hero.lt .pxl{color:var(--chili)}.hero.lt .chip{background:#fff;color:#4a5850;box-shadow:0 1px 2px var(--sh)}
+.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,30px);background:var(--ink);color:var(--paper);padding:12px 22px;border-radius:99px;font:600 14px 'Plus Jakarta Sans';opacity:0;transition:.3s;z-index:90;pointer-events:none}.toast.on{opacity:1;transform:translate(-50%,0)}
+.modal{position:fixed;inset:0;z-index:80;background:rgba(19,27,46,.5);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--paper);width:100%;max-width:540px;border-radius:24px 24px 0 0;padding:20px;max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:12px;animation:in .3s}
+.hs{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory}.hs>*{scroll-snap-align:start}
+.map{height:230px;border-radius:12px;position:relative;overflow:hidden;box-shadow:0 1px 3px var(--sh);background:linear-gradient(90deg,transparent 46%,#fff9 46% 50%,transparent 50%),linear-gradient(0deg,transparent 58%,#fff9 58% 62%,transparent 62%),linear-gradient(135deg,#d4efe0,#eef0ff 55%,#d7e6f4)}
+.pin{position:absolute;filter:drop-shadow(0 3px 3px rgba(0,0,0,.3))}
+.rc{position:relative;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px var(--sh);transition:transform .2s,box-shadow .2s}.rc:hover{transform:translateY(-3px);box-shadow:0 14px 30px -14px var(--sh)}
+.rc a{display:block;position:relative;text-decoration:none;color:inherit}.rc .fp{border-radius:0}
+.pr{position:absolute;left:12px;bottom:12px;background:rgba(40,48,68,.88);backdrop-filter:blur(8px);color:#eef0ff;font:600 12px 'Plus Jakarta Sans';padding:7px 12px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.pr::before{content:'payments';font-family:'Material Symbols Outlined';font-size:16px;color:#68dba9;margin-right:6px;vertical-align:-3px}
+.sv{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--sec);display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:2}
+.rb{padding:16px;display:flex;flex-direction:column;gap:8px}
+.coin{animation:drop .9s cubic-bezier(.3,1.6,.5,1) both}@keyframes drop{from{transform:translateY(-60px);opacity:0}}
+.bob{animation:bob 2.6s ease-in-out infinite}.stir{transform-origin:50% 90%;animation:stir 1s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-6px)}}@keyframes stir{50%{transform:rotate(8deg)}}
+html,body{height:100%}
+.phone{position:relative;width:100%;min-height:100%;background:var(--paper)}
+.scroll{min-height:100%}
+.sbar,.aside{display:none}
+.lbl{font:700 12px 'Plus Jakarta Sans';color:var(--mut);letter-spacing:.06em;text-transform:uppercase;margin:4px 0 -4px}
+.ad{display:flex;gap:8px}.ad .inp{min-height:44px}
+@media(min-width:600px){
+ body{display:flex;align-items:center;justify-content:center;gap:56px;min-height:100vh;padding:24px;background:radial-gradient(circle at 20% 10%,#d9f3e6,transparent 40%),#e7eaf5}
+ :root[data-theme="dark"] body{background:#05080f}
+ .phone{flex:none;width:390px;height:min(844px,calc(100vh - 48px));min-height:0;border-radius:52px;overflow:hidden;transform:translateZ(0);box-shadow:0 0 0 11px #131b2e,0 0 0 13px #3a4258,0 40px 80px -20px rgba(19,27,46,.55)}
+ .scroll{position:absolute;inset:44px 0 0;overflow-y:auto;overflow-x:hidden;min-height:0}
+ .sbar{display:flex;position:absolute;top:0;left:0;right:0;height:44px;z-index:60;align-items:center;justify-content:space-between;padding:0 30px 0 34px;font:700 15px 'Plus Jakarta Sans';background:var(--paper)}
+ .sbar .nt{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:118px;height:30px;border-radius:20px;background:#131b2e}
+ .aside{display:flex;flex-direction:column;gap:14px;max-width:300px;color:#131b2e}
+ :root[data-theme="dark"] .aside{color:#e6ebff}
+ .aside h2{font:700 30px/1.15 'Plus Jakarta Sans';letter-spacing:-.02em;margin:0}.aside p{margin:0;color:#4a5850}
+ .qr{background:#fff;border-radius:16px;padding:14px;width:184px;box-shadow:0 8px 24px -10px rgba(0,0,0,.3)}.qr svg{display:block;width:100%;height:auto}
+}
+@media(min-width:600px) and (max-width:899px){.aside{display:none}}
+</style></head><body>
+<div class="aside"><span class="stamp" style="align-self:flex-start">MOCKUP MOBILE</span><h2>ShareA’Bite di HP kamu</h2><p>Scan QR ini untuk membuka mockup langsung di browser HP. Tidak perlu install apa pun.</p><div class="qr" id="qr"></div><p class="cap" id="qu" style="word-break:break-all"></p><p class="cap">Tip: di HP, pilih “Add to Home Screen” supaya tampil seperti aplikasi.</p></div>
+<div class="phone"><div class="sbar" aria-hidden="true"><span id="clk">9:41</span><span class="nt"></span><span class="row" style="gap:5px"><span class="material-symbols-outlined" style="font-size:18px">signal_cellular_alt</span><span class="material-symbols-outlined" style="font-size:18px">wifi</span><span class="material-symbols-outlined" style="font-size:20px">battery_full</span></span></div>
+<div class="scroll" id="sc"><div class="shell" id="sh"><header class="side" id="sd"></header><main class="view" id="v"></main><nav class="tb" id="tb" aria-label="Main"></nav></div></div>
+<div class="toast" id="ts" role="status"></div><div id="md"></div></div>
+<script>
+//---------------------------------------------------------------------
+//
+// QR Code Generator for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//  http://www.opensource.org/licenses/mit-license.php
+//
+// The word 'QR Code' is registered trademark of
+// DENSO WAVE INCORPORATED
+//  http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+
+var qrcode = function() {
+
+  //---------------------------------------------------------------------
+  // qrcode
+  //---------------------------------------------------------------------
+
+  /**
+   * qrcode
+   * @param typeNumber 1 to 40
+   * @param errorCorrectionLevel 'L','M','Q','H'
+   */
+  var qrcode = function(typeNumber, errorCorrectionLevel) {
+
+    var PAD0 = 0xEC;
+    var PAD1 = 0x11;
+
+    var _typeNumber = typeNumber;
+    var _errorCorrectionLevel = QRErrorCorrectionLevel[errorCorrectionLevel];
+    var _modules = null;
+    var _moduleCount = 0;
+    var _dataCache = null;
+    var _dataList = [];
+
+    var _this = {};
+
+    var makeImpl = function(test, maskPattern) {
+
+      _moduleCount = _typeNumber * 4 + 17;
+      _modules = function(moduleCount) {
+        var modules = new Array(moduleCount);
+        for (var row = 0; row < moduleCount; row += 1) {
+          modules[row] = new Array(moduleCount);
+          for (var col = 0; col < moduleCount; col += 1) {
+            modules[row][col] = null;
+          }
+        }
+        return modules;
+      }(_moduleCount);
+
+      setupPositionProbePattern(0, 0);
+      setupPositionProbePattern(_moduleCount - 7, 0);
+      setupPositionProbePattern(0, _moduleCount - 7);
+      setupPositionAdjustPattern();
+      setupTimingPattern();
+      setupTypeInfo(test, maskPattern);
+
+      if (_typeNumber >= 7) {
+        setupTypeNumber(test);
+      }
+
+      if (_dataCache == null) {
+        _dataCache = createData(_typeNumber, _errorCorrectionLevel, _dataList);
+      }
+
+      mapData(_dataCache, maskPattern);
+    };
+
+    var setupPositionProbePattern = function(row, col) {
+
+      for (var r = -1; r <= 7; r += 1) {
+
+        if (row + r <= -1 || _moduleCount <= row + r) continue;
+
+        for (var c = -1; c <= 7; c += 1) {
+
+          if (col + c <= -1 || _moduleCount <= col + c) continue;
+
+          if ( (0 <= r && r <= 6 && (c == 0 || c == 6) )
+              || (0 <= c && c <= 6 && (r == 0 || r == 6) )
+              || (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+            _modules[row + r][col + c] = true;
+          } else {
+            _modules[row + r][col + c] = false;
+          }
+        }
+      }
+    };
+
+    var getBestMaskPattern = function() {
+
+      var minLostPoint = 0;
+      var pattern = 0;
+
+      for (var i = 0; i < 8; i += 1) {
+
+        makeImpl(true, i);
+
+        var lostPoint = QRUtil.getLostPoint(_this);
+
+        if (i == 0 || minLostPoint > lostPoint) {
+          minLostPoint = lostPoint;
+          pattern = i;
+        }
+      }
+
+      return pattern;
+    };
+
+    var setupTimingPattern = function() {
+
+      for (var r = 8; r < _moduleCount - 8; r += 1) {
+        if (_modules[r][6] != null) {
+          continue;
+        }
+        _modules[r][6] = (r % 2 == 0);
+      }
+
+      for (var c = 8; c < _moduleCount - 8; c += 1) {
+        if (_modules[6][c] != null) {
+          continue;
+        }
+        _modules[6][c] = (c % 2 == 0);
+      }
+    };
+
+    var setupPositionAdjustPattern = function() {
+
+      var pos = QRUtil.getPatternPosition(_typeNumber);
+
+      for (var i = 0; i < pos.length; i += 1) {
+
+        for (var j = 0; j < pos.length; j += 1) {
+
+          var row = pos[i];
+          var col = pos[j];
+
+          if (_modules[row][col] != null) {
+            continue;
+          }
+
+          for (var r = -2; r <= 2; r += 1) {
+
+            for (var c = -2; c <= 2; c += 1) {
+
+              if (r == -2 || r == 2 || c == -2 || c == 2
+                  || (r == 0 && c == 0) ) {
+                _modules[row + r][col + c] = true;
+              } else {
+                _modules[row + r][col + c] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+
+    var setupTypeNumber = function(test) {
+
+      var bits = QRUtil.getBCHTypeNumber(_typeNumber);
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[Math.floor(i / 3)][i % 3 + _moduleCount - 8 - 3] = mod;
+      }
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[i % 3 + _moduleCount - 8 - 3][Math.floor(i / 3)] = mod;
+      }
+    };
+
+    var setupTypeInfo = function(test, maskPattern) {
+
+      var data = (_errorCorrectionLevel << 3) | maskPattern;
+      var bits = QRUtil.getBCHTypeInfo(data);
+
+      // vertical
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 6) {
+          _modules[i][8] = mod;
+        } else if (i < 8) {
+          _modules[i + 1][8] = mod;
+        } else {
+          _modules[_moduleCount - 15 + i][8] = mod;
+        }
+      }
+
+      // horizontal
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 8) {
+          _modules[8][_moduleCount - i - 1] = mod;
+        } else if (i < 9) {
+          _modules[8][15 - i - 1 + 1] = mod;
+        } else {
+          _modules[8][15 - i - 1] = mod;
+        }
+      }
+
+      // fixed module
+      _modules[_moduleCount - 8][8] = (!test);
+    };
+
+    var mapData = function(data, maskPattern) {
+
+      var inc = -1;
+      var row = _moduleCount - 1;
+      var bitIndex = 7;
+      var byteIndex = 0;
+      var maskFunc = QRUtil.getMaskFunction(maskPattern);
+
+      for (var col = _moduleCount - 1; col > 0; col -= 2) {
+
+        if (col == 6) col -= 1;
+
+        while (true) {
+
+          for (var c = 0; c < 2; c += 1) {
+
+            if (_modules[row][col - c] == null) {
+
+              var dark = false;
+
+              if (byteIndex < data.length) {
+                dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1);
+              }
+
+              var mask = maskFunc(row, col - c);
+
+              if (mask) {
+                dark = !dark;
+              }
+
+              _modules[row][col - c] = dark;
+              bitIndex -= 1;
+
+              if (bitIndex == -1) {
+                byteIndex += 1;
+                bitIndex = 7;
+              }
+            }
+          }
+
+          row += inc;
+
+          if (row < 0 || _moduleCount <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    };
+
+    var createBytes = function(buffer, rsBlocks) {
+
+      var offset = 0;
+
+      var maxDcCount = 0;
+      var maxEcCount = 0;
+
+      var dcdata = new Array(rsBlocks.length);
+      var ecdata = new Array(rsBlocks.length);
+
+      for (var r = 0; r < rsBlocks.length; r += 1) {
+
+        var dcCount = rsBlocks[r].dataCount;
+        var ecCount = rsBlocks[r].totalCount - dcCount;
+
+        maxDcCount = Math.max(maxDcCount, dcCount);
+        maxEcCount = Math.max(maxEcCount, ecCount);
+
+        dcdata[r] = new Array(dcCount);
+
+        for (var i = 0; i < dcdata[r].length; i += 1) {
+          dcdata[r][i] = 0xff & buffer.getBuffer()[i + offset];
+        }
+        offset += dcCount;
+
+        var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+        var rawPoly = qrPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+        var modPoly = rawPoly.mod(rsPoly);
+        ecdata[r] = new Array(rsPoly.getLength() - 1);
+        for (var i = 0; i < ecdata[r].length; i += 1) {
+          var modIndex = i + modPoly.getLength() - ecdata[r].length;
+          ecdata[r][i] = (modIndex >= 0)? modPoly.getAt(modIndex) : 0;
+        }
+      }
+
+      var totalCodeCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalCodeCount += rsBlocks[i].totalCount;
+      }
+
+      var data = new Array(totalCodeCount);
+      var index = 0;
+
+      for (var i = 0; i < maxDcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < dcdata[r].length) {
+            data[index] = dcdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      for (var i = 0; i < maxEcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < ecdata[r].length) {
+            data[index] = ecdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      return data;
+    };
+
+    var createData = function(typeNumber, errorCorrectionLevel, dataList) {
+
+      var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectionLevel);
+
+      var buffer = qrBitBuffer();
+
+      for (var i = 0; i < dataList.length; i += 1) {
+        var data = dataList[i];
+        buffer.put(data.getMode(), 4);
+        buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+        data.write(buffer);
+      }
+
+      // calc num max data.
+      var totalDataCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalDataCount += rsBlocks[i].dataCount;
+      }
+
+      if (buffer.getLengthInBits() > totalDataCount * 8) {
+        throw 'code length overflow. ('
+          + buffer.getLengthInBits()
+          + '>'
+          + totalDataCount * 8
+          + ')';
+      }
+
+      // end code
+      if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+        buffer.put(0, 4);
+      }
+
+      // padding
+      while (buffer.getLengthInBits() % 8 != 0) {
+        buffer.putBit(false);
+      }
+
+      // padding
+      while (true) {
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD0, 8);
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD1, 8);
+      }
+
+      return createBytes(buffer, rsBlocks);
+    };
+
+    _this.addData = function(data, mode) {
+
+      mode = mode || 'Byte';
+
+      var newData = null;
+
+      switch(mode) {
+      case 'Numeric' :
+        newData = qrNumber(data);
+        break;
+      case 'Alphanumeric' :
+        newData = qrAlphaNum(data);
+        break;
+      case 'Byte' :
+        newData = qr8BitByte(data);
+        break;
+      case 'Kanji' :
+        newData = qrKanji(data);
+        break;
+      default :
+        throw 'mode:' + mode;
+      }
+
+      _dataList.push(newData);
+      _dataCache = null;
+    };
+
+    _this.isDark = function(row, col) {
+      if (row < 0 || _moduleCount <= row || col < 0 || _moduleCount <= col) {
+        throw row + ',' + col;
+      }
+      return _modules[row][col];
+    };
+
+    _this.getModuleCount = function() {
+      return _moduleCount;
+    };
+
+    _this.make = function() {
+      if (_typeNumber < 1) {
+        var typeNumber = 1;
+
+        for (; typeNumber < 40; typeNumber++) {
+          var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, _errorCorrectionLevel);
+          var buffer = qrBitBuffer();
+
+          for (var i = 0; i < _dataList.length; i++) {
+            var data = _dataList[i];
+            buffer.put(data.getMode(), 4);
+            buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+            data.write(buffer);
+          }
+
+          var totalDataCount = 0;
+          for (var i = 0; i < rsBlocks.length; i++) {
+            totalDataCount += rsBlocks[i].dataCount;
+          }
+
+          if (buffer.getLengthInBits() <= totalDataCount * 8) {
+            break;
+          }
+        }
+
+        _typeNumber = typeNumber;
+      }
+
+      makeImpl(false, getBestMaskPattern() );
+    };
+
+    _this.createTableTag = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var qrHtml = '';
+
+      qrHtml += '<table style="';
+      qrHtml += ' border-width: 0px; border-style: none;';
+      qrHtml += ' border-collapse: collapse;';
+      qrHtml += ' padding: 0px; margin: ' + margin + 'px;';
+      qrHtml += '">';
+      qrHtml += '<tbody>';
+
+      for (var r = 0; r < _this.getModuleCount(); r += 1) {
+
+        qrHtml += '<tr>';
+
+        for (var c = 0; c < _this.getModuleCount(); c += 1) {
+          qrHtml += '<td style="';
+          qrHtml += ' border-width: 0px; border-style: none;';
+          qrHtml += ' border-collapse: collapse;';
+          qrHtml += ' padding: 0px; margin: 0px;';
+          qrHtml += ' width: ' + cellSize + 'px;';
+          qrHtml += ' height: ' + cellSize + 'px;';
+          qrHtml += ' background-color: ';
+          qrHtml += _this.isDark(r, c)? '#000000' : '#ffffff';
+          qrHtml += ';';
+          qrHtml += '"/>';
+        }
+
+        qrHtml += '</tr>';
+      }
+
+      qrHtml += '</tbody>';
+      qrHtml += '</table>';
+
+      return qrHtml;
+    };
+
+    _this.createSvgTag = function(cellSize, margin, alt, title) {
+
+      var opts = {};
+      if (typeof arguments[0] == 'object') {
+        // Called by options.
+        opts = arguments[0];
+        // overwrite cellSize and margin.
+        cellSize = opts.cellSize;
+        margin = opts.margin;
+        alt = opts.alt;
+        title = opts.title;
+      }
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      // Compose alt property surrogate
+      alt = (typeof alt === 'string') ? {text: alt} : alt || {};
+      alt.text = alt.text || null;
+      alt.id = (alt.text) ? alt.id || 'qrcode-description' : null;
+
+      // Compose title property surrogate
+      title = (typeof title === 'string') ? {text: title} : title || {};
+      title.text = title.text || null;
+      title.id = (title.text) ? title.id || 'qrcode-title' : null;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var c, mc, r, mr, qrSvg='', rect;
+
+      rect = 'l' + cellSize + ',0 0,' + cellSize +
+        ' -' + cellSize + ',0 0,-' + cellSize + 'z ';
+
+      qrSvg += '<svg version="1.1" xmlns="http://www.w3.org/2000/svg"';
+      qrSvg += !opts.scalable ? ' width="' + size + 'px" height="' + size + 'px"' : '';
+      qrSvg += ' viewBox="0 0 ' + size + ' ' + size + '" ';
+      qrSvg += ' preserveAspectRatio="xMinYMin meet"';
+      qrSvg += (title.text || alt.text) ? ' role="img" aria-labelledby="' +
+          escapeXml([title.id, alt.id].join(' ').trim() ) + '"' : '';
+      qrSvg += '>';
+      qrSvg += (title.text) ? '<title id="' + escapeXml(title.id) + '">' +
+          escapeXml(title.text) + '</title>' : '';
+      qrSvg += (alt.text) ? '<description id="' + escapeXml(alt.id) + '">' +
+          escapeXml(alt.text) + '</description>' : '';
+      qrSvg += '<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>';
+      qrSvg += '<path d="';
+
+      for (r = 0; r < _this.getModuleCount(); r += 1) {
+        mr = r * cellSize + margin;
+        for (c = 0; c < _this.getModuleCount(); c += 1) {
+          if (_this.isDark(r, c) ) {
+            mc = c*cellSize+margin;
+            qrSvg += 'M' + mc + ',' + mr + rect;
+          }
+        }
+      }
+
+      qrSvg += '" stroke="transparent" fill="black"/>';
+      qrSvg += '</svg>';
+
+      return qrSvg;
+    };
+
+    _this.createDataURL = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      return createDataURL(size, size, function(x, y) {
+        if (min <= x && x < max && min <= y && y < max) {
+          var c = Math.floor( (x - min) / cellSize);
+          var r = Math.floor( (y - min) / cellSize);
+          return _this.isDark(r, c)? 0 : 1;
+        } else {
+          return 1;
+        }
+      } );
+    };
+
+    _this.createImgTag = function(cellSize, margin, alt) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+
+      var img = '';
+      img += '<img';
+      img += '\u0020src="';
+      img += _this.createDataURL(cellSize, margin);
+      img += '"';
+      img += '\u0020width="';
+      img += size;
+      img += '"';
+      img += '\u0020height="';
+      img += size;
+      img += '"';
+      if (alt) {
+        img += '\u0020alt="';
+        img += escapeXml(alt);
+        img += '"';
+      }
+      img += '/>';
+
+      return img;
+    };
+
+    var escapeXml = function(s) {
+      var escaped = '';
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charAt(i);
+        switch(c) {
+        case '<': escaped += '&lt;'; break;
+        case '>': escaped += '&gt;'; break;
+        case '&': escaped += '&amp;'; break;
+        case '"': escaped += '&quot;'; break;
+        default : escaped += c; break;
+        }
+      }
+      return escaped;
+    };
+
+    var _createHalfASCII = function(margin) {
+      var cellSize = 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r1, r2, p;
+
+      var blocks = {
+        '██': '█',
+        '█ ': '▀',
+        ' █': '▄',
+        '  ': ' '
+      };
+
+      var blocksLastLineNoMargin = {
+        '██': '▀',
+        '█ ': '▀',
+        ' █': ' ',
+        '  ': ' '
+      };
+
+      var ascii = '';
+      for (y = 0; y < size; y += 2) {
+        r1 = Math.floor((y - min) / cellSize);
+        r2 = Math.floor((y + 1 - min) / cellSize);
+        for (x = 0; x < size; x += 1) {
+          p = '█';
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r1, Math.floor((x - min) / cellSize))) {
+            p = ' ';
+          }
+
+          if (min <= x && x < max && min <= y+1 && y+1 < max && _this.isDark(r2, Math.floor((x - min) / cellSize))) {
+            p += ' ';
+          }
+          else {
+            p += '█';
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          ascii += (margin < 1 && y+1 >= max) ? blocksLastLineNoMargin[p] : blocks[p];
+        }
+
+        ascii += '\n';
+      }
+
+      if (size % 2 && margin > 0) {
+        return ascii.substring(0, ascii.length - size - 1) + Array(size+1).join('▀');
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.createASCII = function(cellSize, margin) {
+      cellSize = cellSize || 1;
+
+      if (cellSize < 2) {
+        return _createHalfASCII(margin);
+      }
+
+      cellSize -= 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r, p;
+
+      var white = Array(cellSize+1).join('██');
+      var black = Array(cellSize+1).join('  ');
+
+      var ascii = '';
+      var line = '';
+      for (y = 0; y < size; y += 1) {
+        r = Math.floor( (y - min) / cellSize);
+        line = '';
+        for (x = 0; x < size; x += 1) {
+          p = 1;
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r, Math.floor((x - min) / cellSize))) {
+            p = 0;
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          line += p ? white : black;
+        }
+
+        for (r = 0; r < cellSize; r += 1) {
+          ascii += line + '\n';
+        }
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.renderTo2dContext = function(context, cellSize) {
+      cellSize = cellSize || 2;
+      var length = _this.getModuleCount();
+      for (var row = 0; row < length; row++) {
+        for (var col = 0; col < length; col++) {
+          context.fillStyle = _this.isDark(row, col) ? 'black' : 'white';
+          context.fillRect(row * cellSize, col * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrcode.stringToBytes
+  //---------------------------------------------------------------------
+
+  qrcode.stringToBytesFuncs = {
+    'default' : function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        bytes.push(c & 0xff);
+      }
+      return bytes;
+    }
+  };
+
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
+
+  //---------------------------------------------------------------------
+  // qrcode.createStringToBytes
+  //---------------------------------------------------------------------
+
+  /**
+   * @param unicodeData base64 string of byte array.
+   * [16bit Unicode],[16bit Bytes], ...
+   * @param numChars
+   */
+  qrcode.createStringToBytes = function(unicodeData, numChars) {
+
+    // create conversion map.
+
+    var unicodeMap = function() {
+
+      var bin = base64DecodeInputStream(unicodeData);
+      var read = function() {
+        var b = bin.read();
+        if (b == -1) throw 'eof';
+        return b;
+      };
+
+      var count = 0;
+      var unicodeMap = {};
+      while (true) {
+        var b0 = bin.read();
+        if (b0 == -1) break;
+        var b1 = read();
+        var b2 = read();
+        var b3 = read();
+        var k = String.fromCharCode( (b0 << 8) | b1);
+        var v = (b2 << 8) | b3;
+        unicodeMap[k] = v;
+        count += 1;
+      }
+      if (count != numChars) {
+        throw count + ' != ' + numChars;
+      }
+
+      return unicodeMap;
+    }();
+
+    var unknownChar = '?'.charCodeAt(0);
+
+    return function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        if (c < 128) {
+          bytes.push(c);
+        } else {
+          var b = unicodeMap[s.charAt(i)];
+          if (typeof b == 'number') {
+            if ( (b & 0xff) == b) {
+              // 1byte
+              bytes.push(b);
+            } else {
+              // 2bytes
+              bytes.push(b >>> 8);
+              bytes.push(b & 0xff);
+            }
+          } else {
+            bytes.push(unknownChar);
+          }
+        }
+      }
+      return bytes;
+    };
+  };
+
+  //---------------------------------------------------------------------
+  // QRMode
+  //---------------------------------------------------------------------
+
+  var QRMode = {
+    MODE_NUMBER :    1 << 0,
+    MODE_ALPHA_NUM : 1 << 1,
+    MODE_8BIT_BYTE : 1 << 2,
+    MODE_KANJI :     1 << 3
+  };
+
+  //---------------------------------------------------------------------
+  // QRErrorCorrectionLevel
+  //---------------------------------------------------------------------
+
+  var QRErrorCorrectionLevel = {
+    L : 1,
+    M : 0,
+    Q : 3,
+    H : 2
+  };
+
+  //---------------------------------------------------------------------
+  // QRMaskPattern
+  //---------------------------------------------------------------------
+
+  var QRMaskPattern = {
+    PATTERN000 : 0,
+    PATTERN001 : 1,
+    PATTERN010 : 2,
+    PATTERN011 : 3,
+    PATTERN100 : 4,
+    PATTERN101 : 5,
+    PATTERN110 : 6,
+    PATTERN111 : 7
+  };
+
+  //---------------------------------------------------------------------
+  // QRUtil
+  //---------------------------------------------------------------------
+
+  var QRUtil = function() {
+
+    var PATTERN_POSITION_TABLE = [
+      [],
+      [6, 18],
+      [6, 22],
+      [6, 26],
+      [6, 30],
+      [6, 34],
+      [6, 22, 38],
+      [6, 24, 42],
+      [6, 26, 46],
+      [6, 28, 50],
+      [6, 30, 54],
+      [6, 32, 58],
+      [6, 34, 62],
+      [6, 26, 46, 66],
+      [6, 26, 48, 70],
+      [6, 26, 50, 74],
+      [6, 30, 54, 78],
+      [6, 30, 56, 82],
+      [6, 30, 58, 86],
+      [6, 34, 62, 90],
+      [6, 28, 50, 72, 94],
+      [6, 26, 50, 74, 98],
+      [6, 30, 54, 78, 102],
+      [6, 28, 54, 80, 106],
+      [6, 32, 58, 84, 110],
+      [6, 30, 58, 86, 114],
+      [6, 34, 62, 90, 118],
+      [6, 26, 50, 74, 98, 122],
+      [6, 30, 54, 78, 102, 126],
+      [6, 26, 52, 78, 104, 130],
+      [6, 30, 56, 82, 108, 134],
+      [6, 34, 60, 86, 112, 138],
+      [6, 30, 58, 86, 114, 142],
+      [6, 34, 62, 90, 118, 146],
+      [6, 30, 54, 78, 102, 126, 150],
+      [6, 24, 50, 76, 102, 128, 154],
+      [6, 28, 54, 80, 106, 132, 158],
+      [6, 32, 58, 84, 110, 136, 162],
+      [6, 26, 54, 82, 110, 138, 166],
+      [6, 30, 58, 86, 114, 142, 170]
+    ];
+    var G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0);
+    var G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
+    var G15_MASK = (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1);
+
+    var _this = {};
+
+    var getBCHDigit = function(data) {
+      var digit = 0;
+      while (data != 0) {
+        digit += 1;
+        data >>>= 1;
+      }
+      return digit;
+    };
+
+    _this.getBCHTypeInfo = function(data) {
+      var d = data << 10;
+      while (getBCHDigit(d) - getBCHDigit(G15) >= 0) {
+        d ^= (G15 << (getBCHDigit(d) - getBCHDigit(G15) ) );
+      }
+      return ( (data << 10) | d) ^ G15_MASK;
+    };
+
+    _this.getBCHTypeNumber = function(data) {
+      var d = data << 12;
+      while (getBCHDigit(d) - getBCHDigit(G18) >= 0) {
+        d ^= (G18 << (getBCHDigit(d) - getBCHDigit(G18) ) );
+      }
+      return (data << 12) | d;
+    };
+
+    _this.getPatternPosition = function(typeNumber) {
+      return PATTERN_POSITION_TABLE[typeNumber - 1];
+    };
+
+    _this.getMaskFunction = function(maskPattern) {
+
+      switch (maskPattern) {
+
+      case QRMaskPattern.PATTERN000 :
+        return function(i, j) { return (i + j) % 2 == 0; };
+      case QRMaskPattern.PATTERN001 :
+        return function(i, j) { return i % 2 == 0; };
+      case QRMaskPattern.PATTERN010 :
+        return function(i, j) { return j % 3 == 0; };
+      case QRMaskPattern.PATTERN011 :
+        return function(i, j) { return (i + j) % 3 == 0; };
+      case QRMaskPattern.PATTERN100 :
+        return function(i, j) { return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 == 0; };
+      case QRMaskPattern.PATTERN101 :
+        return function(i, j) { return (i * j) % 2 + (i * j) % 3 == 0; };
+      case QRMaskPattern.PATTERN110 :
+        return function(i, j) { return ( (i * j) % 2 + (i * j) % 3) % 2 == 0; };
+      case QRMaskPattern.PATTERN111 :
+        return function(i, j) { return ( (i * j) % 3 + (i + j) % 2) % 2 == 0; };
+
+      default :
+        throw 'bad maskPattern:' + maskPattern;
+      }
+    };
+
+    _this.getErrorCorrectPolynomial = function(errorCorrectLength) {
+      var a = qrPolynomial([1], 0);
+      for (var i = 0; i < errorCorrectLength; i += 1) {
+        a = a.multiply(qrPolynomial([1, QRMath.gexp(i)], 0) );
+      }
+      return a;
+    };
+
+    _this.getLengthInBits = function(mode, type) {
+
+      if (1 <= type && type < 10) {
+
+        // 1 - 9
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 10;
+        case QRMode.MODE_ALPHA_NUM : return 9;
+        case QRMode.MODE_8BIT_BYTE : return 8;
+        case QRMode.MODE_KANJI     : return 8;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 27) {
+
+        // 10 - 26
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 12;
+        case QRMode.MODE_ALPHA_NUM : return 11;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 10;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 41) {
+
+        // 27 - 40
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 14;
+        case QRMode.MODE_ALPHA_NUM : return 13;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 12;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else {
+        throw 'type:' + type;
+      }
+    };
+
+    _this.getLostPoint = function(qrcode) {
+
+      var moduleCount = qrcode.getModuleCount();
+
+      var lostPoint = 0;
+
+      // LEVEL1
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount; col += 1) {
+
+          var sameCount = 0;
+          var dark = qrcode.isDark(row, col);
+
+          for (var r = -1; r <= 1; r += 1) {
+
+            if (row + r < 0 || moduleCount <= row + r) {
+              continue;
+            }
+
+            for (var c = -1; c <= 1; c += 1) {
+
+              if (col + c < 0 || moduleCount <= col + c) {
+                continue;
+              }
+
+              if (r == 0 && c == 0) {
+                continue;
+              }
+
+              if (dark == qrcode.isDark(row + r, col + c) ) {
+                sameCount += 1;
+              }
+            }
+          }
+
+          if (sameCount > 5) {
+            lostPoint += (3 + sameCount - 5);
+          }
+        }
+      };
+
+      // LEVEL2
+
+      for (var row = 0; row < moduleCount - 1; row += 1) {
+        for (var col = 0; col < moduleCount - 1; col += 1) {
+          var count = 0;
+          if (qrcode.isDark(row, col) ) count += 1;
+          if (qrcode.isDark(row + 1, col) ) count += 1;
+          if (qrcode.isDark(row, col + 1) ) count += 1;
+          if (qrcode.isDark(row + 1, col + 1) ) count += 1;
+          if (count == 0 || count == 4) {
+            lostPoint += 3;
+          }
+        }
+      }
+
+      // LEVEL3
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount - 6; col += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row, col + 1)
+              &&  qrcode.isDark(row, col + 2)
+              &&  qrcode.isDark(row, col + 3)
+              &&  qrcode.isDark(row, col + 4)
+              && !qrcode.isDark(row, col + 5)
+              &&  qrcode.isDark(row, col + 6) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount - 6; row += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row + 1, col)
+              &&  qrcode.isDark(row + 2, col)
+              &&  qrcode.isDark(row + 3, col)
+              &&  qrcode.isDark(row + 4, col)
+              && !qrcode.isDark(row + 5, col)
+              &&  qrcode.isDark(row + 6, col) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      // LEVEL4
+
+      var darkCount = 0;
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount; row += 1) {
+          if (qrcode.isDark(row, col) ) {
+            darkCount += 1;
+          }
+        }
+      }
+
+      var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+      lostPoint += ratio * 10;
+
+      return lostPoint;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // QRMath
+  //---------------------------------------------------------------------
+
+  var QRMath = function() {
+
+    var EXP_TABLE = new Array(256);
+    var LOG_TABLE = new Array(256);
+
+    // initialize tables
+    for (var i = 0; i < 8; i += 1) {
+      EXP_TABLE[i] = 1 << i;
+    }
+    for (var i = 8; i < 256; i += 1) {
+      EXP_TABLE[i] = EXP_TABLE[i - 4]
+        ^ EXP_TABLE[i - 5]
+        ^ EXP_TABLE[i - 6]
+        ^ EXP_TABLE[i - 8];
+    }
+    for (var i = 0; i < 255; i += 1) {
+      LOG_TABLE[EXP_TABLE[i] ] = i;
+    }
+
+    var _this = {};
+
+    _this.glog = function(n) {
+
+      if (n < 1) {
+        throw 'glog(' + n + ')';
+      }
+
+      return LOG_TABLE[n];
+    };
+
+    _this.gexp = function(n) {
+
+      while (n < 0) {
+        n += 255;
+      }
+
+      while (n >= 256) {
+        n -= 255;
+      }
+
+      return EXP_TABLE[n];
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrPolynomial
+  //---------------------------------------------------------------------
+
+  function qrPolynomial(num, shift) {
+
+    if (typeof num.length == 'undefined') {
+      throw num.length + '/' + shift;
+    }
+
+    var _num = function() {
+      var offset = 0;
+      while (offset < num.length && num[offset] == 0) {
+        offset += 1;
+      }
+      var _num = new Array(num.length - offset + shift);
+      for (var i = 0; i < num.length - offset; i += 1) {
+        _num[i] = num[i + offset];
+      }
+      return _num;
+    }();
+
+    var _this = {};
+
+    _this.getAt = function(index) {
+      return _num[index];
+    };
+
+    _this.getLength = function() {
+      return _num.length;
+    };
+
+    _this.multiply = function(e) {
+
+      var num = new Array(_this.getLength() + e.getLength() - 1);
+
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        for (var j = 0; j < e.getLength(); j += 1) {
+          num[i + j] ^= QRMath.gexp(QRMath.glog(_this.getAt(i) ) + QRMath.glog(e.getAt(j) ) );
+        }
+      }
+
+      return qrPolynomial(num, 0);
+    };
+
+    _this.mod = function(e) {
+
+      if (_this.getLength() - e.getLength() < 0) {
+        return _this;
+      }
+
+      var ratio = QRMath.glog(_this.getAt(0) ) - QRMath.glog(e.getAt(0) );
+
+      var num = new Array(_this.getLength() );
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        num[i] = _this.getAt(i);
+      }
+
+      for (var i = 0; i < e.getLength(); i += 1) {
+        num[i] ^= QRMath.gexp(QRMath.glog(e.getAt(i) ) + ratio);
+      }
+
+      // recursive call
+      return qrPolynomial(num, 0).mod(e);
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // QRRSBlock
+  //---------------------------------------------------------------------
+
+  var QRRSBlock = function() {
+
+    var RS_BLOCK_TABLE = [
+
+      // L
+      // M
+      // Q
+      // H
+
+      // 1
+      [1, 26, 19],
+      [1, 26, 16],
+      [1, 26, 13],
+      [1, 26, 9],
+
+      // 2
+      [1, 44, 34],
+      [1, 44, 28],
+      [1, 44, 22],
+      [1, 44, 16],
+
+      // 3
+      [1, 70, 55],
+      [1, 70, 44],
+      [2, 35, 17],
+      [2, 35, 13],
+
+      // 4
+      [1, 100, 80],
+      [2, 50, 32],
+      [2, 50, 24],
+      [4, 25, 9],
+
+      // 5
+      [1, 134, 108],
+      [2, 67, 43],
+      [2, 33, 15, 2, 34, 16],
+      [2, 33, 11, 2, 34, 12],
+
+      // 6
+      [2, 86, 68],
+      [4, 43, 27],
+      [4, 43, 19],
+      [4, 43, 15],
+
+      // 7
+      [2, 98, 78],
+      [4, 49, 31],
+      [2, 32, 14, 4, 33, 15],
+      [4, 39, 13, 1, 40, 14],
+
+      // 8
+      [2, 121, 97],
+      [2, 60, 38, 2, 61, 39],
+      [4, 40, 18, 2, 41, 19],
+      [4, 40, 14, 2, 41, 15],
+
+      // 9
+      [2, 146, 116],
+      [3, 58, 36, 2, 59, 37],
+      [4, 36, 16, 4, 37, 17],
+      [4, 36, 12, 4, 37, 13],
+
+      // 10
+      [2, 86, 68, 2, 87, 69],
+      [4, 69, 43, 1, 70, 44],
+      [6, 43, 19, 2, 44, 20],
+      [6, 43, 15, 2, 44, 16],
+
+      // 11
+      [4, 101, 81],
+      [1, 80, 50, 4, 81, 51],
+      [4, 50, 22, 4, 51, 23],
+      [3, 36, 12, 8, 37, 13],
+
+      // 12
+      [2, 116, 92, 2, 117, 93],
+      [6, 58, 36, 2, 59, 37],
+      [4, 46, 20, 6, 47, 21],
+      [7, 42, 14, 4, 43, 15],
+
+      // 13
+      [4, 133, 107],
+      [8, 59, 37, 1, 60, 38],
+      [8, 44, 20, 4, 45, 21],
+      [12, 33, 11, 4, 34, 12],
+
+      // 14
+      [3, 145, 115, 1, 146, 116],
+      [4, 64, 40, 5, 65, 41],
+      [11, 36, 16, 5, 37, 17],
+      [11, 36, 12, 5, 37, 13],
+
+      // 15
+      [5, 109, 87, 1, 110, 88],
+      [5, 65, 41, 5, 66, 42],
+      [5, 54, 24, 7, 55, 25],
+      [11, 36, 12, 7, 37, 13],
+
+      // 16
+      [5, 122, 98, 1, 123, 99],
+      [7, 73, 45, 3, 74, 46],
+      [15, 43, 19, 2, 44, 20],
+      [3, 45, 15, 13, 46, 16],
+
+      // 17
+      [1, 135, 107, 5, 136, 108],
+      [10, 74, 46, 1, 75, 47],
+      [1, 50, 22, 15, 51, 23],
+      [2, 42, 14, 17, 43, 15],
+
+      // 18
+      [5, 150, 120, 1, 151, 121],
+      [9, 69, 43, 4, 70, 44],
+      [17, 50, 22, 1, 51, 23],
+      [2, 42, 14, 19, 43, 15],
+
+      // 19
+      [3, 141, 113, 4, 142, 114],
+      [3, 70, 44, 11, 71, 45],
+      [17, 47, 21, 4, 48, 22],
+      [9, 39, 13, 16, 40, 14],
+
+      // 20
+      [3, 135, 107, 5, 136, 108],
+      [3, 67, 41, 13, 68, 42],
+      [15, 54, 24, 5, 55, 25],
+      [15, 43, 15, 10, 44, 16],
+
+      // 21
+      [4, 144, 116, 4, 145, 117],
+      [17, 68, 42],
+      [17, 50, 22, 6, 51, 23],
+      [19, 46, 16, 6, 47, 17],
+
+      // 22
+      [2, 139, 111, 7, 140, 112],
+      [17, 74, 46],
+      [7, 54, 24, 16, 55, 25],
+      [34, 37, 13],
+
+      // 23
+      [4, 151, 121, 5, 152, 122],
+      [4, 75, 47, 14, 76, 48],
+      [11, 54, 24, 14, 55, 25],
+      [16, 45, 15, 14, 46, 16],
+
+      // 24
+      [6, 147, 117, 4, 148, 118],
+      [6, 73, 45, 14, 74, 46],
+      [11, 54, 24, 16, 55, 25],
+      [30, 46, 16, 2, 47, 17],
+
+      // 25
+      [8, 132, 106, 4, 133, 107],
+      [8, 75, 47, 13, 76, 48],
+      [7, 54, 24, 22, 55, 25],
+      [22, 45, 15, 13, 46, 16],
+
+      // 26
+      [10, 142, 114, 2, 143, 115],
+      [19, 74, 46, 4, 75, 47],
+      [28, 50, 22, 6, 51, 23],
+      [33, 46, 16, 4, 47, 17],
+
+      // 27
+      [8, 152, 122, 4, 153, 123],
+      [22, 73, 45, 3, 74, 46],
+      [8, 53, 23, 26, 54, 24],
+      [12, 45, 15, 28, 46, 16],
+
+      // 28
+      [3, 147, 117, 10, 148, 118],
+      [3, 73, 45, 23, 74, 46],
+      [4, 54, 24, 31, 55, 25],
+      [11, 45, 15, 31, 46, 16],
+
+      // 29
+      [7, 146, 116, 7, 147, 117],
+      [21, 73, 45, 7, 74, 46],
+      [1, 53, 23, 37, 54, 24],
+      [19, 45, 15, 26, 46, 16],
+
+      // 30
+      [5, 145, 115, 10, 146, 116],
+      [19, 75, 47, 10, 76, 48],
+      [15, 54, 24, 25, 55, 25],
+      [23, 45, 15, 25, 46, 16],
+
+      // 31
+      [13, 145, 115, 3, 146, 116],
+      [2, 74, 46, 29, 75, 47],
+      [42, 54, 24, 1, 55, 25],
+      [23, 45, 15, 28, 46, 16],
+
+      // 32
+      [17, 145, 115],
+      [10, 74, 46, 23, 75, 47],
+      [10, 54, 24, 35, 55, 25],
+      [19, 45, 15, 35, 46, 16],
+
+      // 33
+      [17, 145, 115, 1, 146, 116],
+      [14, 74, 46, 21, 75, 47],
+      [29, 54, 24, 19, 55, 25],
+      [11, 45, 15, 46, 46, 16],
+
+      // 34
+      [13, 145, 115, 6, 146, 116],
+      [14, 74, 46, 23, 75, 47],
+      [44, 54, 24, 7, 55, 25],
+      [59, 46, 16, 1, 47, 17],
+
+      // 35
+      [12, 151, 121, 7, 152, 122],
+      [12, 75, 47, 26, 76, 48],
+      [39, 54, 24, 14, 55, 25],
+      [22, 45, 15, 41, 46, 16],
+
+      // 36
+      [6, 151, 121, 14, 152, 122],
+      [6, 75, 47, 34, 76, 48],
+      [46, 54, 24, 10, 55, 25],
+      [2, 45, 15, 64, 46, 16],
+
+      // 37
+      [17, 152, 122, 4, 153, 123],
+      [29, 74, 46, 14, 75, 47],
+      [49, 54, 24, 10, 55, 25],
+      [24, 45, 15, 46, 46, 16],
+
+      // 38
+      [4, 152, 122, 18, 153, 123],
+      [13, 74, 46, 32, 75, 47],
+      [48, 54, 24, 14, 55, 25],
+      [42, 45, 15, 32, 46, 16],
+
+      // 39
+      [20, 147, 117, 4, 148, 118],
+      [40, 75, 47, 7, 76, 48],
+      [43, 54, 24, 22, 55, 25],
+      [10, 45, 15, 67, 46, 16],
+
+      // 40
+      [19, 148, 118, 6, 149, 119],
+      [18, 75, 47, 31, 76, 48],
+      [34, 54, 24, 34, 55, 25],
+      [20, 45, 15, 61, 46, 16]
+    ];
+
+    var qrRSBlock = function(totalCount, dataCount) {
+      var _this = {};
+      _this.totalCount = totalCount;
+      _this.dataCount = dataCount;
+      return _this;
+    };
+
+    var _this = {};
+
+    var getRsBlockTable = function(typeNumber, errorCorrectionLevel) {
+
+      switch(errorCorrectionLevel) {
+      case QRErrorCorrectionLevel.L :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+      case QRErrorCorrectionLevel.M :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+      case QRErrorCorrectionLevel.Q :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+      case QRErrorCorrectionLevel.H :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+      default :
+        return undefined;
+      }
+    };
+
+    _this.getRSBlocks = function(typeNumber, errorCorrectionLevel) {
+
+      var rsBlock = getRsBlockTable(typeNumber, errorCorrectionLevel);
+
+      if (typeof rsBlock == 'undefined') {
+        throw 'bad rs block @ typeNumber:' + typeNumber +
+            '/errorCorrectionLevel:' + errorCorrectionLevel;
+      }
+
+      var length = rsBlock.length / 3;
+
+      var list = [];
+
+      for (var i = 0; i < length; i += 1) {
+
+        var count = rsBlock[i * 3 + 0];
+        var totalCount = rsBlock[i * 3 + 1];
+        var dataCount = rsBlock[i * 3 + 2];
+
+        for (var j = 0; j < count; j += 1) {
+          list.push(qrRSBlock(totalCount, dataCount) );
+        }
+      }
+
+      return list;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrBitBuffer
+  //---------------------------------------------------------------------
+
+  var qrBitBuffer = function() {
+
+    var _buffer = [];
+    var _length = 0;
+
+    var _this = {};
+
+    _this.getBuffer = function() {
+      return _buffer;
+    };
+
+    _this.getAt = function(index) {
+      var bufIndex = Math.floor(index / 8);
+      return ( (_buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+    };
+
+    _this.put = function(num, length) {
+      for (var i = 0; i < length; i += 1) {
+        _this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+      }
+    };
+
+    _this.getLengthInBits = function() {
+      return _length;
+    };
+
+    _this.putBit = function(bit) {
+
+      var bufIndex = Math.floor(_length / 8);
+      if (_buffer.length <= bufIndex) {
+        _buffer.push(0);
+      }
+
+      if (bit) {
+        _buffer[bufIndex] |= (0x80 >>> (_length % 8) );
+      }
+
+      _length += 1;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrNumber
+  //---------------------------------------------------------------------
+
+  var qrNumber = function(data) {
+
+    var _mode = QRMode.MODE_NUMBER;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _data;
+
+      var i = 0;
+
+      while (i + 2 < data.length) {
+        buffer.put(strToNum(data.substring(i, i + 3) ), 10);
+        i += 3;
+      }
+
+      if (i < data.length) {
+        if (data.length - i == 1) {
+          buffer.put(strToNum(data.substring(i, i + 1) ), 4);
+        } else if (data.length - i == 2) {
+          buffer.put(strToNum(data.substring(i, i + 2) ), 7);
+        }
+      }
+    };
+
+    var strToNum = function(s) {
+      var num = 0;
+      for (var i = 0; i < s.length; i += 1) {
+        num = num * 10 + chatToNum(s.charAt(i) );
+      }
+      return num;
+    };
+
+    var chatToNum = function(c) {
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      }
+      throw 'illegal char :' + c;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrAlphaNum
+  //---------------------------------------------------------------------
+
+  var qrAlphaNum = function(data) {
+
+    var _mode = QRMode.MODE_ALPHA_NUM;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var s = _data;
+
+      var i = 0;
+
+      while (i + 1 < s.length) {
+        buffer.put(
+          getCode(s.charAt(i) ) * 45 +
+          getCode(s.charAt(i + 1) ), 11);
+        i += 2;
+      }
+
+      if (i < s.length) {
+        buffer.put(getCode(s.charAt(i) ), 6);
+      }
+    };
+
+    var getCode = function(c) {
+
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      } else if ('A' <= c && c <= 'Z') {
+        return c.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+      } else {
+        switch (c) {
+        case ' ' : return 36;
+        case '$' : return 37;
+        case '%' : return 38;
+        case '*' : return 39;
+        case '+' : return 40;
+        case '-' : return 41;
+        case '.' : return 42;
+        case '/' : return 43;
+        case ':' : return 44;
+        default :
+          throw 'illegal char :' + c;
+        }
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qr8BitByte
+  //---------------------------------------------------------------------
+
+  var qr8BitByte = function(data) {
+
+    var _mode = QRMode.MODE_8BIT_BYTE;
+    var _data = data;
+    var _bytes = qrcode.stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _bytes.length;
+    };
+
+    _this.write = function(buffer) {
+      for (var i = 0; i < _bytes.length; i += 1) {
+        buffer.put(_bytes[i], 8);
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrKanji
+  //---------------------------------------------------------------------
+
+  var qrKanji = function(data) {
+
+    var _mode = QRMode.MODE_KANJI;
+    var _data = data;
+
+    var stringToBytes = qrcode.stringToBytesFuncs['SJIS'];
+    if (!stringToBytes) {
+      throw 'sjis not supported.';
+    }
+    !function(c, code) {
+      // self test for sjis support.
+      var test = stringToBytes(c);
+      if (test.length != 2 || ( (test[0] << 8) | test[1]) != code) {
+        throw 'sjis not supported.';
+      }
+    }('\u53cb', 0x9746);
+
+    var _bytes = stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return ~~(_bytes.length / 2);
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _bytes;
+
+      var i = 0;
+
+      while (i + 1 < data.length) {
+
+        var c = ( (0xff & data[i]) << 8) | (0xff & data[i + 1]);
+
+        if (0x8140 <= c && c <= 0x9FFC) {
+          c -= 0x8140;
+        } else if (0xE040 <= c && c <= 0xEBBF) {
+          c -= 0xC140;
+        } else {
+          throw 'illegal char at ' + (i + 1) + '/' + c;
+        }
+
+        c = ( (c >>> 8) & 0xff) * 0xC0 + (c & 0xff);
+
+        buffer.put(c, 13);
+
+        i += 2;
+      }
+
+      if (i < data.length) {
+        throw 'illegal char at ' + (i + 1);
+      }
+    };
+
+    return _this;
+  };
+
+  //=====================================================================
+  // GIF Support etc.
+  //
+
+  //---------------------------------------------------------------------
+  // byteArrayOutputStream
+  //---------------------------------------------------------------------
+
+  var byteArrayOutputStream = function() {
+
+    var _bytes = [];
+
+    var _this = {};
+
+    _this.writeByte = function(b) {
+      _bytes.push(b & 0xff);
+    };
+
+    _this.writeShort = function(i) {
+      _this.writeByte(i);
+      _this.writeByte(i >>> 8);
+    };
+
+    _this.writeBytes = function(b, off, len) {
+      off = off || 0;
+      len = len || b.length;
+      for (var i = 0; i < len; i += 1) {
+        _this.writeByte(b[i + off]);
+      }
+    };
+
+    _this.writeString = function(s) {
+      for (var i = 0; i < s.length; i += 1) {
+        _this.writeByte(s.charCodeAt(i) );
+      }
+    };
+
+    _this.toByteArray = function() {
+      return _bytes;
+    };
+
+    _this.toString = function() {
+      var s = '';
+      s += '[';
+      for (var i = 0; i < _bytes.length; i += 1) {
+        if (i > 0) {
+          s += ',';
+        }
+        s += _bytes[i];
+      }
+      s += ']';
+      return s;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64EncodeOutputStream
+  //---------------------------------------------------------------------
+
+  var base64EncodeOutputStream = function() {
+
+    var _buffer = 0;
+    var _buflen = 0;
+    var _length = 0;
+    var _base64 = '';
+
+    var _this = {};
+
+    var writeEncoded = function(b) {
+      _base64 += String.fromCharCode(encode(b & 0x3f) );
+    };
+
+    var encode = function(n) {
+      if (n < 0) {
+        // error.
+      } else if (n < 26) {
+        return 0x41 + n;
+      } else if (n < 52) {
+        return 0x61 + (n - 26);
+      } else if (n < 62) {
+        return 0x30 + (n - 52);
+      } else if (n == 62) {
+        return 0x2b;
+      } else if (n == 63) {
+        return 0x2f;
+      }
+      throw 'n:' + n;
+    };
+
+    _this.writeByte = function(n) {
+
+      _buffer = (_buffer << 8) | (n & 0xff);
+      _buflen += 8;
+      _length += 1;
+
+      while (_buflen >= 6) {
+        writeEncoded(_buffer >>> (_buflen - 6) );
+        _buflen -= 6;
+      }
+    };
+
+    _this.flush = function() {
+
+      if (_buflen > 0) {
+        writeEncoded(_buffer << (6 - _buflen) );
+        _buffer = 0;
+        _buflen = 0;
+      }
+
+      if (_length % 3 != 0) {
+        // padding
+        var padlen = 3 - _length % 3;
+        for (var i = 0; i < padlen; i += 1) {
+          _base64 += '=';
+        }
+      }
+    };
+
+    _this.toString = function() {
+      return _base64;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64DecodeInputStream
+  //---------------------------------------------------------------------
+
+  var base64DecodeInputStream = function(str) {
+
+    var _str = str;
+    var _pos = 0;
+    var _buffer = 0;
+    var _buflen = 0;
+
+    var _this = {};
+
+    _this.read = function() {
+
+      while (_buflen < 8) {
+
+        if (_pos >= _str.length) {
+          if (_buflen == 0) {
+            return -1;
+          }
+          throw 'unexpected end of file./' + _buflen;
+        }
+
+        var c = _str.charAt(_pos);
+        _pos += 1;
+
+        if (c == '=') {
+          _buflen = 0;
+          return -1;
+        } else if (c.match(/^\s$/) ) {
+          // ignore if whitespace.
+          continue;
+        }
+
+        _buffer = (_buffer << 6) | decode(c.charCodeAt(0) );
+        _buflen += 6;
+      }
+
+      var n = (_buffer >>> (_buflen - 8) ) & 0xff;
+      _buflen -= 8;
+      return n;
+    };
+
+    var decode = function(c) {
+      if (0x41 <= c && c <= 0x5a) {
+        return c - 0x41;
+      } else if (0x61 <= c && c <= 0x7a) {
+        return c - 0x61 + 26;
+      } else if (0x30 <= c && c <= 0x39) {
+        return c - 0x30 + 52;
+      } else if (c == 0x2b) {
+        return 62;
+      } else if (c == 0x2f) {
+        return 63;
+      } else {
+        throw 'c:' + c;
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // gifImage (B/W)
+  //---------------------------------------------------------------------
+
+  var gifImage = function(width, height) {
+
+    var _width = width;
+    var _height = height;
+    var _data = new Array(width * height);
+
+    var _this = {};
+
+    _this.setPixel = function(x, y, pixel) {
+      _data[y * _width + x] = pixel;
+    };
+
+    _this.write = function(out) {
+
+      //---------------------------------
+      // GIF Signature
+
+      out.writeString('GIF87a');
+
+      //---------------------------------
+      // Screen Descriptor
+
+      out.writeShort(_width);
+      out.writeShort(_height);
+
+      out.writeByte(0x80); // 2bit
+      out.writeByte(0);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Global Color Map
+
+      // black
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+
+      // white
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+
+      //---------------------------------
+      // Image Descriptor
+
+      out.writeString(',');
+      out.writeShort(0);
+      out.writeShort(0);
+      out.writeShort(_width);
+      out.writeShort(_height);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Local Color Map
+
+      //---------------------------------
+      // Raster Data
+
+      var lzwMinCodeSize = 2;
+      var raster = getLZWRaster(lzwMinCodeSize);
+
+      out.writeByte(lzwMinCodeSize);
+
+      var offset = 0;
+
+      while (raster.length - offset > 255) {
+        out.writeByte(255);
+        out.writeBytes(raster, offset, 255);
+        offset += 255;
+      }
+
+      out.writeByte(raster.length - offset);
+      out.writeBytes(raster, offset, raster.length - offset);
+      out.writeByte(0x00);
+
+      //---------------------------------
+      // GIF Terminator
+      out.writeString(';');
+    };
+
+    var bitOutputStream = function(out) {
+
+      var _out = out;
+      var _bitLength = 0;
+      var _bitBuffer = 0;
+
+      var _this = {};
+
+      _this.write = function(data, length) {
+
+        if ( (data >>> length) != 0) {
+          throw 'length over';
+        }
+
+        while (_bitLength + length >= 8) {
+          _out.writeByte(0xff & ( (data << _bitLength) | _bitBuffer) );
+          length -= (8 - _bitLength);
+          data >>>= (8 - _bitLength);
+          _bitBuffer = 0;
+          _bitLength = 0;
+        }
+
+        _bitBuffer = (data << _bitLength) | _bitBuffer;
+        _bitLength = _bitLength + length;
+      };
+
+      _this.flush = function() {
+        if (_bitLength > 0) {
+          _out.writeByte(_bitBuffer);
+        }
+      };
+
+      return _this;
+    };
+
+    var getLZWRaster = function(lzwMinCodeSize) {
+
+      var clearCode = 1 << lzwMinCodeSize;
+      var endCode = (1 << lzwMinCodeSize) + 1;
+      var bitLength = lzwMinCodeSize + 1;
+
+      // Setup LZWTable
+      var table = lzwTable();
+
+      for (var i = 0; i < clearCode; i += 1) {
+        table.add(String.fromCharCode(i) );
+      }
+      table.add(String.fromCharCode(clearCode) );
+      table.add(String.fromCharCode(endCode) );
+
+      var byteOut = byteArrayOutputStream();
+      var bitOut = bitOutputStream(byteOut);
+
+      // clear code
+      bitOut.write(clearCode, bitLength);
+
+      var dataIndex = 0;
+
+      var s = String.fromCharCode(_data[dataIndex]);
+      dataIndex += 1;
+
+      while (dataIndex < _data.length) {
+
+        var c = String.fromCharCode(_data[dataIndex]);
+        dataIndex += 1;
+
+        if (table.contains(s + c) ) {
+
+          s = s + c;
+
+        } else {
+
+          bitOut.write(table.indexOf(s), bitLength);
+
+          if (table.size() < 0xfff) {
+
+            if (table.size() == (1 << bitLength) ) {
+              bitLength += 1;
+            }
+
+            table.add(s + c);
+          }
+
+          s = c;
+        }
+      }
+
+      bitOut.write(table.indexOf(s), bitLength);
+
+      // end code
+      bitOut.write(endCode, bitLength);
+
+      bitOut.flush();
+
+      return byteOut.toByteArray();
+    };
+
+    var lzwTable = function() {
+
+      var _map = {};
+      var _size = 0;
+
+      var _this = {};
+
+      _this.add = function(key) {
+        if (_this.contains(key) ) {
+          throw 'dup key:' + key;
+        }
+        _map[key] = _size;
+        _size += 1;
+      };
+
+      _this.size = function() {
+        return _size;
+      };
+
+      _this.indexOf = function(key) {
+        return _map[key];
+      };
+
+      _this.contains = function(key) {
+        return typeof _map[key] != 'undefined';
+      };
+
+      return _this;
+    };
+
+    return _this;
+  };
+
+  var createDataURL = function(width, height, getPixel) {
+    var gif = gifImage(width, height);
+    for (var y = 0; y < height; y += 1) {
+      for (var x = 0; x < width; x += 1) {
+        gif.setPixel(x, y, getPixel(x, y) );
+      }
+    }
+
+    var b = byteArrayOutputStream();
+    gif.write(b);
+
+    var base64 = base64EncodeOutputStream();
+    var bytes = b.toByteArray();
+    for (var i = 0; i < bytes.length; i += 1) {
+      base64.writeByte(bytes[i]);
+    }
+    base64.flush();
+
+    return 'data:image/gif;base64,' + base64;
+  };
+
+  //---------------------------------------------------------------------
+  // returns qrcode function.
+
+  return qrcode;
+}();
+
+// multibyte support
+!function() {
+
+  qrcode.stringToBytesFuncs['UTF-8'] = function(s) {
+    // http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+    function toUTF8Array(str) {
+      var utf8 = [];
+      for (var i=0; i < str.length; i++) {
+        var charcode = str.charCodeAt(i);
+        if (charcode < 0x80) utf8.push(charcode);
+        else if (charcode < 0x800) {
+          utf8.push(0xc0 | (charcode >> 6),
+              0x80 | (charcode & 0x3f));
+        }
+        else if (charcode < 0xd800 || charcode >= 0xe000) {
+          utf8.push(0xe0 | (charcode >> 12),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+        // surrogate pair
+        else {
+          i++;
+          // UTF-16 encodes 0x10000-0x10FFFF by
+          // subtracting 0x10000 and splitting the
+          // 20 bits of 0x0-0xFFFFF into two halves
+          charcode = 0x10000 + (((charcode & 0x3ff)<<10)
+            | (str.charCodeAt(i) & 0x3ff));
+          utf8.push(0xf0 | (charcode >>18),
+              0x80 | ((charcode>>12) & 0x3f),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+      }
+      return utf8;
+    }
+    return toUTF8Array(s);
+  };
+
+}();
+
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+      define([], factory);
+  } else if (typeof exports === 'object') {
+      module.exports = factory();
+  }
+}(function () {
+    return qrcode;
+}));
+
+</script>
+<script>
+const P={home:'<path d="M3 11l9-8 9 8v10H3z"/>',bookmark:'<path d="M6 3h12v18l-6-4-6 4z"/>',cart:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l3 12h11l2-8H6"/>',users:'<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 4a4 4 0 010 8M22 21c0-3-2-5-4-5.5"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>',heart:'<path d="M12 21s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 10c0 6-8 11-8 11z"/>',spark:'<path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',back:'<path d="M15 4l-8 8 8 8"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',plus:'<path d="M12 5v14M5 12h14"/>',pin:'<path d="M12 22s7-6 7-12a7 7 0 00-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',msg:'<path d="M4 5h16v11H9l-5 4z"/>',share:'<path d="M12 3v12M7 8l5-5 5 5M5 14v7h14v-7"/>',check:'<path d="M5 12l5 5 9-10"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>'};
+const MI={home:'explore',bookmark:'bookmark',cart:'shopping_bag',users:'forum',user:'account_circle',heart:'favorite',spark:'auto_awesome',back:'arrow_back',clock:'schedule',plus:'add',pin:'pin_drop',msg:'chat_bubble',share:'share',check:'check',x:'close',bell:'notifications',search:'search'};
+const I=(n,f)=>`<span class="material-symbols-outlined i" aria-hidden="true" style="font-variation-settings:'FILL' ${f?1:0},'wght' 400">${MI[n]}</span>`;
+const R=n=>(n<0?'-':'')+'Rp'+String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const mascot=(s,m)=>`<svg viewBox="0 0 100 100" width="${s}" height="${s}" role="img" aria-label="Si Mangkok" class="${m=='cook'?'stir':'bob'}"><circle cx="50" cy="20" r="10" fill="#F4B82E" stroke="#1C1A17" stroke-width="3"/><text x="50" y="25" font-size="12" font-weight="800" text-anchor="middle" fill="#1C1A17" font-family="Plus Jakarta Sans">Rp</text><path d="M16 50c4-14 18-20 34-20s30 6 34 20z" fill="#fff" stroke="#1C1A17" stroke-width="3" stroke-linejoin="round"/><path d="M10 50h80c0 26-16 42-40 42S10 76 10 50z" fill="#00855d" stroke="#1C1A17" stroke-width="3" stroke-linejoin="round"/><circle cx="38" cy="66" r="3.5" fill="#fff"/><circle cx="62" cy="66" r="3.5" fill="#fff"/>${m=='cheer'?'<path d="M40 74q10 12 20 0z" fill="#fff"/>':m=='err'?'<path d="M42 78q8-6 16 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>':'<path d="M41 74q9 8 18 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>'}<circle cx="29" cy="72" r="4" fill="#FFE3D1" opacity=".6"/><circle cx="71" cy="72" r="4" fill="#FFE3D1" opacity=".6"/></svg>`;
+const B='<ellipse cx="52" cy="56" rx="34" ry="32" fill="#2A1B14" opacity=".14"/><circle cx="50" cy="50" r="34" fill="#FFFDF8"/>';
+const ART={1:B+'<circle cx="50" cy="50" r="27" fill="#F4ECDE"/><path d="M27 52c0-14 10-22 23-22s23 8 23 22c0 3-46 3-46 0z" fill="#fff" stroke="#E6DCCB"/><path d="M36 40c4-4 10-5 14-4" stroke="#7B4A22" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M52 56c0-7 7-12 15-10 8 2 9 10 3 14-6 4-18 3-18-4z" fill="#fff" stroke="#E6DCCB"/><circle cx="62" cy="53" r="5" fill="#F2A81D"/><circle cx="38" cy="62" r="2.2" fill="#C8352B"/><circle cx="44" cy="66" r="2.2" fill="#C8352B"/>',
+2:B+'<circle cx="50" cy="50" r="27" fill="#F4ECDE"/><path d="M28 46c8-10 16-8 20 0M36 58c6-12 16-12 22-2M52 40c10-8 18-4 20 6M32 64c10 6 24 8 34-2" stroke="#4F7A55" stroke-width="5" stroke-linecap="round" fill="none"/><rect x="56" y="52" width="9" height="9" rx="2" fill="#9A6A3A"/><rect x="45" y="56" width="9" height="9" rx="2" fill="#B07C45"/><rect x="62" y="38" width="8" height="8" rx="2" fill="#9A6A3A"/><circle cx="40" cy="52" r="2.2" fill="#C8352B"/>',
+3:B+'<circle cx="50" cy="50" r="28" fill="#E9B955"/><path d="M30 44c6-6 10 6 16 0s10 6 16 0 8 4 10 0M28 54c6-6 10 6 16 0s10 6 16 0 8 4 12 0M32 64c6-6 10 6 16 0s10 6 16 0" stroke="#FFF1C9" stroke-width="3.4" fill="none" stroke-linecap="round"/><ellipse cx="62" cy="40" rx="8" ry="6" fill="#fff"/><circle cx="62" cy="40" r="3.2" fill="#F2A81D"/><path d="M34 36c4-3 8-2 10 2" stroke="#4F7A55" stroke-width="4" stroke-linecap="round" fill="none"/>'};
+const fp=(r,w,h)=>`<div class="fp" style="width:${w};height:${h};background:linear-gradient(145deg,${r.c}55,${r.c}d0)"><svg viewBox="0 0 100 100" aria-hidden="true" style="height:84%;aspect-ratio:1;filter:drop-shadow(0 12px 14px rgba(42,27,20,.28))">${ART[r.id]}</svg></div>`;
+const RC=[
+{id:1,t:'Nasi Telur Kecap Cabai Rawit',e:'🍳',c:'#F4B82E',min:15,cal:540,pro:22,carb:78,score:82,tip:'Api kecil biar telurnya nggak gosong.',ing:[['Nasi putih',1,'porsi',3000,'Karbo'],['Telur ayam',2,'btr',4000,'Protein','Tahu 2 pcs, hemat Rp2.000'],['Kecap manis',1,'sdm',500,'Bumbu'],['Cabai rawit',5,'bh',800,'Bumbu'],['Bawang merah',2,'siung',700,'Bumbu'],['Minyak goreng',2,'sdm',500,'Bumbu']],st:[['Panaskan minyak, tumis bawang merah dan cabai sampai harum.',60],['Kocok telur, tuang, orak-arik sampai set.',90],['Tambah kecap, aduk rata, sajikan di atas nasi hangat.',0]]},
+{id:2,t:'Tumis Kangkung Tempe Orek',e:'🥬',c:'#7FBF8F',min:20,cal:480,pro:18,carb:70,score:76,tip:'Kangkung masuk paling akhir biar tetap hijau.',ing:[['Nasi putih',1,'porsi',3000,'Karbo'],['Kangkung',1,'ikat',3000,'Sayuran'],['Tempe',1,'papan',4000,'Protein','Tahu putih, hemat Rp1.500'],['Bawang putih',2,'siung',600,'Bumbu'],['Cabai rawit',5,'bh',800,'Bumbu'],['Kecap manis',2,'sdm',1000,'Bumbu']],st:[['Potong tempe dadu kecil, goreng sampai garing.',180],['Tumis bawang putih dan cabai, masukkan tempe plus kecap.',60],['Masukkan kangkung, aduk 1 menit lalu angkat.',60]]},
+{id:3,t:'Indomie Rebus Sayur Telur',e:'🍜',c:'#F2A27E',min:12,cal:610,pro:21,carb:84,score:68,tip:'Telur dimasukkan pas air mendidih, jangan diaduk dulu.',ing:[['Indomie',1,'bks',3500,'Karbo'],['Telur ayam',1,'btr',2000,'Protein'],['Sawi hijau',1,'ikat',2500,'Sayuran'],['Bawang merah',2,'siung',700,'Bumbu'],['Cabai rawit',3,'bh',500,'Bumbu'],['Kecap manis',1,'sdm',500,'Bumbu']],st:[['Rebus air 400 ml dengan bawang merah iris.',120],['Masukkan mie dan telur, masak sampai matang.',180],['Tambah sawi dan bumbu, aduk 30 detik, sajikan.',30]]}];
+const cost=r=>r.ing.reduce((a,x)=>a+x[3],0);
+const S={budget:15000,hist:[12500,9500,14000,8800,11000,7500],step:1,pick:new Set(['Halal','Pedas','Rice cooker','Kompor']),saved:new Set([1]),liked:new Set(),tab:'Semua',tabD:'Detail',spot:new Set(['Buka sekarang']),shopB:35000,guest:false,am:'Daftar',ni:'',rid:1,si:0,cart:[['Kangkung',1,'ikat',3000,'Sayuran',1],['Telur',6,'btr',12000,'Protein',0],['Tempe',1,'papan',5000,'Protein',0],['Bawang merah',1,'ons',1700,'Bumbu',1],['Cabai rawit',50,'g',1000,'Bumbu',0],['Indomie',5,'bks',5000,'Karbo',0]],post:{}};
+const $=s=>document.querySelector(s),rec=id=>RC.find(r=>r.id==id);
+const framed=()=>matchMedia('(min-width:600px)').matches,getY=()=>framed()?$('#sc').scrollTop:scrollY,setY=y=>framed()?($('#sc').scrollTop=y):scrollTo(0,y);
+const toast=m=>{const t=$('#ts');t.textContent=m;t.classList.add('on');clearTimeout(toast.k);toast.k=setTimeout(()=>t.classList.remove('on'),1900)};
+const stat=(u,b)=>{const q=u/b;return q>1?['var(--err)','Lewat budget']:q>.7?['var(--kunyit)','Hampir habis']:['var(--daun)','Dompet aman']};
+const chips=(a,on,k)=>a.map(x=>`<button class="chip ${on(x)?'on':''}" data-a="${k}" data-v="${x}">${x}</button>`).join('');
+const nav=[['home','Explore','#/home'],['cart','Daftar Belanja','#/belanja'],['users','Komunitas','#/komunitas'],['user','Profil','#/akun']];const TT={auth:'Akun',home:'Explore',results:'Hasil Resep',recipe:'Detail Resep',simpan:'Simpan',belanja:'Daftar Belanja',komunitas:'Komunitas',spots:'Tempat Murah',akun:'Profil'};
+const card=r=>{const c=cost(r),ok=c<=S.budget;return `<article class="rc"><a href="#/recipe/${r.id}">${fp(r,'100%','200px')}<span class="pr">${R(c)}</span></a><button class="sv" data-a="save" data-v="${r.id}" aria-label="Simpan resep">${I('heart',S.saved.has(r.id))}</button><div class="rb"><div class="h h3" style="font-size:21px">${r.t}</div><div class="m cap">${r.min} mnt, ${r.cal} kkal, ${r.pro} g protein</div><div class="row sp"><span class="bdg ${ok?'':'bad'}">${ok?'SISA '+R(S.budget-c):'LEWAT '+R(c-S.budget)}</span><div class="ring" style="--p:${r.score}"><b>${r.score}</b></div></div></div></article>`};
+const PS=[{k:'p1',n:'Rina',c:'UI Depok',t:'2 jam lalu',type:'Resep',rid:2,cost:7000,title:'Mendoan Renyah Sambal Kecap Cuma Rp7.000!',tx:'Beli tempe papan di Pasar Kober cuma Rp4.000, tepung bumbu sachet Rp2.500, daun bawang minta bonus pedagang. Goreng dadakan langsung gurih mantap!',l:142,cm:38},{k:'p2',n:'Budi',c:'Kukusan',t:'5 jam lalu',type:'Info Warung',title:'Tips belanja telur eceran di Warung Madura Jl. Kober hemat Rp3rb/kg',tx:'Kalau beli setelah jam 4 sore sering ada harga pas Rp27.000/kg dan boleh pilih telur yang fresh. Cocok buat stok lauk seminggu anak kosan.',loc:'Warung Madura Berkah, Jl. Kober No. 14',l:89,cm:16},{k:'p3',n:'Dimas',c:'Pocin',t:'Kemarin',type:'Trik Masak',rid:1,cost:5500,title:'Tumis Toge Tahu Saus Tiram: Modal Rp5.500 Buat Sarapan',tx:'Tahu kuning 2 biji (Rp2.000) goreng sebentar, toge seplastik kecil (Rp2.000), sachet saus tiram mini (Rp1.500). Masak 5 menit di rice cooker pun jadi!',time:'5 - 7 Menit',pp:'Rp2.750 / org',l:204,cm:45}];
+const CM={p1:[['Andi','Tempe Pasar Kober emang paling murah!','1 jam lalu'],['Sari','Coba pakai tepung serbaguna biasa, lebih hemat.','40 mnt lalu']],p2:[['Rina','Makasih infonya Bud!','3 jam lalu']],p3:[]},CM0={p1:2,p2:1,p3:0};
+const post=(p,L)=>`<article class="card" data-t="${p.title}" style="padding:0;overflow:hidden;display:flex;flex-direction:column"><div class="row sp" style="padding:16px 16px 4px"><div class="row"><div class="av" style="width:40px;height:40px;font-size:15px">${p.n[0]}</div><div><div class="row" style="gap:6px"><b style="font-size:14px;font-family:'Plus Jakarta Sans'">${p.n}</b><span class="bdg" style="background:var(--sirup);color:var(--chili);padding:2px 8px">${p.c}</span></div><div class="cap">${p.t}</div></div></div>${p.type=='Resep'?'':`<span class="bdg" style="background:var(--sirup);color:var(--chili)">${p.type}</span>`}</div>${p.rid?`<div style="position:relative;margin-top:8px">${fp(rec(p.rid),'100%','210px').replace('border-radius:12px','border-radius:0')}<span class="pr">Total ${R(p.cost)}${p.type=='Resep'?' / 2 porsi':''}</span></div>`:''}<div class="col" style="padding:16px;gap:10px"><h2 class="h h3" style="line-height:1.35">${p.title}</h2><p style="margin:0;color:var(--mut)">${p.tx}</p>${p.loc?`<div class="row sp" style="background:var(--sirup);border-radius:8px;padding:10px"><span class="row" style="gap:6px;min-width:0;font:600 12.5px 'Plus Jakarta Sans'"><span style="color:var(--sec)">${I('pin')}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.loc}</span></span><a href="#/spots" style="color:var(--chili);font:700 11px 'Plus Jakarta Sans';white-space:nowrap">Lihat Rute</a></div>`:''}${p.pp?`<div class="row"><div class="g" style="background:var(--sirup);border-radius:8px;padding:8px;text-align:center"><div class="cap" style="font-size:12px">Waktu Masak</div><b style="font:700 12.5px 'Plus Jakarta Sans'">${p.time}</b></div><div class="g" style="background:var(--sirup);border-radius:8px;padding:8px;text-align:center"><div class="cap" style="font-size:12px">Budget Porsi</div><b style="font:700 12.5px 'Plus Jakarta Sans';color:var(--chili)">${p.pp}</b></div></div>`:''}<div class="row sp" style="color:var(--mut)"><div class="row" style="gap:14px">${L(p.k,p.l)}<button class="row" data-a="cm" data-v="${p.k}" aria-label="Komentar" style="gap:4px;min-height:44px">${I('msg')}<b style="font-size:12px">${p.cm+(CM[p.k]||[]).length-(CM0[p.k]||0)}</b></button><button data-a="toast" data-v="Link disalin" aria-label="Bagikan" style="min-width:44px;min-height:44px">${I('share')}</button></div><button data-a="like" data-v="b${p.k}" aria-label="Simpan" style="min-width:44px;min-height:44px;color:${S.liked.has('b'+p.k)?'var(--chili)':'var(--mut)'}">${I('bookmark',S.liked.has('b'+p.k))}</button></div></div></article>`;
+const V={
+welcome:()=>`<div class="col" style="gap:22px;padding-top:8px"><div class="col" style="gap:16px"><div class="row"><span class="stamp" style="font-size:14px;transform:rotate(-4deg)">HEMAT!</span><span class="cap">Untuk anak kos se-Indonesia</span></div><h1 class="h d">Eat well,<br>spend less.</h1><p style="font-size:16px;margin:0;color:var(--mut)">Masukkan budget kamu dalam Rupiah. AI kami menyusun resep yang pas di dompet, sesuai alat masak di kosan.</p><div class="col" style="gap:10px;margin-top:4px"><button class="btn xl w" data-a="am" data-v="Daftar">Daftar dengan email</button><button class="btn gh xl w" data-a="am" data-v="Masuk">Sudah punya akun? Masuk</button></div><button data-a="guest" class="cap" style="font-size:15px;text-decoration:underline;min-height:48px">Skip for now, masuk sebagai tamu</button></div>
+<div class="hero lt" style="display:grid;place-items:center;gap:6px;position:relative">${fp({id:1,c:'#E9A93B'},'200px','200px')}<div class="card torn m" style="width:min(280px,100%);transform:rotate(2deg)"><div class="lr"><span>Nasi telur</span><i></i><b>Rp9.500</b></div><div class="lr"><span>Es teh</span><i></i><b>Rp3.000</b></div><div class="lr" style="border-top:2px dashed var(--mut);margin-top:6px;padding-top:8px"><b>TOTAL</b><i></i><b style="color:var(--chili);font-size:18px">Rp12.500</b></div><div class="bc" style="margin-top:8px"></div></div></div></div>`,
+auth:()=>{const d=S.am=='Daftar';return `<div class="col" style="gap:16px"><div class="row"><button class="av" style="background:var(--card);color:var(--ink);min-width:48px;min-height:48px" data-a="go" data-v="#/welcome" aria-label="Kembali">${I('back')}</button></div><div class="row" style="gap:12px">${mascot(56)}<div><h1 class="h h1">${d?'Buat akun':'Selamat datang lagi'}</h1><div class="cap">${d?'Gratis, cuma butuh 30 detik.':'Masuk untuk lanjut hemat.'}</div></div></div><div class="pill" style="max-width:none">${['Daftar','Masuk'].map(x=>`<button class="${S.am==x?'on':''}" data-a="am" data-v="${x}">${x}</button>`).join('')}</div>${d?'<input class="inp" placeholder="Nama panggilan" aria-label="Nama" autocomplete="name">':''}<input class="inp" type="email" placeholder="Email kampus atau pribadi" aria-label="Email" autocomplete="email"><input class="inp" type="password" placeholder="Password (min. 6 karakter)" aria-label="Password"><button class="btn xl w" data-a="go" data-v="${d?'#/onboard':'#/home'}">${d?'Daftar':'Masuk'}</button><button class="cap" data-a="go" data-v="#/home" style="min-height:44px;text-decoration:underline">Pakai akun demo (dinda@sharebite.id)</button></div>`},
+onboard:()=>{const s=S.step,T=['Budget kamu','Makan apa aja','Alat dan kampus'];return `<div class="col"><div class="row"><div class="bar g"><i style="width:${s*33.4}%;background:var(--chili)"></i></div><span class="cap m">${s}/3</span></div><h1 class="h h1" style="margin-top:14px">${T[s-1]}</h1>
+${s==1?`<p class="cap" style="font-size:16px;margin:0">Bisa diubah kapan saja di Akun.</p><div class="card"><div class="cap">Budget mingguan</div><div class="pxl m" style="font-size:54px;margin:6px 0 12px">${R(S.budget*7)}</div><div class="row wrap">${[70000,105000,175000].map(b=>`<button class="chip ${S.budget*7==b?'on':''}" data-a="wk" data-v="${b}">${R(b)}</button>`).join('')}</div></div><p class="cap">Default harian: ${R(S.budget)}</p>`:''}
+${s==2?`<div class="h h3">Diet</div><div class="row wrap">${chips(['Halal','Vegetarian','High protein'],x=>S.pick.has(x),'pick')}</div><input class="inp" placeholder="Alergi, contoh: udang, kacang tanah" aria-label="Alergi"><div class="h h3">Rasa favorit</div><div class="row wrap">${chips(['Pedas','Manis','Gurih','Asin'],x=>S.pick.has(x),'pick')}</div>`:''}
+${s==3?`<div class="h h3">Alat masak</div><div class="row wrap">${chips(['Rice cooker','Kompor','Microwave'],x=>S.pick.has(x),'pick')}</div><div class="h h3">Kampus dan kota</div><input class="inp" value="Universitas Indonesia, Depok" aria-label="Kampus"><div class="row"><div class="g card row" style="gap:12px">${mascot(54)}<span class="cap">Lengkap! Sisanya bisa nanti.</span></div></div>`:''}
+<div class="row" style="margin-top:12px"><button class="btn gh g" data-a="go" data-v="#/home">Lewati</button><button class="btn g" data-a="next">${s<3?'Lanjut':'Mulai hemat'}</button></div></div>`},
+home:()=>{const [c,l]=stat(9500,S.budget);return `<div class="row sp" style="margin-bottom:18px"><div><div class="cap">Selamat pagi${S.guest?', tamu':''}</div><h1 class="h h1">Halo, ${S.guest?'Kawan':'Dinda'}</h1></div><div class="av">${S.guest?'?':'D'}</div></div>
+<div class="two r"><div class="hero col" style="gap:16px"><div class="row sp wrap"><span class="cap" style="color:var(--ink);font-weight:700">Budget makan hari ini</span><span class="stamp" id="hs" style="color:${c};border-color:${c}">${l.toUpperCase()}</span></div><div class="row" style="gap:14px"><button class="btn gh s" style="min-width:48px;padding:0" data-a="bd" data-v="-1000" aria-label="Kurangi">−</button><div class="pxl" id="bn">${R(S.budget)}</div><button class="btn gh s" style="min-width:48px;padding:0" data-a="bd" data-v="1000" aria-label="Tambah">+</button></div>
+<input type="range" id="sl" min="5000" max="50000" step="1000" value="${S.budget}" aria-label="Budget"><div class="row wrap">${[10000,15000,25000].map(b=>`<button class="chip ${S.budget==b?'on':''}" data-a="bs" data-v="${b}">${R(b)}</button>`).join('')}<button class="chip" data-a="toast" data-v="Geser slider untuk budget custom">Custom</button></div></div>
+<div class="card col" style="gap:10px"><div class="row sp"><b class="h h3">Filter rasa &amp; lainnya</b><span class="cap">${['High protein','Pedas','Maks 20 mnt','1 porsi','Bahan ada'].filter(x=>S.pick.has(x)).length} aktif</span></div><div class="row wrap" style="gap:8px">${chips(['High protein','Pedas','Maks 20 mnt','1 porsi','Bahan ada'],x=>S.pick.has(x),'pick')}</div></div>
+<button class="btn xl w" data-a="gen">${I('spark')} Generate Recipe</button>
+<div class="col"><div class="sticky"><b>Tip hari ini</b><br>Beli bumbu per ons, bukan per bungkus. Dompet aman sampai akhir bulan.</div><div class="card row" style="gap:14px">${mascot(76)}<div><div class="h h3">Si Mangkok siap masak</div><div class="cap">Tekan Generate, 3 resep muncul dalam hitungan detik.</div></div></div></div></div>
+<div class="row sp" style="margin:30px 0 8px"><h2 class="h h2">Pilihan Hemat Hari Ini</h2><a href="#/simpan" class="cap" style="font-weight:700">Lihat semua</a></div><div class="hs">${RC.map(r=>`<a href="#/recipe/${r.id}" class="card" style="min-width:210px;padding:10px;text-decoration:none;color:inherit">${fp(r,'100%','110px',48)}<div class="h h3" style="margin:10px 0 4px;font-size:16px">${r.t}</div><b class="m" style="color:var(--chili)">${R(cost(r))}</b></a>`).join('')}</div>`},
+loading:()=>`<div class="col" style="align-items:center;text-align:center;margin:24px 0 0;gap:18px"><div id="lm">${mascot(170,'cook')}</div><h1 class="h h1" id="lt">Lagi masak ide buat kamu...</h1><div class="card" style="width:100%;text-align:left"><div class="col" id="ls" style="gap:12px">${['Cek harga pasar Depok','Pilih bahan sesuai alat masak','Hitung struk, pastikan '+R(S.budget)+' cukup'].map((x,i)=>`<div class="row" id="s${i}" style="opacity:.4"><div class="ck">${I('check')}</div>${x}</div>`).join('')}</div><div class="bar" style="margin-top:16px"><i id="lp" style="width:4%;background:var(--chili)"></i></div></div><div class="sticky" style="width:100%;text-align:left">Tips: telur dadar plus nasi hangat itu kombo paling aman buat akhir bulan.</div><button class="btn gh s" data-a="go" data-v="#/home">Batal</button></div>`,
+results:()=>`<div class="row sp wrap" style="margin-bottom:18px"><div><div class="cap">Hasil untuk kamu</div><h1 class="h h1">Budget: <span class="m" style="color:var(--chili)">${R(S.budget)}</span></h1></div><button class="chip" data-a="go" data-v="#/home">Edit budget</button></div><div class="grid">${RC.map(card).join('')}</div><div class="row wrap" style="margin-top:24px"><button class="btn gh" data-a="go" data-v="#/home">Ubah filter</button><button class="btn" data-a="gen">${I('spark')} Regenerate</button></div>`,
+recipe:()=>{const r=rec(S.rid),c=cost(r),ok=c<=S.budget,t=S.tabD;return `<div class="two"><div class="col"><div style="position:relative">${fp(r,'100%','240px',110)}<div class="row sp" style="position:absolute;inset:14px 14px auto"><button class="av" style="background:var(--card);color:var(--ink);min-width:48px;min-height:48px" data-a="back" aria-label="Kembali">${I('back')}</button><button class="av" style="background:var(--card);color:var(--chili);min-width:48px;min-height:48px" data-a="save" data-v="${r.id}" aria-label="Simpan">${I('heart',S.saved.has(r.id))}</button></div></div>
+<h1 class="h h1">${r.t}</h1><div class="row wrap cap m"><span class="row" style="gap:4px">${I('clock')} ${r.min} mnt</span><span>1 porsi</span><span class="stamp ${ok?'':'bad'}">${ok?'UNDER BUDGET':'LEWAT BUDGET'}</span></div>
+${[['Kalori',r.cal+' kkal',r.cal/8],['Protein',r.pro+' g',r.pro*2.4],['Karbo',r.carb+' g',r.carb]].map(n=>`<div><div class="row sp m cap"><span>${n[0]}</span><span>${n[1]}</span></div><div class="bar" style="height:8px"><i style="width:${Math.min(100,n[2])}%;background:var(--daun)"></i></div></div>`).join('')}</div>
+<div class="col"><div class="pill">${['Detail','Langkah','Nutrisi'].map(x=>`<button class="${t==x?'on':''}" data-a="td" data-v="${x}">${x==='Detail'?'Struk':x}</button>`).join('')}</div>
+${t=='Detail'?`<div class="card torn col" style="gap:6px;padding:20px"><div class="row sp"><b class="m cap">STRUK ANAK KOS</b><span class="cap m">No. 04${r.id}8</span></div>${r.ing.map(x=>`<div><div class="lr"><span>${x[0]} ${x[1]} ${x[2]}</span><i></i><b>${R(x[3])}</b></div>${x[5]?`<button class="chip sw" data-a="toast" data-v="Swap: ${x[5]}">Cheaper swap: ${x[5]}</button>`:''}</div>`).join('')}<div class="row sp" style="border-top:2px dashed var(--mut);padding-top:10px;margin-top:6px"><b class="h h2">TOTAL</b><b class="m" style="font-size:28px;color:var(--chili)">${R(c)}</b></div><div class="cap" style="font-weight:700;color:${ok?'var(--daun)':'#C62828'}">${ok?'Sisa '+R(S.budget-c)+'. Dompet aman.':'Lewat '+R(c-S.budget)+' dari budget.'}</div><div class="bc"></div></div>`:''}
+${t=='Langkah'?r.st.map((s,i)=>`<div class="card row" style="align-items:flex-start"><div class="av" style="background:var(--chili);color:#fff">${i+1}</div><div class="g">${s[0]}${s[1]?`<div class="cap m">Timer ${Math.floor(s[1]/60)}:${String(s[1]%60).padStart(2,'0')}</div>`:''}</div></div>`).join('')+`<div class="sticky">${r.tip}</div>`:''}
+${t=='Nutrisi'?`<div class="card row" style="gap:20px"><div class="ring" style="--p:${r.score};width:90px;height:90px"><b style="width:70px;height:70px;font-size:22px">${r.score}</b></div><div><div class="h h2">Skor nutrisi</div><div class="cap">${r.cal} kkal, ${r.pro} g protein, ${r.carb} g karbo. Seimbang untuk satu kali makan.</div></div></div>`:''}
+<div class="row wrap" style="margin-top:6px"><button class="btn gh g" data-a="cart" data-v="${r.id}">${I('cart')} Ke Belanjaan</button><button class="btn g" data-a="cook" data-v="${r.id}">Mulai Masak</button></div></div></div>`},
+cook:()=>{const r=rec(S.rid),n=r.st.length,s=r.st[S.si];return `<div class="col"><div class="row sp"><button class="av" style="background:var(--card);color:var(--ink);min-width:48px;min-height:48px" data-a="back" aria-label="Keluar">${I('x')}</button><div class="row" style="gap:6px">${r.st.map((_,i)=>`<i style="width:${i==S.si?36:14}px;height:9px;border-radius:9px;background:${i<=S.si?'var(--chili)':'var(--bd)'};transition:.3s"></i>`).join('')}</div><span class="cap m">${S.si+1}/${n}</span></div>
+<div class="cap" style="margin-top:12px">Langkah ${S.si+1} dari ${n}</div><h1 class="h" style="font-size:30px;line-height:1.2">${s[0]}</h1>
+${s[1]?`<div class="row"><button class="chip" id="tm" data-a="timer" data-v="${s[1]}" style="min-height:60px;font:500 30px 'Plus Jakarta Sans';padding:0 26px;background:var(--ink);color:var(--paper)">${I('clock')} <span id="tx">${Math.floor(s[1]/60)}:${String(s[1]%60).padStart(2,'0')}</span></button><span class="cap">Tap untuk mulai</span></div>`:''}
+<div class="sticky" style="font-size:17px">${r.tip}</div><div class="cap" style="font-weight:700;margin-top:6px">Bahan di langkah ini</div><div class="row wrap">${r.ing.slice(S.si*2,S.si*2+3).map(x=>`<div class="card g" style="min-width:110px"><b>${x[0]}</b><div class="m cap">${x[1]} ${x[2]}</div></div>`).join('')}</div>
+<div class="row" style="margin-top:14px">${S.si?`<button class="btn gh" data-a="prev">Kembali</button>`:''}<button class="btn xl g" data-a="step">${S.si<n-1?'Langkah berikutnya':'Selesai masak'}</button></div></div>`},
+finish:()=>{const r=rec(S.rid),c=cost(r);return `<div class="col" style="align-items:center;text-align:center;margin:24px 0;gap:16px"><span class="coin material-symbols-outlined" style="font-size:48px;color:#ffb95f;font-variation-settings:'FILL' 1">paid</span>${mascot(180,'cheer')}<span class="stamp" style="font-size:15px;transform:rotate(3deg)">HEMAT BANGET!</span><h1 class="h h1">Selesai masak!</h1><div class="card" style="width:100%"><div class="cap">Berapa habisnya?</div><input class="inp m" id="sp" value="${c}" inputmode="numeric" style="font-size:30px;font-weight:700;text-align:center;border:0;color:var(--chili)"><div class="cap" style="color:var(--daun);font-weight:700">Hemat ${R(S.budget-c)} dari budget</div></div><button class="btn xl w" data-a="log">Catat pengeluaran</button><button class="btn gh w" data-a="go" data-v="#/home">Lewati</button></div>`},
+simpan:()=>{const l=RC.filter(r=>S.saved.has(r.id));return `${l.length?`<div class="grid">${l.map(card).join('')}</div>`:`<div class="col" style="align-items:center;text-align:center;padding:50px 0">${mascot(150,'err')}<h2 class="h h2">Belum ada resep tersimpan</h2><p class="cap">Tap hati di resep untuk menyimpannya.</p><a class="btn" href="#/home">Cari resep</a></div>`}`},
+belanja:()=>{const t=S.cart.reduce((a,x)=>a+x[3],0),[c,l]=stat(t,S.shopB),dn=S.cart.filter(x=>x[5]).length;return `<div class="col"><div class="card hero lt"><div class="row sp"><span class="cap">Estimasi total</span><span class="row" style="gap:4px"><button class="chip" style="min-height:30px;padding:0 10px" data-a="sb" data-v="-5000" aria-label="Kurangi budget belanja">−</button><span class="cap m">dari ${R(S.shopB)}</span><button class="chip" style="min-height:30px;padding:0 10px" data-a="sb" data-v="5000" aria-label="Tambah budget belanja">+</button></span></div><div class="pxl" style="color:var(--ink);margin:6px 0 12px">${R(t)}</div><div class="bar"><i style="width:${Math.min(100,t/S.shopB*100)}%;background:${c}"></i></div><div style="margin:10px 0 16px;font-weight:700;color:${t>S.shopB?'#C62828':'var(--daun)'}">${t>S.shopB?'Lewat '+R(t-S.shopB):'Sisa '+R(S.shopB-t)+'. Masih cukup nih.'} ${l}</div><a class="btn w" href="#/spots">${I('pin')} Cari tempat murah</a></div>
+<div class="ad"><input class="inp g" id="ni" placeholder="Tambah bahan, contoh: Tahu" aria-label="Bahan baru" value="${S.ni}"><input class="inp m" id="nh" inputmode="numeric" placeholder="Harga" aria-label="Harga" style="width:96px"><button class="btn s" data-a="add" aria-label="Tambah" style="min-height:44px;padding:0 14px">${I('plus')}</button></div>
+${['Sayuran','Protein','Bumbu','Karbo','Lainnya'].map(g=>{const it=S.cart.map((x,i)=>[x,i]).filter(([x])=>x[4]==g);return it.length?`<div class="h h3" style="margin-top:6px">${g}</div><div class="card col" style="gap:2px;padding:6px 16px">${it.map(([x,i])=>`<button class="row ${x[5]?'done':''}" style="min-height:54px;text-align:left" data-a="chk" data-v="${i}"><span class="ck ${x[5]?'on':''}">${x[5]?I('check'):''}</span><span class="g">${x[0]} <span class="cap m">${x[1]} ${x[2]}</span></span><b class="m">${R(x[3])}</b></button>`).join('')}</div>`:''}).join('')}
+${dn?`<button class="btn gh w" data-a="clr">Hapus ${dn} yang sudah dibeli</button>`:''}</div>`},
+komunitas:()=>{const f=S.tab,L=(k,n)=>`<button class="row" data-a="like" data-v="${k}" style="gap:4px;min-height:44px;color:${S.liked.has(k)?'var(--sec)':'var(--mut)'}">${I('heart',S.liked.has(k))}<b style="font-size:12px">${n+(S.liked.has(k)?1:0)}</b></button>`;
+const list=PS.filter(p=>f=='Semua'||(f=='Di bawah Rp10k'&&p.cost&&p.cost<10000)||(f=='Info Warung Murah'&&p.type=='Info Warung')||(f=='Trik Kos'&&p.type=='Trik Masak'));
+return `<div class="col" style="gap:12px"><div style="position:relative"><span class="cap" style="position:absolute;left:12px;top:11px">${I('search')}</span><input class="inp" id="qs" placeholder="Cari resep hemat atau warung dekat kampus..." style="padding-left:44px;min-height:46px" aria-label="Cari"></div>
+<div class="hs" style="gap:8px;padding-bottom:4px;margin:0 -16px;padding-left:16px;padding-right:16px">${chips(['Semua','Di bawah Rp10k','Info Warung Murah','Trik Kos'],x=>S.tab==x,'ct')}</div>
+<div class="card row sp" style="background:var(--sirup);box-shadow:none"><div class="row"><div class="av" style="width:40px;height:40px">${I('spark')}</div><div><div class="h h3" style="font-size:16px">Rekomendasi Hari Ini</div><div class="cap">Hemat rata-rata Rp18.500/hari anak kos</div></div></div><span class="bdg" style="background:color-mix(in srgb,var(--chili) 14%,transparent);color:var(--chili)">Depok &amp; Sekitarnya</span></div>
+<div class="grid">${list.map(p=>post(p,L)).join('')||'<div class="card cap">Belum ada postingan di kategori ini.</div>'}</div></div>
+<button class="btn fab" data-a="share">${I('plus')} Bagikan Resep / Info</button>`},
+spots:()=>{const f=[...S.spot],l=SP.filter(s=>f.every(x=>s[5].includes(x)));return `<div class="row"><button class="av" style="background:var(--card);color:var(--ink);min-width:48px;min-height:48px" data-a="back" aria-label="Kembali">${I('back')}</button></div><div class="row wrap" style="margin:16px 0">${chips(['Nasi','Sayur','Protein','Buka sekarang'],x=>S.spot.has(x),'sp')}</div><div class="two r"><div class="map">${SP.map((s,i)=>`<div class="pin" style="left:${22+i*22}%;top:${28+(i%2)*34}%;color:${l.includes(s)?'var(--chili)':'#999'}"><span class="material-symbols-outlined" style="font-size:42px;font-variation-settings:'FILL' 1">location_on</span></div>`).join('')}<div style="position:absolute;left:44%;top:50%;width:18px;height:18px;border-radius:50%;background:#2563EB;border:3px solid #fff"></div></div><div class="col">${l.length?l.map(spot).join(''):'<div class="card cap">Belum ada tempat yang cocok. Kurangi filter.</div>'}</div></div>`},
+akun:()=>{const w=S.hist.slice(-7),dk=document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);return `<div class="two r"><div class="col"><div class="hero lt row" style="gap:18px"><div class="av" style="width:80px;height:80px;font-size:32px">D</div><div class="g"><h1 class="h h1">Dinda Aprilia</h1><div class="cap">Universitas Indonesia, Depok</div><span class="chip sw" style="background:var(--kunyit);color:#1C1A17;margin-top:6px">Lv.3 Anak Kos Pintar</span></div></div>
+<div class="row">${[['12','Resep dibagi'],['34','Tersimpan'],['Rp148rb','Hemat bulan ini']].map(s=>`<div class="card g" style="text-align:center;padding:12px"><b class="m" style="font-size:20px;color:var(--daun)">${s[0]}</b><div class="cap">${s[1]}</div></div>`).join('')}</div>
+<div class="card"><div class="row sp"><b>Pengeluaran vs budget</b><span class="cap m">garis = ${R(S.budget)}</span></div><div style="display:flex;align-items:flex-end;gap:10px;height:150px;margin-top:14px;border-bottom:1px solid var(--bd);position:relative"><div style="position:absolute;left:0;right:0;bottom:${S.budget/20000*100}%;border-top:2px dashed var(--chili)"></div>${w.map(v=>`<div class="g" style="height:${Math.min(100,v/20000*100)}%;background:${v>S.budget?'var(--err)':v/S.budget>.7?'var(--kunyit)':'var(--daun)'};border-radius:8px 8px 0 0;position:relative"><span class="m" style="position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:10px;color:var(--mut)">${Math.round(v/1000)}rb</span></div>`).join('')}</div></div>
+<div class="row">${[['workspace_premium','Hemat Hero'],['local_fire_department','Spice Lord'],['shopping_basket','Pasar Hunter']].map(b=>`<div class="card g" style="text-align:center"><span class="material-symbols-outlined" style="font-size:38px;color:var(--sec);font-variation-settings:'FILL' 1">${b[0]}</span><b style="font-size:13px">${b[1]}</b></div>`).join('')}</div></div>
+<div class="card col" style="align-self:start;gap:0;padding:6px 18px"><h2 class="h h2" style="padding:14px 0">Pengaturan</h2>${[['Dark mode',`<button data-a="theme" aria-label="Dark mode" style="width:52px;height:30px;border-radius:99px;background:${dk?'var(--daun)':'var(--bd)'};position:relative"><i style="position:absolute;top:3px;${dk?'right':'left'}:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s"></i></button>`],['Resep tersimpan','<a href="#/simpan" style="color:var(--chili);font-weight:700">Buka</a>'],['Budget harian','<b class="m">'+R(S.budget)+'</b>'],['Diet',[...S.pick].slice(0,2).join(', ')||'Belum diatur'],['Pengingat udah makan belum','<b class="m">19.00</b>']].map(x=>`<div class="row sp" style="min-height:54px;border-top:1px solid var(--bd)"><span>${x[0]}</span><span class="cap">${x[1]}</span></div>`).join('')}<button class="row" style="min-height:54px;border-top:1px solid var(--bd);color:#C62828;font-weight:700" data-a="go" data-v="#/welcome">Logout</button></div></div>`}};
+const SP=[['Warung Bu Tini','250 m','06.00 sampai 21.00',9000,'4,7',['Nasi','Protein','Buka sekarang']],['Pasar Pagi Margonda','600 m','05.00 sampai 11.00',7500,'4,5',['Sayur','Protein']],['Tahu Tempe Pak Yanto','900 m','07.00 sampai 17.00',5000,'4,8',['Protein','Buka sekarang']],['Lapak Sayur Mbak Wati','1,1 km','06.00 sampai 15.00',4000,'4,6',['Sayur','Buka sekarang']]];
+const spot=s=>`<div class="card row"><div class="g"><b>${s[0]}</b><div class="cap">${s[1]}, buka ${s[2]}</div><div class="row wrap" style="gap:12px;margin-top:4px"><b class="m" style="color:var(--chili)">±${R(s[3])}</b><span class="cap">Rating mahasiswa ${s[4]}/5</span></div></div><button class="btn s" data-a="toast" data-v="Membuka Google Maps">Buka Maps</button></div>`;
+function render(){const h=location.hash||'#/welcome',[,p,id]=h.split('/');if(id)S.rid=+id;const k=p||'welcome',foc=['welcome','auth','onboard','loading','cook','finish'].includes(k);
+$('#sh').classList.toggle('focus',foc);const tabK={home:'explore',results:'explore',recipe:'explore',spots:'daftar belanja',belanja:'daftar belanja',simpan:'profil',akun:'profil'}[k]||k;
+$('#sd').innerHTML=`<div class="row" style="gap:10px">${mascot(34)}<div style="line-height:1.15"><div class="bl">ShareA’Bite</div><div class="ht">${TT[k]||''}</div></div></div><div class="dn">${nav.map(n=>`<a class="nv ${n[1].toLowerCase()==tabK?'on':''}" href="${n[2]}">${I(n[0],n[1].toLowerCase()==tabK)}${n[1]}</a>`).join('')}</div><div class="row" style="gap:4px"><button class="ib" data-a="toast" data-v="Belum ada notifikasi baru" aria-label="Notifikasi">${I('bell')}</button><a class="av" style="width:36px;height:36px;font-size:14px;text-decoration:none" href="#/akun" aria-label="Profil">D</a></div>`;
+$('#tb').innerHTML=nav.map(n=>{const on=n[1].toLowerCase()==tabK,c=S.cart.filter(x=>!x[5]).length;return `<a class="${on?'on':''}" href="${n[2]}"><span class="bw">${I(n[0],on)}${n[1]=='Daftar Belanja'&&c?`<b class="bg">${c}</b>`:''}</span>${n[1]}</a>`}).join('');
+$('#v').innerHTML=(V[k]||V.welcome)();setY(0);if(k=='loading')load();const sl=$('#sl');if(sl)sl.oninput=()=>setB(+sl.value,1);const ni=$('#ni');if(ni)ni.oninput=()=>S.ni=ni.value;const qs=$('#qs');if(qs)qs.oninput=()=>document.querySelectorAll('[data-t]').forEach(a=>a.hidden=!a.dataset.t.toLowerCase().includes(qs.value.toLowerCase()))}
+function count(a,b){const e=$('#bn');if(!e)return;const t0=performance.now();(function f(t){const q=Math.min(1,(t-t0)/350);e.textContent=R(a+(b-a)*q);if(q<1)requestAnimationFrame(f)})(t0)}
+function setB(b,fromSl){const o=S.budget;S.budget=Math.max(5000,Math.min(50000,b));count(o,S.budget);const [c,l]=stat(9500,S.budget),h=$('#hs');if(h){h.textContent=l.toUpperCase();h.style.color=h.style.borderColor=c}if(!fromSl){const s=$('#sl');if(s)s.value=S.budget;document.querySelectorAll('[data-a=bs]').forEach(x=>x.classList.toggle('on',+x.dataset.v==S.budget))}}
+function load(){const bar=$('#lp');let i=0;const T=[500,1300,2200];(function n(){if(location.hash!='#/loading')return;if(i<3){const e=$('#s'+i);e.style.opacity=1;e.firstElementChild.classList.add('on');bar.style.width=(i+1)*32+'%';setTimeout(()=>{i++;n()},T[i]-(T[i-1]||0)+250)}else{bar.style.width='100%';setTimeout(()=>location.hash='#/results',350)}})()}
+let tmr;function stopT(){clearInterval(tmr);tmr=null}
+function csheet(k){const l=CM[k];$('#md').innerHTML=`<div class="modal" data-a="mc"><div class="sheet" role="dialog" aria-label="Komentar"><div class="row sp"><h2 class="h h2">Komentar</h2><button data-a="mc" aria-label="Tutup" style="min-width:44px;min-height:44px">${I('x')}</button></div>${l.length?l.map(c=>`<div class="row" style="align-items:flex-start"><div class="av" style="width:36px;height:36px;font-size:13px">${c[0][0]}</div><div class="g"><b style="font-size:14px">${c[0]}</b> <span class="cap">${c[2]}</span><div>${c[1]}</div></div></div>`).join(''):'<div class="cap">Belum ada komentar. Jadi yang pertama!</div>'}<div class="ad"><input class="inp g" id="ci" placeholder="Tulis komentar..." aria-label="Komentar"><button class="btn s" data-a="cs" data-v="${k}" style="min-height:44px">Kirim</button></div></div></div>`;setTimeout(()=>$('#ci')&&$('#ci').focus(),50)}
+function sheet(){$('#md').innerHTML=`<div class="modal" data-a="mc"><div class="sheet" role="dialog" aria-label="Share Post"><div class="row sp"><h2 class="h h2">Bagikan ke Komunitas</h2><button data-a="mc" aria-label="Tutup" style="min-width:44px;min-height:44px">${I('x')}</button></div><div class="pill" style="max-width:none">${['Resep','Tips','Tempat'].map((x,i)=>`<button class="${i?'':'on'}" data-a="toast" data-v="Mode ${x} dipilih">${x}</button>`).join('')}</div><div class="card" style="border:2px dashed var(--mut);text-align:center;color:var(--mut)">Tambah foto masakan</div><input class="inp" id="pt" placeholder="Judul resep"><div class="row"><input class="inp" placeholder="Waktu (mnt)"><input class="inp" placeholder="Porsi"></div><div class="row"><input class="inp" placeholder="Bahan"><input class="inp m" id="pp" inputmode="numeric" placeholder="Harga"></div><div class="row sp"><span class="cap">Total otomatis</span><span class="tag" id="pg">Rp0</span></div><div class="err" id="pe" style="color:#C62828;font-weight:700"></div><div class="row"><button class="btn gh g" data-a="toast" data-v="Draft tersimpan">Simpan draft</button><button class="btn g" data-a="post">Post</button></div></div></div>`;$('#pp').oninput=e=>$('#pg').textContent=R(+e.target.value.replace(/\D/g,''))}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;if(el.dataset.a=='mc'&&e.target!==el&&el.classList.contains('modal'))return;const a=el.dataset.a,v=el.dataset.v,rr=()=>{const y=getY();render();setY(y)};
+({go:()=>location.hash=v,back:()=>history.back(),guest:()=>{S.guest=true;location.hash='#/home'},am:()=>{S.am=v;location.hash=='#/auth'?rr():location.hash='#/auth'},sb:()=>{S.shopB=Math.max(10000,S.shopB+ +v);rr()},
+add:()=>{const n=$('#ni').value.trim(),h=+$('#nh').value.replace(/\D/g,'');if(!n){toast('Isi nama bahannya dulu');return}S.cart.push([n,1,'pcs',h||0,'Lainnya',0]);S.ni='';rr();toast('Masuk daftar belanja')},clr:()=>{S.cart=S.cart.filter(x=>!x[5]);rr();toast('Yang sudah dibeli dihapus')},
+cm:()=>csheet(v),cs:()=>{const i=$('#ci'),t=i.value.trim();if(!t)return;CM[v].push(['Dinda',t,'Baru saja']);rr();csheet(v)},next:()=>{S.step<3?(S.step++,render()):location.hash='#/home'},wk:()=>{S.budget=v/7;render()},pick:()=>{S.pick.has(v)?S.pick.delete(v):S.pick.add(v);rr()},bd:()=>setB(S.budget+ +v),bs:()=>setB(+v),gen:()=>location.hash='#/loading',toast:()=>toast(v),
+save:()=>{const id=+v;S.saved.has(id)?(S.saved.delete(id),toast('Dihapus dari Simpan')):(S.saved.add(id),toast('Tersimpan. Hemat banget!'));rr()},
+td:()=>{S.tabD=v;rr()},cart:()=>{rec(v).ing.forEach(x=>{const m=S.cart.find(c=>c[0]==x[0]&&c[2]==x[2]);m?(m[1]+=x[1],m[3]+=x[3]):S.cart.push([x[0],x[1],x[2],x[3],x[4],0])});toast('Bahan masuk ke Belanja');},
+cook:()=>{S.si=0;location.hash='#/cook/'+v},step:()=>{stopT();S.si<rec(S.rid).st.length-1?(S.si++,render()):location.hash='#/finish/'+S.rid},prev:()=>{stopT();S.si--;render()},
+timer:()=>{if(tmr)return;let t=+v;const x=$('#tx');tmr=setInterval(()=>{t--;x.textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0');if(t<=0){stopT();navigator.vibrate&&navigator.vibrate(300);toast('Timer selesai!')}},1000)},
+log:()=>{S.hist.push(+$('#sp').value.replace(/\D/g,'')||0);toast('Tercatat. Dompet aman!');location.hash='#/akun'},
+chk:()=>{S.cart[v][5]^=1;rr()},ct:()=>{S.tab=v;rr()},like:()=>{S.liked.has(v)?S.liked.delete(v):S.liked.add(v);rr()},sp:()=>{S.spot.has(v)?S.spot.delete(v):S.spot.add(v);rr()},
+theme:()=>{const r=document.documentElement,d=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=d?'light':'dark';rr()},
+share:sheet,mc:()=>$('#md').innerHTML='',post:()=>{const t=$('#pt').value.trim();if(!t){$('#pe').textContent='Judulnya jangan kosong ya.';return}$('#md').innerHTML='';toast('Postingan terkirim!')}})[a]?.()});
+addEventListener('hashchange',()=>{stopT();render()});render();
+(function clk(){const d=new Date();$('#clk').textContent=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');setTimeout(clk,30000)})();
+try{if(!/^https?:/.test(location.protocol))throw 0;const u=location.href.split('#')[0],q=qrcode(0,'M');q.addData(u);q.make();$('#qr').innerHTML=q.createSvgTag({cellSize:4,margin:2,scalable:true});$('#qu').textContent=u}catch(e){$('#qr').closest('.qr').hidden=true}
+</script></body></html>
