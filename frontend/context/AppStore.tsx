@@ -221,6 +221,17 @@ function useStoreValue() {
     AsyncStorage.setItem(K_OFFLINE, JSON.stringify(st)).catch(() => {});
   }, [ready, online, user, cart, savedRecipes, posts, history, comments]);
 
+  // Keep the server (and its database) awake while the app is open, so a quiet moment at
+  // the booth doesn't turn the next generate into a slow cold start.
+  useEffect(() => {
+    if (!ready || !online) return;
+    const id = setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+      api.ping(10000);
+    }, 4 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [ready, online]);
+
   /* ------------------------------ auth ------------------------------ */
 
   const startSession = async (s: { token: string; user: User }) => {
@@ -316,18 +327,40 @@ function useStoreValue() {
   /* ---------------------------- recipes ----------------------------- */
 
   const generate = async (nonce: number) => {
-    let res: GenerateResult | null;
-    if (online) {
-      res = await call(() => api.generate(budget, pick, nonce));
-      refreshPlan();
-    } else {
+    const sample = (note: string): GenerateResult => {
       const bahanAda = pick.includes("Bahan ada");
       const pantry = ["Nasi putih", "Minyak goreng", "Kecap manis"];
       const recipes = RECIPES.map(r => ({
         ...r,
         pay: recipeCost(r) - (bahanAda ? r.ing.filter(i => pantry.includes(i.name)).reduce((a, i) => a + i.price, 0) : 0),
       }));
-      res = { recipes, engine: "offline", note: "Mode offline: ini resep contoh. Jalankan backend untuk generate resep sesuai budget & preferensi." };
+      return { recipes, engine: "offline", note };
+    };
+    // A generate never ends in an error screen: AI first, then the recipe library, then the
+    // built-in sample recipes. Only a used-up quota stops it (the upgrade sheet opens).
+    const stop = (e: unknown) => {
+      if (e instanceof ApiError && e.limit) {
+        setLimitHit(e.limit);
+        return true;
+      }
+      return e instanceof ApiError && e.status === 401;
+    };
+    let res: GenerateResult | null;
+    if (online) {
+      try {
+        res = await api.generate(budget, pick, nonce);
+      } catch (e) {
+        if (stop(e)) return null;
+        try {
+          res = await api.generate(budget, pick, nonce, true);
+        } catch (e2) {
+          if (stop(e2)) return null;
+          res = sample("Koneksi ke server lagi lambat, jadi ini resep andalan kami dulu. Coba generate lagi sebentar lagi.");
+        }
+      }
+      refreshPlan();
+    } else {
+      res = sample("Mode offline: ini resep contoh. Jalankan backend untuk generate resep sesuai budget & preferensi.");
     }
     if (res) {
       remember(res.recipes);

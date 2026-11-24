@@ -256,7 +256,19 @@ let onUnauthorized: (() => void) | null = null;
 export const setToken = (t: string | null) => (token = t);
 export const setUnauthorizedHandler = (fn: () => void) => (onUnauthorized = fn);
 
-async function req<T>(method: string, path: string, body?: unknown, timeoutMs = 12000): Promise<T> {
+/** One request; GETs that never reach the server (cold start, flaky Wi-Fi) are tried once more. */
+async function req<T>(method: string, path: string, body?: unknown, timeoutMs = 15000): Promise<T> {
+  try {
+    return await reqOnce<T>(method, path, body, timeoutMs);
+  } catch (e) {
+    if (method === "GET" && e instanceof ApiError && e.status === 0 && timeoutMs > 3000) {
+      return reqOnce<T>(method, path, body, timeoutMs);
+    }
+    throw e;
+  }
+}
+
+async function reqOnce<T>(method: string, path: string, body?: unknown, timeoutMs = 15000): Promise<T> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -317,12 +329,13 @@ export const api = {
   myPlan: () => req<MyPlan>("GET", "/me/plan"),
   setPlan: (tier: Tier) => req<MyPlan>("POST", "/me/plan", { tier }),
 
-  generate: async (budget: number, filters: string[], nonce: number): Promise<GenerateResult> => {
+  /** `fast` skips the AI (used as the retry after a slow first attempt). */
+  generate: async (budget: number, filters: string[], nonce: number, fast = false): Promise<GenerateResult> => {
     const r = await req<{ recipes: ApiRecipe[]; note: string; engine: "gemini" | "rules"; quota?: Meter }>(
       "POST",
       "/recipes/generate",
-      { budget, filters, nonce },
-      30000
+      { budget, filters, nonce, fast },
+      fast ? 15000 : 26000
     );
     return { ...r, recipes: r.recipes.map(toRecipe) };
   },

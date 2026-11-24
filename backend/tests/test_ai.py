@@ -153,3 +153,41 @@ def test_unreadable_answer_tries_next_model_and_is_logged(client, member, gemini
 def test_strip_code_fences():
     assert ai._strip_fences('```json\n{"recipes": []}\n```') == '{"recipes": []}'
     assert ai._strip_fences('{"a": 1}') == '{"a": 1}'
+
+
+def test_overloaded_or_slow_model_is_skipped_for_a_while(client, member, gemini):
+    calls, answers = gemini
+    first, second = settings.gemini_models[:2]
+    answers[first] = ai.ModelError("busy", "503: high demand")
+    answers["*"] = GOOD
+    r = gen(client, member, nonce=21)
+    assert r["engine"] == "gemini" and [c[0] for c in calls] == [first, second]
+    assert first not in ai.models_to_try()
+    calls.clear()
+    gen(client, member, budget=16000, nonce=22)
+    assert calls[0][0] == second  # the busy model is not tried again right away
+
+
+def test_generate_never_fails_even_if_everything_breaks(client, member, gemini, monkeypatch):
+    from app.services import recipes as svc
+
+    real = svc.generate
+
+    def broken(*a, use_ai=True, **k):
+        if use_ai:
+            raise RuntimeError("database hiccup")
+        return real(*a, use_ai=False, **k)
+
+    monkeypatch.setattr(svc, "generate", broken)
+    res = client.post("/api/recipes/generate", json={"budget": 15000, "filters": [], "nonce": 31}, headers=member)
+    assert res.status_code == 200 and len(res.json()["recipes"]) == 3
+
+
+def test_fast_retry_skips_ai_and_quota(client, guest, gemini):
+    calls, answers = gemini
+    answers["*"] = GOOD
+    before = client.get("/api/me/plan", headers=guest).json()["usage"]["generate"]["used"]
+    res = client.post("/api/recipes/generate", json={"budget": 15000, "filters": [], "nonce": 41, "fast": True}, headers=guest)
+    assert res.status_code == 200 and res.json()["engine"] == "rules" and len(res.json()["recipes"]) == 3
+    assert not calls
+    assert client.get("/api/me/plan", headers=guest).json()["usage"]["generate"]["used"] == before

@@ -1,4 +1,6 @@
 """Recipe generation, details, cheaper swaps and saved recipes."""
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -9,6 +11,7 @@ from app.database import get_db
 from app.security import current_user
 from app.services import recipes as svc
 
+log = logging.getLogger(__name__)
 router = APIRouter(tags=["recipes"])
 
 
@@ -16,6 +19,9 @@ class GenerateIn(BaseModel):
     budget: int | None = Field(None, ge=1000, le=1_000_000)
     filters: list[str] | None = None
     nonce: int | None = None
+    # Retry after a slow/failed request: skip the AI and answer from the recipe library at once.
+    # Not counted again, because the first attempt already used one generate.
+    fast: bool = False
 
 
 class SwapIn(BaseModel):
@@ -27,9 +33,19 @@ def generate(body: GenerateIn, user: models.User = Depends(current_user), db: Se
     """3 recipes that fit the budget. Uses the user's saved budget/prefs when not given."""
     budget = body.budget or user.daily_budget
     filters = body.filters if body.filters is not None else (user.prefs or [])
-    plans.use(db, user, "generate")
-    out = svc.generate(db, budget, filters, user.allergies, body.nonce, use_ai=plans.plan_of(user)["ai"])
-    out["quota"] = plans.my_plan(db, user)["usage"]["generate"]
+    if not body.fast:
+        plans.use(db, user, "generate")
+    use_ai = plans.plan_of(user)["ai"] and not body.fast
+    try:
+        out = svc.generate(db, budget, filters, user.allergies, body.nonce, use_ai=use_ai)
+    except Exception:  # never fail a generate: retry with the plain recipe library
+        log.exception("generate failed, retrying without AI")
+        db.rollback()
+        out = svc.generate(db, budget, filters, user.allergies, body.nonce, use_ai=False)
+    try:
+        out["quota"] = plans.my_plan(db, user)["usage"]["generate"]
+    except Exception:  # pragma: no cover - the recipes matter more than the meter
+        db.rollback()
     return out
 
 

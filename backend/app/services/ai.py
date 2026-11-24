@@ -28,11 +28,12 @@ log = logging.getLogger(__name__)
 
 TOOLS = ["Rice cooker", "Kompor", "Microwave"]
 COLORS = ["#F4B82E", "#7FBF8F", "#F2A27E", "#E9B955", "#C98B4E", "#8FA9B8"]
-CALL_TIMEOUT_S = 15.0  # per model call (enforced on our side; Gemini rejects deadlines under 10 s)
-TOTAL_BUDGET_S = 20.0  # stop trying further models after this long
+CALL_TIMEOUT_S = 13.0  # per model call (enforced on our side; Gemini rejects deadlines under 10 s)
+TOTAL_BUDGET_S = 16.0  # stop trying further models after this long; the rule-based picker answers after
+BUSY_SKIP_S = 10 * 60  # a model that is overloaded (5xx) or too slow is skipped for a while
 BATCHES_PER_KEY = 3  # AI calls per identical request before we only serve cached batches
 
-_pool = ThreadPoolExecutor(max_workers=4)  # runs Gemini calls so we can stop waiting on our own deadline
+_pool = ThreadPoolExecutor(max_workers=16)  # runs Gemini calls so we can stop waiting on our own deadline
 
 # Per-process model health: model -> unix time until which it is skipped
 _skip_until: dict[str, float] = {}
@@ -56,7 +57,7 @@ def _next_pacific_midnight() -> float:
 class ModelError(Exception):
     def __init__(self, kind: str, msg: str):
         super().__init__(msg)
-        self.kind = kind  # quota | missing | bad_request | other
+        self.kind = kind  # quota | missing | bad_request | busy | slow | other
 
 
 SCHEMA = {
@@ -140,7 +141,7 @@ def call_model(model: str, prompt: str, timeout_s: float) -> str:  # pragma: no 
             resp = fut.result(timeout=left)
             return _strip_fences(resp.text or "")
         except FutureTimeout as e:
-            raise ModelError("other", f"timed out after {timeout_s:.0f}s") from e
+            raise ModelError("slow", f"timed out after {timeout_s:.0f}s") from e
         except errors.APIError as e:
             last = e
             if e.code != 400:
@@ -148,7 +149,7 @@ def call_model(model: str, prompt: str, timeout_s: float) -> str:  # pragma: no 
         except Exception as e:  # timeouts, network
             raise ModelError("other", str(e)[:500]) from e
     code = last.code if last else 0
-    kind = {429: "quota", 404: "missing", 400: "bad_request", 403: "bad_request"}.get(code, "other")
+    kind = {429: "quota", 404: "missing", 400: "bad_request", 403: "bad_request"}.get(code, "busy" if code >= 500 else "other")
     raise ModelError(kind, f"{code}: {str(last)[:500]}")
 
 
@@ -300,6 +301,8 @@ def generate(db: Session, budget: int, filters: list[str], allergies: str, nonce
                 _skip_until[model] = _next_pacific_midnight()
             elif e.kind == "missing":
                 _skip_until[model] = time.time() + 24 * 3600
+            elif e.kind in ("busy", "slow"):
+                _skip_until[model] = time.time() + BUSY_SKIP_S
             status.update(model=model, at=datetime.now(timezone.utc).isoformat(), error=str(e))
             _record(db, model, False, str(e))
             log.warning("Gemini %s failed (%s), trying the next model", model, e)
