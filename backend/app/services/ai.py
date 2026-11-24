@@ -13,6 +13,8 @@ from __future__ import annotations
 import json
 import logging
 import time
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
@@ -26,9 +28,11 @@ log = logging.getLogger(__name__)
 
 TOOLS = ["Rice cooker", "Kompor", "Microwave"]
 COLORS = ["#F4B82E", "#7FBF8F", "#F2A27E", "#E9B955", "#C98B4E", "#8FA9B8"]
-CALL_TIMEOUT_S = 8.0  # per model call; keeps the whole request under the 10 s serverless limit
-TOTAL_BUDGET_S = 9.0  # stop trying further models after this long
+CALL_TIMEOUT_S = 15.0  # per model call (enforced on our side; Gemini rejects deadlines under 10 s)
+TOTAL_BUDGET_S = 20.0  # stop trying further models after this long
 BATCHES_PER_KEY = 3  # AI calls per identical request before we only serve cached batches
+
+_pool = ThreadPoolExecutor(max_workers=4)  # runs Gemini calls so we can stop waiting on our own deadline
 
 # Per-process model health: model -> unix time until which it is skipped
 _skip_until: dict[str, float] = {}
@@ -101,14 +105,16 @@ def call_model(model: str, prompt: str, timeout_s: float) -> str:  # pragma: no 
     from google import genai
     from google.genai import errors, types
 
+    # No `timeout` here: the SDK sends it to Google as the request deadline, which must be
+    # at least 10 s. Our own (shorter) limit is applied by waiting on a worker thread below.
     client = genai.Client(
         api_key=settings.GEMINI_API_KEY.strip(),
         http_options=types.HttpOptions(
             api_version="v1beta",  # structured output and thinking settings live on v1beta
-            timeout=int(timeout_s * 1000),
             retry_options=types.HttpRetryOptions(attempts=1),
         ),
     )
+    deadline = time.monotonic() + timeout_s
     # From most to least specific. A model that rejects an option (400) is retried with
     # the next, simpler config; our own validation catches anything the model gets wrong.
     configs = [
@@ -121,13 +127,20 @@ def call_model(model: str, prompt: str, timeout_s: float) -> str:  # pragma: no 
     json_hint = "\n\nBalas HANYA JSON dengan bentuk: " + json.dumps(SCHEMA, ensure_ascii=False)
     last: errors.APIError | None = None
     for i, cfg in enumerate(configs):
+        left = deadline - time.monotonic()
+        if left <= 0.5:
+            raise ModelError("other", "timed out")
         try:
-            resp = client.models.generate_content(
+            fut = _pool.submit(
+                client.models.generate_content,
                 model=model,
                 contents=prompt if i < 2 else prompt + json_hint,
                 config=types.GenerateContentConfig(**cfg),
             )
+            resp = fut.result(timeout=left)
             return _strip_fences(resp.text or "")
+        except FutureTimeout as e:
+            raise ModelError("other", f"timed out after {timeout_s:.0f}s") from e
         except errors.APIError as e:
             last = e
             if e.code != 400:

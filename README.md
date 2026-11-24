@@ -158,7 +158,7 @@ GEMINI_API_KEY=your_key_here
 - Paid plans (Canteen and up) get AI recipes; Free stays on the rule-based generator.
 - The free tier allows only a few dozen requests per model per day, so the backend tries `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-3.8-flash` and `gemini-3.6-flash` in turn and skips a model once its daily quota is used up (it resets at midnight Pacific, 15.00 WIB). Set `GEMINI_MODEL` to one ID or a comma-separated list to change this.
 - The model may only use ingredients from the price table; costs are recomputed, and recipes that are over budget, off-diet, use unknown ingredients or break an allergy are dropped. Missing recipes are topped up from the library.
-- Each request has about 9 seconds before falling back to the rule-based generator, so the app never hangs or errors when Gemini is slow or out of quota.
+- Each model call may take up to 15 seconds and all models together 20 seconds before falling back to the rule-based generator, so the app never hangs or errors when Gemini is slow or out of quota. (Gemini rejects request deadlines under 10 seconds, so the limit is enforced on our side.)
 - The same budget and filters are sent to Gemini at most 3 times a week; after that the earlier AI recipes are reused, which saves quota.
 - `/api/health` shows whether AI is on, which models are still available and the last model used or error.
 
