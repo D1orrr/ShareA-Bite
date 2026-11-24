@@ -105,5 +105,5 @@ def health_check(db: Session = Depends(get_db)):
     if settings.gemini_enabled:
         out["ai_models"] = settings.gemini_models
         out["ai_available"] = ai.models_to_try()
-        out["ai_last"] = ai.status  # model used / last error on this server instance
+        out["ai_recent"] = ai.recent_logs(db)  # last Gemini calls across all server instances
     return out

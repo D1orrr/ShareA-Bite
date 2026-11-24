@@ -128,3 +128,28 @@ def test_custom_model_setting(monkeypatch):
 def test_health_reports_ai(client, gemini):
     h = client.get("/api/health").json()
     assert h["ai"] == "gemini" and h["ai_available"] == settings.gemini_models
+
+
+def test_unreadable_answer_tries_next_model_and_is_logged(client, member, gemini, monkeypatch):
+    calls, answers = gemini
+    first = settings.gemini_models[0]
+
+    def fake(model, prompt, timeout_s):
+        calls.append((model, prompt))
+        if model == first:
+            return "maaf, saya tidak bisa"  # not JSON
+        if model == settings.gemini_models[1]:
+            raise ai.ModelError("bad_request", "400: INVALID_ARGUMENT Manual test")
+        return json.dumps({"recipes": GOOD})
+
+    monkeypatch.setattr(ai, "call_model", fake)
+    r = gen(client, member, budget=19000, nonce=18)
+    assert r["engine"] == "gemini" and len(calls) == 3
+    recent = client.get("/api/health").json()["ai_recent"]
+    assert recent[0]["ok"] and "3 usable" in recent[0]["detail"]
+    assert "INVALID_ARGUMENT" in recent[1]["detail"] and "unreadable" in recent[2]["detail"]
+
+
+def test_strip_code_fences():
+    assert ai._strip_fences('```json\n{"recipes": []}\n```') == '{"recipes": []}'
+    assert ai._strip_fences('{"a": 1}') == '{"a": 1}'

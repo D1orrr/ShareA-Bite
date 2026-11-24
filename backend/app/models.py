@@ -220,6 +220,18 @@ class AiBatch(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
 
+class AiLog(Base):
+    """Outcome of each Gemini call, shared by all server instances (shown on /api/health)."""
+
+    __tablename__ = "ai_logs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    model: Mapped[str] = mapped_column(String(60))
+    ok: Mapped[bool] = mapped_column(Boolean, default=False)
+    detail: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, index=True)
+
+
 class AppMeta(Base):
     """Key/value store; holds the seed version so old demo databases get rebuilt."""
 

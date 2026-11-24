@@ -103,28 +103,49 @@ def call_model(model: str, prompt: str, timeout_s: float) -> str:  # pragma: no 
 
     client = genai.Client(
         api_key=settings.GEMINI_API_KEY.strip(),
-        http_options=types.HttpOptions(timeout=int(timeout_s * 1000), retry_options=types.HttpRetryOptions(attempts=1)),
+        http_options=types.HttpOptions(
+            api_version="v1beta",  # structured output and thinking settings live on v1beta
+            timeout=int(timeout_s * 1000),
+            retry_options=types.HttpRetryOptions(attempts=1),
+        ),
     )
-
-    def run(thinking: bool) -> str:
-        cfg = dict(response_mime_type="application/json", response_json_schema=SCHEMA, temperature=0.9)
-        if thinking:
-            cfg["thinking_config"] = types.ThinkingConfig(thinking_level="minimal")
-        resp = client.models.generate_content(model=model, contents=prompt, config=types.GenerateContentConfig(**cfg))
-        return resp.text or ""
-
-    try:
+    # From most to least specific. A model that rejects an option (400) is retried with
+    # the next, simpler config; our own validation catches anything the model gets wrong.
+    configs = [
+        dict(response_mime_type="application/json", response_json_schema=SCHEMA, temperature=0.9,
+             thinking_config=types.ThinkingConfig(thinking_level="minimal")),
+        dict(response_mime_type="application/json", response_json_schema=SCHEMA, temperature=0.9),
+        dict(response_mime_type="application/json", temperature=0.9),
+        dict(temperature=0.9),
+    ]
+    json_hint = "\n\nBalas HANYA JSON dengan bentuk: " + json.dumps(SCHEMA, ensure_ascii=False)
+    last: errors.APIError | None = None
+    for i, cfg in enumerate(configs):
         try:
-            return run(thinking=True)
-        except errors.ClientError as e:
-            if e.code == 400 and "think" in str(e).lower():
-                return run(thinking=False)  # model without a "minimal" thinking level
-            raise
-    except errors.APIError as e:
-        kind = {429: "quota", 404: "missing", 400: "bad_request", 403: "bad_request"}.get(e.code, "other")
-        raise ModelError(kind, f"{e.code}: {str(e)[:200]}") from e
-    except Exception as e:  # timeouts, network
-        raise ModelError("other", str(e)[:200]) from e
+            resp = client.models.generate_content(
+                model=model,
+                contents=prompt if i < 2 else prompt + json_hint,
+                config=types.GenerateContentConfig(**cfg),
+            )
+            return _strip_fences(resp.text or "")
+        except errors.APIError as e:
+            last = e
+            if e.code != 400:
+                break
+        except Exception as e:  # timeouts, network
+            raise ModelError("other", str(e)[:500]) from e
+    code = last.code if last else 0
+    kind = {429: "quota", 404: "missing", 400: "bad_request", 403: "bad_request"}.get(code, "other")
+    raise ModelError(kind, f"{code}: {str(last)[:500]}")
+
+
+def _strip_fences(text: str) -> str:
+    """Models without JSON mode sometimes wrap the answer in ```json fences."""
+    t = text.strip()
+    if t.startswith("```"):
+        t = t.split("\n", 1)[1] if "\n" in t else ""
+        t = t.rsplit("```", 1)[0]
+    return t.strip()
 
 
 # --------------------------------------------------------------------------- #
@@ -216,6 +237,19 @@ def parse_recipes(
     return out
 
 
+def _record(db: Session, model: str, ok: bool, detail: str) -> None:
+    try:
+        db.add(models.AiLog(model=model, ok=ok, detail=detail[:1000]))
+        db.commit()
+    except Exception:  # logging must never break generation
+        db.rollback()
+
+
+def recent_logs(db: Session, n: int = 5) -> list[dict]:
+    rows = db.scalars(select(models.AiLog).order_by(models.AiLog.id.desc()).limit(n))
+    return [{"model": r.model, "ok": r.ok, "detail": r.detail, "at": r.created_at.isoformat()} for r in rows]
+
+
 def cache_key(budget: int, filters: list[str], allergies: str) -> str:
     return f"{round(budget / 500) * 500}|{','.join(sorted(filters))}|{allergies.strip().lower()}"
 
@@ -254,10 +288,18 @@ def generate(db: Session, budget: int, filters: list[str], allergies: str, nonce
             elif e.kind == "missing":
                 _skip_until[model] = time.time() + 24 * 3600
             status.update(model=model, at=datetime.now(timezone.utc).isoformat(), error=str(e))
+            _record(db, model, False, str(e))
             log.warning("Gemini %s failed (%s), trying the next model", model, e)
             continue
-        recipes = parse_recipes(db, text, ings, budget, filters, allergies, "Bahan ada" in filters)
+        try:
+            recipes = parse_recipes(db, text, ings, budget, filters, allergies, "Bahan ada" in filters)
+        except (ValueError, TypeError, AttributeError) as e:  # not JSON / wrong shape
+            db.rollback()
+            _record(db, model, False, f"unreadable answer: {e}: {text[:300]}")
+            last = e
+            continue
         status.update(model=model, at=datetime.now(timezone.utc).isoformat(), error=None)
+        _record(db, model, bool(recipes), f"{len(recipes)} usable recipes")
         if not recipes:
             raise ValueError(f"{model} returned no usable recipes")
         ids = [r.id for r in recipes]
