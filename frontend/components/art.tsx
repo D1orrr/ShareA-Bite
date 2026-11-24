@@ -26,7 +26,7 @@ export function Mascot({ size, mood = "idle" }: { size: number; mood?: Mood }) {
   return (
     <Animated.View
       role="img"
-      aria-label="Si Mangkok"
+      aria-label="Maskot ShareA'Bite"
       style={{ width: size, height: size, transformOrigin: "50% 90%", transform }}
     >
       <Svg viewBox="0 0 100 100" width={size} height={size}>

@@ -31,7 +31,7 @@
 │   │   ├── index.tsx         # Welcome: sign-up buttons or continue as guest
 │   │   ├── auth.tsx          # Register / login with email
 │   │   ├── onboard.tsx       # 3 steps: weekly budget, diet, cooking tools
-│   │   ├── loading.tsx       # Si Mangkok "cooking" while recipes are generated
+│   │   ├── loading.tsx       # Mascot "cooking" while recipes are generated
 │   │   ├── cook/[id].tsx     # Step-by-step cooking mode with timers
 │   │   ├── finish/[id].tsx   # Log what the meal cost
 │   │   └── (tabs)/
@@ -159,7 +159,7 @@ Prices from the AI are always recalculated from the ingredient price table, and 
 
 ## Design
 
-Deep green on a soft lavender-white page, with a warm orange for highlights. Recipe costs are shown as a shop receipt (dotted lines, dashed total, barcode), and Si Mangkok, a rice-bowl mascot, appears on the loading, empty and finish screens. Headings and numbers use Plus Jakarta Sans, body text uses Be Vietnam Pro, and icons are Material Symbols.
+Deep green on a soft lavender-white page, with a warm orange for highlights. Recipe costs are shown as a shop receipt (dotted lines, dashed total, barcode), and a rice-bowl mascot appears on the loading, empty and finish screens. Headings and numbers use Plus Jakarta Sans, body text uses Be Vietnam Pro, and icons are Material Symbols.
 
 Phones get a bottom tab bar. From 900px wide the tabs move into the top bar and screens use two columns. Dark mode follows the device setting and can be switched in Profil.
 

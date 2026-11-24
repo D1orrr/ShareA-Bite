@@ -498,4 +498,6 @@ def seed(db: Session) -> None:
     ]:
         db.add(models.Comment(post_id=post.id, author_name=who, text=text))
 
+    # Stored in the same transaction as the data, so a half-finished seed is never marked as done
+    db.add(models.AppMeta(key="seed_version", value=str(SEED_VERSION)))
     db.commit()

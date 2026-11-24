@@ -28,8 +28,14 @@ export default function Auth() {
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setErr("Format email belum benar.");
     if (password.length < 6) return setErr("Password minimal 6 karakter.");
     setBusy(true);
-    const ok = mode === "Daftar" ? await register(name.trim(), email.trim(), password) : await login(email.trim(), password);
-    setBusy(false);
+    let ok = false;
+    try {
+      ok = mode === "Daftar" ? await register(name.trim(), email.trim(), password) : await login(email.trim(), password);
+    } catch {
+      setErr("Server lagi sibuk, coba lagi sebentar ya.");
+    } finally {
+      setBusy(false);
+    }
     if (ok) router.replace(mode === "Daftar" ? "/onboard" : "/home");
   };
 
@@ -47,7 +53,7 @@ export default function Auth() {
           <Txt v="cap" style={{ textAlign: "center" }}>
             {mode === "Daftar"
               ? "Biar budget, resep tersimpan dan catatan pengeluaranmu aman."
-              : "Masuk untuk lanjut hemat bareng Si Mangkok."}
+              : "Masuk untuk lanjut makan enak dan hemat."}
           </Txt>
         </View>
         <Pill<Mode>

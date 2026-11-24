@@ -78,7 +78,7 @@ export default function Home() {
           <Card style={[row, { gap: 14 }]}>
             <Mascot size={76} />
             <View style={{ flexShrink: 1 }}>
-              <Txt v="h3">Si Mangkok siap masak</Txt>
+              <Txt v="h3">Dapur siap dipakai</Txt>
               <Txt v="cap">Tekan Generate, 3 resep muncul dalam hitungan detik.</Txt>
             </View>
           </Card>

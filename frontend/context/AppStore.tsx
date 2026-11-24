@@ -226,8 +226,15 @@ function useStoreValue() {
   const startSession = async (s: { token: string; user: User }) => {
     setToken(s.token);
     await AsyncStorage.setItem(K_TOKEN, s.token).catch(() => {});
-    await loadAll(s.user);
     setResults(null);
+    try {
+      await loadAll(s.user);
+    } catch {
+      // Logged in, but some data did not load (e.g. a server cold start): keep going instead of hanging.
+      setUser(s.user);
+      toast("Sebagian data belum termuat. Coba refresh sebentar lagi.");
+      api.myPlan().then(setMyPlan).catch(() => {});
+    }
   };
 
   const logout = useCallback(async () => {
