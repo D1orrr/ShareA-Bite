@@ -229,13 +229,14 @@ def generate(
     allergies: str = "",
     nonce: int | None = None,
     count: int = 3,
+    use_ai: bool = True,
 ) -> dict:
     """Pick `count` recipes that fit the budget and preferences.
 
     Tries Gemini first when an API key is configured, otherwise (or on any error)
     uses the rule-based picker over the recipe library.
     """
-    if settings.gemini_enabled:
+    if use_ai and settings.gemini_enabled:
         try:
             ai = _generate_with_gemini(db, budget, filters, allergies)
             if ai:

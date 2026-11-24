@@ -30,6 +30,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="recipe/[id]" options={{ href: null }} />
       <Tabs.Screen name="spots" options={{ href: null }} />
       <Tabs.Screen name="simpan" options={{ href: null }} />
+      <Tabs.Screen name="paket" options={{ href: null }} />
     </Tabs>
   );
 }

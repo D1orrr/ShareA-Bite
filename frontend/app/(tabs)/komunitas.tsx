@@ -62,7 +62,7 @@ export default function Komunitas() {
                 <Txt v="cap">Hemat rata-rata Rp18.500/hari anak kos</Txt>
               </View>
             </View>
-            <Stamp label="Depok & Sekitarnya" bg={alpha(c.chili, 0.14)} color={c.chili} />
+            <Stamp label="Alam Sutera & Sekitarnya" bg={alpha(c.chili, 0.14)} color={c.chili} />
           </Card>
 
           {list.length ? (

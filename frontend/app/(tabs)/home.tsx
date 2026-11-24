@@ -140,7 +140,9 @@ function HeroBody({
   onCustom: () => void;
 }) {
   const { c } = useTheme();
+  const { canGenerate, myPlan } = useStore();
   const [statusColor, statusLabel] = budgetStatus(spent, budget, c);
+  const quota = myPlan?.usage.generate;
   return (
     <>
       <View style={[row, between, wrap]}>
@@ -182,7 +184,14 @@ function HeroBody({
           <Chip key={x} kind="checkbox" label={x} on={pick.includes(x)} onPress={() => togglePick(x)} />
         ))}
       </View>
-      <Btn size="xl" full icon="auto_awesome" title="Generate Recipe" onPress={() => router.push("/loading")} />
+      <Btn size="xl" full icon="auto_awesome" title="Generate Recipe" onPress={() => canGenerate() && router.push("/loading")} />
+      {quota && myPlan ? (
+        <Link href="/paket" style={{ alignSelf: "center" }}>
+          <Txt v="cap" color={c.ink}>
+            {quota.left === null ? `Paket ${myPlan.plan.name}: generate tanpa batas` : `Sisa ${quota.left} dari ${quota.limit} generate hari ini · Paket ${myPlan.plan.name}`}
+          </Txt>
+        </Link>
+      ) : null}
     </>
   );
 }

@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app import models
+from app import models, plans
 from app.config import settings
 from app.database import get_db
 from app.security import current_user
@@ -54,7 +54,19 @@ def _save_image(data_url: str) -> str:
     return f"/api/uploads/{name}"
 
 
-def _post_out(db: Session, p: models.Post, user: models.User) -> dict:
+def _badge(db: Session, p: models.Post, cache: dict) -> str | None:
+    """'Brunch' / 'Gala Dinner' for authors on a tier that shows a community badge."""
+    if not p.user_id:
+        return None
+    if p.user_id not in cache:
+        author = db.get(models.User, p.user_id)
+        plan = plans.plan_of(author) if author else None
+        cache[p.user_id] = plan["name"] if plan and plan["badge"] else None
+    return cache[p.user_id]
+
+
+def _post_out(db: Session, p: models.Post, user: models.User, cache: dict | None = None) -> dict:
+    cache = {} if cache is None else cache
     reacts = db.execute(
         select(models.PostReaction.kind, func.count()).where(models.PostReaction.post_id == p.id).group_by(models.PostReaction.kind)
     ).all()
@@ -66,6 +78,7 @@ def _post_out(db: Session, p: models.Post, user: models.User) -> dict:
     return {
         "id": p.id,
         "author": p.author_name,
+        "author_badge": _badge(db, p, cache),
         "campus": p.campus,
         "time": ago(p.created_at),
         "type": p.type,
@@ -104,11 +117,13 @@ def list_posts(
     if saved:
         ids = select(models.PostReaction.post_id).where(models.PostReaction.user_id == user.id, models.PostReaction.kind == "save")
         stmt = stmt.where(models.Post.id.in_(ids))
-    return [_post_out(db, p, user) for p in db.scalars(stmt.limit(100))]
+    cache: dict = {}
+    return [_post_out(db, p, user, cache) for p in db.scalars(stmt.limit(100))]
 
 
 @router.post("/posts")
 def create_post(body: PostIn, user: models.User = Depends(current_user), db: Session = Depends(get_db)):
+    plans.check_post(db, user)
     p = models.Post(
         user_id=user.id,
         author_name=user.name,
@@ -206,9 +221,13 @@ def spots(tags: str = "", open_now: bool = False, db: Session = Depends(get_db))
                 "id": s.id,
                 "name": s.name,
                 "distance": s.distance,
-                "hours": f"{s.open_from.replace(':', '.')} sampai {s.open_to.replace(':', '.')}",
+                "hours": "24 jam" if (s.open_from, s.open_to) == ("00:00", "24:00") else f"{s.open_from.replace(':', '.')} sampai {s.open_to.replace(':', '.')}",
                 "price": s.price,
-                "rating": f"{s.rating:.1f}".replace(".", ","),
+                "rating": f"{s.rating:.1f}".replace(".", ",") if s.rating is not None else None,
+                "kind": s.kind,
+                "address": s.address,
+                "price_verified": s.price_verified,
+                "maps_query": f"{s.name}, {s.address}",
                 "tags": s.tags + (["Buka sekarang"] if is_open else []),
                 "open_now": is_open,
                 "city": s.city,

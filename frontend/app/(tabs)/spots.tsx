@@ -40,7 +40,7 @@ export default function Spots() {
   const isFound = (s: Spot) => list.some(x => (x.id ?? x.name) === (s.id ?? s.name));
   const openMaps = (s: Spot) => {
     toast("Membuka Google Maps");
-    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.name} Depok`)}`).catch(() => {});
+    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.mapsQuery ?? `${s.name} Alam Sutera`)}`).catch(() => {});
   };
 
   return (
@@ -108,14 +108,19 @@ export default function Spots() {
                     <B>{s.name}</B>
                   </Txt>
                   <Txt v="cap">
+                    {s.kind ? `${s.kind} · ` : ""}
                     {s.distance}, buka {s.hours}
                     {s.openNow === false ? " · tutup sekarang" : ""}
                   </Txt>
+                  {s.address ? <Txt v="cap">{s.address}</Txt> : null}
                   <View style={[row, wrap, { gap: 12, marginTop: 4 }]}>
                     <Txt b m color={c.chili}>
                       ±{rp(s.price)}
                     </Txt>
-                    <Txt v="cap">Rating mahasiswa {s.rating}/5</Txt>
+                    <Txt v="cap">
+                      {s.priceVerified === false ? "estimasi harga" : ""}
+                      {s.rating ? `${s.priceVerified === false ? " · " : ""}Rating mahasiswa ${s.rating}/5` : ""}
+                    </Txt>
                   </View>
                 </View>
                 <Btn size="s" title="Buka Maps" onPress={() => openMaps(s)} />

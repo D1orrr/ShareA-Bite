@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import models
+from app import models, plans
 from app.database import get_db
 from app.security import current_user
 from app.services import recipes as svc
@@ -27,7 +27,10 @@ def generate(body: GenerateIn, user: models.User = Depends(current_user), db: Se
     """3 recipes that fit the budget. Uses the user's saved budget/prefs when not given."""
     budget = body.budget or user.daily_budget
     filters = body.filters if body.filters is not None else (user.prefs or [])
-    return svc.generate(db, budget, filters, user.allergies, body.nonce)
+    plans.use(db, user, "generate")
+    out = svc.generate(db, budget, filters, user.allergies, body.nonce, use_ai=plans.plan_of(user)["ai"])
+    out["quota"] = plans.my_plan(db, user)["usage"]["generate"]
+    return out
 
 
 @router.get("/recipes/today")
@@ -44,7 +47,7 @@ def get_recipe(recipe_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/recipes/{recipe_id}/swap")
-def swap(recipe_id: int, body: SwapIn, db: Session = Depends(get_db)):
+def swap(recipe_id: int, body: SwapIn, user: models.User = Depends(current_user), db: Session = Depends(get_db)):
     """Replace one ingredient with its cheaper alternative. Returns the new (variant) recipe."""
     r = svc.load_recipe(db, recipe_id)
     if not r:
@@ -52,6 +55,7 @@ def swap(recipe_id: int, body: SwapIn, db: Session = Depends(get_db)):
     item = next((i for i in r.items if i.ingredient_id == body.ingredient_id), None)
     if not item or not item.ingredient.swap_to_id:
         raise HTTPException(400, "Bahan ini tidak punya alternatif lebih murah")
+    plans.use(db, user, "swap")
     return svc.recipe_out(svc.make_variant(db, r, {body.ingredient_id}))
 
 
@@ -73,6 +77,7 @@ def save(recipe_id: int, user: models.User = Depends(current_user), db: Session 
         select(models.SavedRecipe).where(models.SavedRecipe.user_id == user.id, models.SavedRecipe.recipe_id == recipe_id)
     )
     if not exists:
+        plans.check_saved(db, user)
         db.add(models.SavedRecipe(user_id=user.id, recipe_id=recipe_id))
         db.commit()
     return {"ok": True}

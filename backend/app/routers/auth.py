@@ -1,12 +1,12 @@
 """Register / login / guest sessions and the current user's profile & stats."""
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app import models
+from app import models, plans
 from app.database import get_db
 from app.security import create_token, current_user, hash_password, verify_password
 from app.util import local_now, to_local
@@ -47,6 +47,7 @@ def user_out(u: models.User) -> dict:
         "prefs": u.prefs or [],
         "allergies": u.allergies,
         "reminder_time": u.reminder_time,
+        "tier": plans.tier_of(u),
     }
 
 
@@ -121,12 +122,10 @@ def stats(user: models.User = Depends(current_user), db: Session = Depends(get_d
     by_day: dict = {}
     for e in expenses:
         d = to_local(e.created_at).date()
-        if d > today - timedelta(days=30):
+        if d > today - timedelta(days=plans.plan_of(user)["history_days"]):
             by_day.setdefault(d, [0, e.budget])
             by_day[d][0] += e.amount
-    history = [
-        {"date": d.isoformat(), "amount": a, "budget": b} for d, (a, b) in sorted(by_day.items())[-7:]
-    ]
+    history = [{"date": d.isoformat(), "amount": a, "budget": b} for d, (a, b) in sorted(by_day.items())[-7:]]
 
     badges = [
         {"key": "hemat", "label": "Hemat Hero", "icon": "premium", "earned": under >= 3, "hint": "Masak 3x di bawah budget"},
@@ -146,3 +145,34 @@ def stats(user: models.User = Depends(current_user), db: Session = Depends(get_d
         "next_level_xp": level * 100,
         "badges": badges,
     }
+
+
+# ---- subscription plans ------------------------------------------------------
+
+class PlanIn(BaseModel):
+    tier: str
+
+
+@router.get("/plans")
+def list_plans():
+    """All tiers with prices, limits and perks (public)."""
+    return [plans.plan_public(k) for k in plans.ORDER]
+
+
+@router.get("/me/plan")
+def get_my_plan(user: models.User = Depends(current_user), db: Session = Depends(get_db)):
+    """Current tier and today's usage against its limits."""
+    return plans.my_plan(db, user)
+
+
+@router.post("/me/plan")
+def set_my_plan(body: PlanIn, user: models.User = Depends(current_user), db: Session = Depends(get_db)):
+    """Demo mode: switch tier without payment. Paid tiers last 30 days."""
+    if body.tier not in plans.PLANS:
+        raise HTTPException(400, "Paket tidak dikenal")
+    if user.is_guest and body.tier != "free":
+        raise HTTPException(403, "Daftar akun dulu untuk berlangganan.")
+    user.tier = body.tier
+    user.tier_until = None if body.tier == "free" else datetime.now(timezone.utc) + timedelta(days=30)
+    db.commit()
+    return plans.my_plan(db, user)

@@ -26,6 +26,9 @@ class User(Base):
     prefs: Mapped[list] = mapped_column(JSON, default=list)  # e.g. ["Halal", "Pedas", "Kompor"]
     allergies: Mapped[str] = mapped_column(String(255), default="")
     reminder_time: Mapped[str] = mapped_column(String(5), default="19:00")
+    # Subscription: free | canteen | brunch | gala (see app/plans.py)
+    tier: Mapped[str] = mapped_column(String(12), default="free")
+    tier_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
 
@@ -186,7 +189,30 @@ class Spot(Base):
     distance: Mapped[str] = mapped_column(String(20))
     open_from: Mapped[str] = mapped_column(String(5))  # "06:00"
     open_to: Mapped[str] = mapped_column(String(5))  # "21:00"
-    price: Mapped[int] = mapped_column(Integer)
-    rating: Mapped[float] = mapped_column(Float)
+    price: Mapped[int] = mapped_column(Integer)  # typical cheap order, Rp
+    price_verified: Mapped[bool] = mapped_column(Boolean, default=False)  # checked in person?
+    rating: Mapped[float | None] = mapped_column(Float)  # from our own users only
     tags: Mapped[list] = mapped_column(JSON, default=list)  # Nasi | Sayur | Protein
-    city: Mapped[str] = mapped_column(String(60), default="Depok")
+    kind: Mapped[str] = mapped_column(String(20), default="Warung")  # Warteg | Warung | Pasar | Sayur
+    address: Mapped[str] = mapped_column(String(160), default="")
+    city: Mapped[str] = mapped_column(String(60), default="Alam Sutera")
+
+
+class Usage(Base):
+    """One row per metered action (generate, swap), for daily plan limits."""
+
+    __tablename__ = "usage_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    kind: Mapped[str] = mapped_column(String(12))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, index=True)
+
+
+class AppMeta(Base):
+    """Key/value store; holds the seed version so old demo databases get rebuilt."""
+
+    __tablename__ = "app_meta"
+
+    key: Mapped[str] = mapped_column(String(40), primary_key=True)
+    value: Mapped[str] = mapped_column(String(200))

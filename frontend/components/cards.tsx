@@ -131,6 +131,7 @@ export function PostCard({ p }: { p: Post }) {
             <View style={[row, { gap: 6, flexWrap: "wrap" }]}>
               <Text style={{ fontFamily: font.head, fontSize: 14, color: c.ink }}>{p.name}</Text>
               <Stamp label={p.campus} bg={tint.bg} color={tint.color} style={{ paddingVertical: 2, paddingHorizontal: 8 }} />
+              {p.badge ? <Stamp label={p.badge} bg={c.kunyit} color={c.ink} style={{ paddingVertical: 2, paddingHorizontal: 8 }} /> : null}
             </View>
             <Txt v="cap">{p.time}</Txt>
           </View>

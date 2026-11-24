@@ -14,7 +14,7 @@ const rk = (n: number) => (n >= 1000 ? `Rp${Math.round(n / 1000)}rb` : rp(n));
 export default function Akun() {
   const { c, dark, toggleDark } = useTheme();
   const { w, wide } = useLayout();
-  const { budget, pick, user, stats, guest, mode, logout } = useStore();
+  const { budget, pick, user, stats, guest, mode, logout, myPlan } = useStore();
   const history = stats?.history ?? [];
   const week = history.map(h => h.amount);
   // Scale the chart so the tallest bar and the budget line both fit
@@ -56,6 +56,12 @@ export default function Akun() {
           }}
         />
       </Pressable>,
+    ],
+    [
+      "Paket langganan",
+      <Link key="plan" href="/paket" style={{ fontFamily: font.bodyBold, fontSize: 13, color: c.chili, textDecorationLine: "underline" }}>
+        {myPlan ? `${myPlan.plan.name} · Kelola` : "Lihat paket"}
+      </Link>,
     ],
     [
       "Resep tersimpan",

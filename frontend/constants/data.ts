@@ -143,6 +143,7 @@ export type Post = {
   liked?: boolean;
   saved?: boolean;
   mine?: boolean;
+  badge?: string;
   name: string;
   campus: string;
   time: string;
@@ -162,40 +163,40 @@ export const POSTS: Post[] = [
   {
     key: "p1",
     name: "Rina",
-    campus: "UI Depok",
+    campus: "BINUS Alam Sutera",
     time: "2 jam lalu",
     type: "Resep",
     recipeId: 2,
-    cost: 7000,
-    title: "Mendoan Renyah Sambal Kecap Cuma Rp7.000!",
-    text: "Beli tempe papan di Pasar Kober cuma Rp4.000, tepung bumbu sachet Rp2.500, daun bawang minta bonus pedagang. Goreng dadakan langsung gurih mantap!",
+    cost: 9500,
+    title: "Tumis Kangkung Tempe Orek cuma Rp9.500 sepiring!",
+    text: "Kangkung seikat Rp2.500 sama tempe papan Rp4.000 dari tukang sayur dekat kos. Sisanya bumbu dapur. Kangkung masuk terakhir biar tetap hijau!",
     likes: 142,
     comments: 38,
   },
   {
     key: "p2",
     name: "Budi",
-    campus: "Kukusan",
+    campus: "Kos Kunciran",
     time: "5 jam lalu",
     type: "Info Warung",
-    title: "Tips belanja telur eceran di Warung Madura Jl. Kober hemat Rp3rb/kg",
-    text: "Kalau beli setelah jam 4 sore sering ada harga pas Rp27.000/kg dan boleh pilih telur yang fresh. Cocok buat stok lauk seminggu anak kosan.",
-    loc: "Warung Madura Berkah, Jl. Kober No. 14",
+    title: "Pulang kelas malam? Pangkalan sayur di Jl. Kyai Maja buka sampai hampir tengah malam",
+    text: "Masih bisa beli sayur dan telur buat masak besok. Datang sebelum jam 9 malam biar pilihannya masih lengkap.",
+    loc: "Jl. Kyai Maja, Panunggangan",
     likes: 89,
     comments: 16,
   },
   {
     key: "p3",
     name: "Dimas",
-    campus: "Pocin",
+    campus: "Kos Pakualam",
     time: "Kemarin",
     type: "Trik Masak",
     recipeId: 1,
-    cost: 5500,
-    title: "Tumis Toge Tahu Saus Tiram: Modal Rp5.500 Buat Sarapan",
-    text: "Tahu kuning 2 biji (Rp2.000) goreng sebentar, toge seplastik kecil (Rp2.000), sachet saus tiram mini (Rp1.500). Masak 5 menit di rice cooker pun jadi!",
+    cost: 5200,
+    title: "Tumis Toge Tahu Saus Tiram: modal Rp5.200 buat sarapan",
+    text: "Tahu 2 biji, toge seplastik kecil, saus tiram sachet. Masak 5 menit, di rice cooker mode cook pun jadi!",
     cookTime: "5 - 7 Menit",
-    perPortion: "Rp2.750 / org",
+    perPortion: "Rp5.200 / org",
     likes: 204,
     comments: 45,
   },
@@ -218,15 +219,19 @@ export type Spot = {
   distance: string;
   hours: string;
   price: number;
-  rating: string;
+  rating: string | null;
   tags: string[];
+  kind?: string;
+  address?: string;
+  priceVerified?: boolean;
+  mapsQuery?: string;
 };
 
 export const SPOTS: Spot[] = [
-  { name: "Warung Bu Tini", distance: "250 m", hours: "06.00 sampai 21.00", price: 9000, rating: "4,7", tags: ["Nasi", "Protein", "Buka sekarang"] },
-  { name: "Pasar Pagi Margonda", distance: "600 m", hours: "05.00 sampai 11.00", price: 7500, rating: "4,5", tags: ["Sayur", "Protein"] },
-  { name: "Tahu Tempe Pak Yanto", distance: "900 m", hours: "07.00 sampai 17.00", price: 5000, rating: "4,8", tags: ["Protein", "Buka sekarang"] },
-  { name: "Lapak Sayur Mbak Wati", distance: "1,1 km", hours: "06.00 sampai 15.00", price: 4000, rating: "4,6", tags: ["Sayur", "Buka sekarang"] },
+  { name: "Pangkalan Sayuran Bang Jamal", distance: "240 m", hours: "06.30 sampai 23.45", price: 10000, rating: null, kind: "Sayur", address: "Jl. Kyai Maja, Panunggangan", tags: ["Sayur", "Protein", "Buka sekarang"] },
+  { name: "Soto Tangkar Pak Warso", distance: "310 m", hours: "07.00 sampai 21.00", price: 15000, rating: null, kind: "Warung", address: "Jl. Kyai Maja, Panunggangan", tags: ["Nasi", "Protein", "Buka sekarang"] },
+  { name: "Warteg Bumi Bahari Alam Sutera", distance: "1,1 km", hours: "24 jam", price: 13000, rating: null, kind: "Warteg", address: "Jl. Ki Male, Panunggangan Timur", tags: ["Nasi", "Sayur", "Protein", "Buka sekarang"] },
+  { name: "Pasar Segar 88", distance: "1,8 km", hours: "07.00 sampai 16.00", price: 15000, rating: null, kind: "Pasar", address: "Jl. Jalur Sutera, Pakulonan", tags: ["Sayur", "Protein"] },
 ];
 
 export const SPOT_FILTERS = ["Nasi", "Sayur", "Protein", "Buka sekarang"];

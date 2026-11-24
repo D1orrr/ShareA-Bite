@@ -25,4 +25,4 @@ export function useRecipe(id: string | number | undefined) {
 }
 
 /** Seed recipe ids pre-rendered for the static web export (other ids still work in-app). */
-export const STATIC_RECIPE_IDS = Array.from({ length: 15 }, (_, i) => ({ id: String(i + 1) }));
+export const STATIC_RECIPE_IDS = Array.from({ length: 40 }, (_, i) => ({ id: String(i + 1) }));

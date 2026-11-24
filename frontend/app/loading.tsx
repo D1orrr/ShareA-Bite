@@ -46,7 +46,7 @@ export default function Loading() {
     return () => timers.forEach(clearTimeout);
   }, []);
 
-  const steps = ["Cek harga pasar Depok", "Pilih bahan sesuai alat masak", `Hitung struk, pastikan ${rp(budget)} cukup`];
+  const steps = ["Cek harga pasar Tangsel", "Pilih bahan sesuai alat masak", `Hitung struk, pastikan ${rp(budget)} cukup`];
 
   return (
     <Screen focus>

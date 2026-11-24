@@ -18,7 +18,7 @@ export default function Onboard() {
   const { budget, setWeekly, pick, togglePick, user, updateProfile } = useStore();
   const [step, setStep] = useState(Math.min(3, Math.max(1, Number(params.step) || 1)));
   const [allergies, setAllergies] = useState(user?.allergies ?? "");
-  const [campus, setCampus] = useState(user?.campus || "Universitas Indonesia, Depok");
+  const [campus, setCampus] = useState(user?.campus || "BINUS University @Alam Sutera");
 
   // Budget and chips save as you tap; the two text fields are saved here.
   const finish = () => {

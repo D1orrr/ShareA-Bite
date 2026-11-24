@@ -26,3 +26,15 @@ def client():
 def guest(client):
     tok = client.post("/api/auth/guest").json()["token"]
     return {"Authorization": f"Bearer {tok}"}
+
+
+@pytest.fixture
+def member(client):
+    """A registered user on the unlimited Gala Dinner plan (for tests that generate a lot)."""
+    import uuid
+
+    email = f"m{uuid.uuid4().hex[:8]}@example.com"
+    tok = client.post("/api/auth/register", json={"name": "Member", "email": email, "password": "rahasia1"}).json()["token"]
+    h = {"Authorization": f"Bearer {tok}"}
+    client.post("/api/me/plan", json={"tier": "gala"}, headers=h)
+    return h

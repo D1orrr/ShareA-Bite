@@ -24,6 +24,7 @@ const TITLES: Record<string, string> = {
   results: "Hasil Resep",
   "recipe/[id]": "Detail Resep",
   simpan: "Simpan",
+  paket: "Paket Langganan",
   belanja: "Daftar Belanja",
   komunitas: "Komunitas",
   spots: "Tempat Murah",
@@ -34,7 +35,7 @@ const TITLES: Record<string, string> = {
 function tabOf(route: string): TabKey {
   if (route === "results" || route === "recipe/[id]") return "home";
   if (route === "spots") return "belanja";
-  if (route === "simpan") return "akun";
+  if (route === "simpan" || route === "paket") return "akun";
   return route as TabKey;
 }
 

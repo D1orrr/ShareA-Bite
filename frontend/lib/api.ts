@@ -27,7 +27,37 @@ export type User = {
   prefs: string[];
   allergies: string;
   reminder_time: string;
+  tier: Tier;
 };
+
+export type Tier = "free" | "canteen" | "brunch" | "gala";
+
+export type Plan = {
+  key: Tier;
+  name: string;
+  price: number;
+  tagline: string;
+  generate_per_day: number | null;
+  swap_per_day: number | null;
+  saved_max: number | null;
+  posts_per_week: number | null;
+  history_days: number;
+  ai: boolean;
+  badge: boolean;
+  perks: string[];
+};
+
+export type Meter = { used: number; limit: number | null; left: number | null };
+
+export type MyPlan = {
+  tier: Tier;
+  plan: Plan;
+  until: string | null;
+  usage: { generate: Meter; swap: Meter; saved: Meter; posts_week: Meter };
+};
+
+/** What hit a plan limit (shown in the upgrade sheet). */
+export type LimitInfo = { kind: string; tier: Tier; message: string };
 
 export type Badge = { key: string; label: string; icon: string; earned: boolean; hint: string };
 
@@ -100,9 +130,23 @@ type ApiPost = {
   saved: boolean;
   comments: number;
   mine: boolean;
+  author_badge?: string | null;
 };
 type ApiCart = { id: number; name: string; qty: number; unit: string; price: number; cat: Category; done: boolean };
-type ApiSpot = { id: number; name: string; distance: string; hours: string; price: number; rating: string; tags: string[]; open_now: boolean };
+type ApiSpot = {
+  id: number;
+  name: string;
+  distance: string;
+  hours: string;
+  price: number;
+  rating: string | null;
+  tags: string[];
+  open_now: boolean;
+  kind?: string;
+  address?: string;
+  price_verified?: boolean;
+  maps_query?: string;
+};
 
 /* Mappers: API JSON -> app types used by the screens */
 const fmtQty = (q: number) => String(+q.toFixed(2));
@@ -159,6 +203,7 @@ export const toPost = (p: ApiPost): Post => ({
   liked: p.liked,
   saved: p.saved,
   mine: p.mine,
+  badge: p.author_badge ?? undefined,
 });
 
 export const toCart = (c: ApiCart): CartItem => ({ ...c });
@@ -172,6 +217,10 @@ export const toSpot = (s: ApiSpot): Spot => ({
   rating: s.rating,
   tags: s.tags,
   openNow: s.open_now,
+  kind: s.kind,
+  address: s.address,
+  priceVerified: s.price_verified,
+  mapsQuery: s.maps_query,
 });
 
 /* ------------------------------------------------------------------ */
@@ -195,7 +244,7 @@ export function apiBase(): string {
 export const assetUrl = (path?: string | null) => (path && path.startsWith("/") ? apiBase() + path : path ?? null);
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  constructor(public status: number, message: string, public limit?: LimitInfo) {
     super(message);
   }
 }
@@ -222,6 +271,9 @@ async function req<T>(method: string, path: string, body?: unknown, timeoutMs = 
     if (!res.ok) {
       if (res.status === 401 && token) onUnauthorized?.();
       const detail = data?.detail;
+      if (detail && typeof detail === "object" && !Array.isArray(detail) && detail.code === "limit") {
+        throw new ApiError(res.status, detail.message, { kind: detail.kind, tier: detail.tier, message: detail.message });
+      }
       const msg = typeof detail === "string" ? detail : Array.isArray(detail) ? "Data yang diisi belum valid" : `Error ${res.status}`;
       throw new ApiError(res.status, msg);
     }
@@ -259,9 +311,12 @@ export const api = {
   me: () => req<User>("GET", "/me"),
   updateMe: (patch: Partial<User>) => req<User>("PUT", "/me", patch),
   stats: () => req<Stats>("GET", "/me/stats"),
+  plans: () => req<Plan[]>("GET", "/plans"),
+  myPlan: () => req<MyPlan>("GET", "/me/plan"),
+  setPlan: (tier: Tier) => req<MyPlan>("POST", "/me/plan", { tier }),
 
   generate: async (budget: number, filters: string[], nonce: number): Promise<GenerateResult> => {
-    const r = await req<{ recipes: ApiRecipe[]; note: string; engine: "gemini" | "rules" }>(
+    const r = await req<{ recipes: ApiRecipe[]; note: string; engine: "gemini" | "rules"; quota?: Meter }>(
       "POST",
       "/recipes/generate",
       { budget, filters, nonce },

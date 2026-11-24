@@ -12,7 +12,7 @@ from app import models  # noqa: F401  (registers tables)
 from app.config import settings
 from app.database import IS_SQLITE, Base, SessionLocal, engine, get_db
 from app.routers import auth, cart, community, recipes
-from app.seed import seed
+from app.seed import SEED_VERSION, seed
 
 
 def init_db() -> None:
@@ -31,12 +31,31 @@ def init_db() -> None:
 
 
 def _create_and_seed() -> None:
+    """Create tables and seed them. A database built with older demo data
+    (different SEED_VERSION) is wiped and rebuilt, so `git pull` never needs a manual reset."""
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
-        try:
-            seed(db)
-        except IntegrityError:
-            db.rollback()
+        if _stored_version(db) != str(SEED_VERSION):
+            db.close()
+            Base.metadata.drop_all(bind=engine)
+            Base.metadata.create_all(bind=engine)
+        with SessionLocal() as db2:
+            try:
+                seed(db2)
+                if not db2.get(models.AppMeta, "seed_version"):
+                    db2.add(models.AppMeta(key="seed_version", value=str(SEED_VERSION)))
+                    db2.commit()
+            except IntegrityError:
+                db2.rollback()
+
+
+def _stored_version(db: Session) -> str | None:
+    """Seed version of the existing data; None for an empty database (fresh) or "0" for old data."""
+    row = db.get(models.AppMeta, "seed_version")
+    if row:
+        return row.value
+    has_data = db.scalar(text("SELECT 1 FROM ingredients LIMIT 1"))
+    return "0" if has_data else str(SEED_VERSION)
 
 
 @asynccontextmanager

@@ -18,6 +18,7 @@ import {
 } from "@expo-google-fonts/plus-jakarta-sans";
 import { ThemeProvider, useTheme } from "../components/theme";
 import { OverlayProvider } from "../components/Overlay";
+import { LimitWatcher } from "../components/PlanSheet";
 import { AppStoreProvider, ToastBridge } from "../context/AppStore";
 
 // Without this, hidden tab screens on the web stay reachable with the Tab key.
@@ -44,6 +45,7 @@ export default function RootLayout() {
         <AppStoreProvider>
           <OverlayProvider>
             <ToastBridge />
+            <LimitWatcher />
             <RootStack />
           </OverlayProvider>
         </AppStoreProvider>

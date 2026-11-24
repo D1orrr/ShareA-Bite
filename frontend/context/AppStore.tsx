@@ -8,7 +8,7 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CartItem, Post, POSTS, Recipe, RECIPES, recipeCost, Spot, SPOTS, START_CART } from "../constants/data";
-import { api, ApiError, Comment, GenerateResult, setToken, setUnauthorizedHandler, Stats, User } from "../lib/api";
+import { api, ApiError, Comment, GenerateResult, LimitInfo, MyPlan, Plan, setToken, setUnauthorizedHandler, Stats, Tier, User } from "../lib/api";
 import { useToast } from "../components/Overlay";
 
 export type RecipeTab = "Detail" | "Langkah" | "Nutrisi";
@@ -32,6 +32,7 @@ const OFFLINE_USER: User = {
   prefs: ["Halal", "Pedas", "Rice cooker", "Kompor"],
   allergies: "",
   reminder_time: "19:00",
+  tier: "free",
 };
 
 const SEED_COMMENTS: Record<string, Comment[]> = {
@@ -121,6 +122,9 @@ function useStoreValue() {
   const [results, setResults] = useState<GenerateResult | null>(null);
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [comments, setComments] = useState<Record<string, Comment[]>>({});
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [myPlan, setMyPlan] = useState<MyPlan | null>(null);
+  const [limitHit, setLimitHit] = useState<LimitInfo | null>(null);
   // UI state kept across screens (from the original store)
   const [tab, setTab] = useState("Semua");
   const [tabD, setTabD] = useState<RecipeTab>("Detail");
@@ -130,14 +134,20 @@ function useStoreValue() {
 
   const remember = (rs: Recipe[]) => rs.forEach(r => (cache.current[r.id] = r));
 
-  /** Run an API call; toast the error and return null on failure. */
+  /** Run an API call; on failure toast the error (or open the upgrade sheet for a plan limit) and return null. */
   const call = useCallback(async <T,>(fn: () => Promise<T>): Promise<T | null> => {
     try {
       return await fn();
     } catch (e) {
-      toast(e instanceof ApiError ? e.message : "Terjadi kesalahan");
+      if (e instanceof ApiError && e.limit) setLimitHit(e.limit);
+      else toast(e instanceof ApiError ? e.message : "Terjadi kesalahan");
       return null;
     }
+  }, []);
+
+  const refreshPlan = useCallback(async () => {
+    const p = await api.myPlan().catch(() => null);
+    if (p) setMyPlan(p);
   }, []);
 
   /* ------------------------------ boot ------------------------------ */
@@ -145,8 +155,18 @@ function useStoreValue() {
   const loadAll = useCallback(async (u?: User) => {
     const me = u ?? (await api.me());
     setUser(me);
-    const [st, c, s, p, td] = await Promise.all([api.stats(), api.cart(), api.saved(), api.posts(), api.today(me.daily_budget)]);
+    const [st, c, s, p, td, mp, pl] = await Promise.all([
+      api.stats(),
+      api.cart(),
+      api.saved(),
+      api.posts(),
+      api.today(me.daily_budget),
+      api.myPlan(),
+      api.plans(),
+    ]);
     setServerStats(st);
+    setMyPlan(mp);
+    setPlans(pl);
     setCart(c);
     setSavedRecipes(s);
     setPosts(p);
@@ -216,6 +236,7 @@ function useStoreValue() {
     setUser(null);
     setResults(null);
     setServerStats(null);
+    setMyPlan(null);
   }, []);
 
   useEffect(() => {
@@ -291,6 +312,7 @@ function useStoreValue() {
     let res: GenerateResult | null;
     if (online) {
       res = await call(() => api.generate(budget, pick, nonce));
+      refreshPlan();
     } else {
       const bahanAda = pick.includes("Bahan ada");
       const pantry = ["Nasi putih", "Minyak goreng", "Kecap manis"];
@@ -324,6 +346,7 @@ function useStoreValue() {
     let out: Recipe | null;
     if (online && ing.id) {
       out = await call(() => api.swap(r.id, ing.id!));
+      refreshPlan();
     } else {
       const s = ing.swapTo;
       const newIng = r.ing.map((x, i) =>
@@ -356,6 +379,7 @@ function useStoreValue() {
       call(() => (had ? api.unsave(id) : api.save(id))).then(ok => {
         if (ok === null) setSavedRecipes(l => (had && r ? [r, ...l] : l.filter(x => x.id !== id)));
         else api.stats().then(setServerStats).catch(() => {});
+        refreshPlan();
       });
     }
     return !had;
@@ -461,6 +485,7 @@ function useStoreValue() {
       if (!created) return false;
       setPosts(l => [created, ...l]);
       api.stats().then(setServerStats).catch(() => {});
+      refreshPlan();
     } else {
       const key = `u${Date.now()}`;
       setPosts(l => [
@@ -519,6 +544,37 @@ function useStoreValue() {
     return SPOTS.filter(s => tags.every(t => s.tags.includes(t)));
   };
 
+  /* ----------------------------- plans ------------------------------ */
+
+  /** False (and opens the upgrade sheet) when today's generate quota is already used up. */
+  const canGenerate = () => {
+    const g = myPlan?.usage.generate;
+    if (online && g && g.left === 0) {
+      setLimitHit({
+        kind: "generate",
+        tier: myPlan.tier,
+        message: `Kuota generate resep paket ${myPlan.plan.name} hari ini sudah habis (${g.limit}x). Upgrade paket atau coba lagi besok.`,
+      });
+      return false;
+    }
+    return true;
+  };
+
+  /** Demo mode: switch plan without payment. */
+  const choosePlan = async (tier: Tier) => {
+    if (!online) {
+      toast("Paket hanya bisa diganti saat server online");
+      return false;
+    }
+    const p = await call(() => api.setPlan(tier));
+    if (!p) return false;
+    setMyPlan(p);
+    setUser(u => (u ? { ...u, tier: p.tier } : u));
+    api.stats().then(setServerStats).catch(() => {});
+    toast(`Paket ${p.plan.name} aktif`);
+    return true;
+  };
+
   /* ------------------------------ stats ----------------------------- */
 
   const stats = useMemo<Stats | null>(() => {
@@ -546,6 +602,9 @@ function useStoreValue() {
     tab,
     tabD,
     spot,
+    plans,
+    myPlan,
+    limitHit,
 
     register,
     login,
@@ -579,6 +638,11 @@ function useStoreValue() {
     getComments,
     addComment,
     fetchSpots,
+
+    refreshPlan,
+    canGenerate,
+    choosePlan,
+    clearLimit: () => setLimitHit(null),
 
     setTab,
     setTabD,

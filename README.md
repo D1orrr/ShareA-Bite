@@ -14,7 +14,8 @@
 │   │   ├── config.py         # Settings from .env (DB url, secret key, optional Gemini key)
 │   │   ├── database.py       # SQLAlchemy engine & session
 │   │   ├── models.py         # Tables: users, ingredients (price table), recipes, cart, expenses, posts, …
-│   │   ├── seed.py           # Demo data: 29 ingredient prices, 15 recipes, spots, posts, demo user
+│   │   ├── seed.py           # Demo data: 64 ingredient prices (Tangsel), 40 recipes, 10 spots near BINUS, posts, demo user
+│   │   ├── plans.py          # Subscription tiers (Free, Canteen, Brunch, Gala Dinner) and their limits
 │   │   ├── security.py       # Password hashing + JWT bearer auth
 │   │   ├── routers/          # auth & profile, recipes & saved, cart & expenses, community & spots
 │   │   └── services/recipes.py # Cost/nutrition maths, cheaper swaps, recipe generator (+ Gemini)
@@ -120,17 +121,38 @@ If the styling looks wrong after you pull changes or switch branches, restart wi
 |---|---|
 | `dinda@sharebite.id` | `hemat123` |
 
-It already has a week of spending history, a saved recipe and a shopping list. You can also register a new account or continue as a guest.
+It is on the **Brunch** plan and already has a week of spending history, a saved recipe and a shopping list. You can also register a new account or continue as a guest (guests are on the Free plan).
+
+### Demo data
+
+Everything is set around **BINUS @Alam Sutera, Tangerang Selatan**: 64 ingredients with retail prices from Nov 2026 (anchored on the PAGAR Tangsel and PIHPS price monitors and Indomaret/Alfamart shelf prices, the rest estimated), 40 one-portion recipes, and 10 real warteg, warung, pasar and vegetable shops near campus. The spot prices are estimates and are marked "estimasi harga" in the app until someone checks them in person.
+
+When the demo data changes, `SEED_VERSION` in `backend/app/seed.py` is bumped and the backend rebuilds the database by itself on the next start (local SQLite and Postgres on Vercel alike). Accounts made on the old data are removed.
+
+### Subscription plans
+
+| | Free | Canteen | Brunch | Gala Dinner |
+|---|---|---|---|---|
+| Price / month | Rp0 | Rp9.900 | Rp19.900 | Rp34.900 |
+| Generate per day | 3 | 10 | 30 | unlimited* |
+| Cheaper swaps per day | 3 | 15 | unlimited* | unlimited* |
+| Saved recipes | 10 | 50 | 200 | unlimited |
+| Community posts / 7 days | 2 | 7 | unlimited | unlimited |
+| Spending chart | 7 days | 30 days | 90 days | 1 year |
+| AI recipes (when a Gemini key is set) | – | ✓ | ✓ | ✓ (priority) |
+| Community badge | – | – | ✓ | ✓ |
+
+\*Fair-use cap of 200 per day. Plans are switched on the **Paket** screen (Profil → Paket langganan) in demo mode: no payment is taken yet, a paid plan simply runs for 30 days. Limits live in `backend/app/plans.py`.
 
 ### AI recipe generation (optional)
 
-Without a key, **Generate Recipe** uses the built-in rule-based generator: it picks from 15 recipes, applies cheaper ingredient swaps until the total fits the budget, and respects diet, allergies, cooking tools and the "Bahan ada" (staples at home) filter. To use Google Gemini instead, get a free key at https://aistudio.google.com/ and put it in `backend/.env`:
+Without a key, **Generate Recipe** uses the built-in rule-based generator: it picks from 40 recipes, applies cheaper ingredient swaps until the total fits the budget, and respects diet, allergies, cooking tools and the "Bahan ada" (staples at home) filter. To use Google Gemini instead, get a free key at https://aistudio.google.com/ and put it in `backend/.env`:
 
 ```bash
 GEMINI_API_KEY=your_key_here
 ```
 
-Prices from the AI are always recalculated from the ingredient price table, and recipes over budget are dropped.
+Prices from the AI are always recalculated from the ingredient price table, and recipes over budget are dropped. AI recipes are only used for the paid plans; Free stays on the rule-based generator.
 
 ---
 
@@ -147,6 +169,7 @@ Colors, fonts and the Rupiah formatter live in `frontend/constants/theme.ts`.
 ## Known Limitations
 
 - Login with Google is not available yet (email and guest only).
+- Subscriptions run in demo mode: there is no payment gateway yet.
 - The map on Tempat Murah is a drawing, not a real map; the list, filters and "Buka Maps" links work.
 - The meal reminder (19.00) is shown in Settings but no push notification is sent.
 - Uploaded post photos are stored on the backend's disk (`backend/uploads/`); on Vercel they disappear when the function restarts.

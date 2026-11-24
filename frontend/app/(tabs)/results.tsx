@@ -11,7 +11,7 @@ import { useStore } from "../../context/AppStore";
 
 export default function Results() {
   const { c } = useTheme();
-  const { budget, results } = useStore();
+  const { budget, results, canGenerate } = useStore();
   const list = results?.recipes ?? [];
   return (
     <Screen>
@@ -48,7 +48,7 @@ export default function Results() {
       ) : null}
       <View style={[row, wrap, { marginTop: 24 }]}>
         <Btn ghost title="Ubah filter" onPress={() => router.navigate("/home")} />
-        <Btn icon="auto_awesome" title="Regenerate" onPress={() => router.push("/loading")} />
+        <Btn icon="auto_awesome" title="Regenerate" onPress={() => canGenerate() && router.push("/loading")} />
       </View>
     </Screen>
   );
