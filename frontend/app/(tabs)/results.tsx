@@ -43,7 +43,7 @@ export default function Results() {
       )}
       {results?.engine === "gemini" ? (
         <Txt v="cap" style={{ marginTop: 12 }}>
-          Dibuat dengan AI, harga dihitung ulang dari tabel harga bahan.
+          Resep bertanda AI dibuat khusus untuk kamu oleh AI. Harganya dihitung ulang dari harga bahan di Tangsel.
         </Txt>
       ) : null}
       <View style={[row, wrap, { marginTop: 24 }]}>

@@ -147,13 +147,20 @@ When the demo data changes, `SEED_VERSION` in `backend/app/seed.py` is bumped an
 
 ### AI recipe generation (optional)
 
-Without a key, **Generate Recipe** uses the built-in rule-based generator: it picks from 40 recipes, applies cheaper ingredient swaps until the total fits the budget, and respects diet, allergies, cooking tools and the "Bahan ada" (staples at home) filter. To use Google Gemini instead, get a free key at https://aistudio.google.com/ and put it in `backend/.env`:
+Without a key, **Generate Recipe** uses the built-in rule-based generator: it picks from 40 recipes, applies cheaper ingredient swaps until the total fits the budget, and respects diet, allergies, cooking tools and the "Bahan ada" (staples at home) filter.
+
+To turn on Google Gemini, create a free key at https://aistudio.google.com/ (use its own project so the quota isn't shared) and set it on Vercel (Settings → Environment Variables) or in `backend/.env`:
 
 ```bash
 GEMINI_API_KEY=your_key_here
 ```
 
-Prices from the AI are always recalculated from the ingredient price table, and recipes over budget are dropped. AI recipes are only used for the paid plans; Free stays on the rule-based generator.
+- Paid plans (Canteen and up) get AI recipes; Free stays on the rule-based generator.
+- The free tier allows only a few dozen requests per model per day, so the backend tries `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-3.8-flash` and `gemini-3.6-flash` in turn and skips a model once its daily quota is used up (it resets at midnight Pacific, 15.00 WIB). Set `GEMINI_MODEL` to one ID or a comma-separated list to change this.
+- The model may only use ingredients from the price table; costs are recomputed, and recipes that are over budget, off-diet, use unknown ingredients or break an allergy are dropped. Missing recipes are topped up from the library.
+- Each request has about 9 seconds before falling back to the rule-based generator, so the app never hangs or errors when Gemini is slow or out of quota.
+- The same budget and filters are sent to Gemini at most 3 times a week; after that the earlier AI recipes are reused, which saves quota.
+- `/api/health` shows whether AI is on, which models are still available and the last model used or error.
 
 ---
 

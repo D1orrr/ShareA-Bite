@@ -99,4 +99,11 @@ def health_check(db: Session = Depends(get_db)):
         db_status = "connected"
     except Exception as e:  # pragma: no cover
         db_status = f"error: {e}"
-    return {"status": "healthy", "database": db_status, "ai": "gemini" if settings.gemini_enabled else "rules"}
+    from app.services import ai
+
+    out = {"status": "healthy", "database": db_status, "ai": "gemini" if settings.gemini_enabled else "rules"}
+    if settings.gemini_enabled:
+        out["ai_models"] = settings.gemini_models
+        out["ai_available"] = ai.models_to_try()
+        out["ai_last"] = ai.status  # model used / last error on this server instance
+    return out

@@ -1,5 +1,4 @@
 """Recipe maths (cost, nutrition, tags), cheaper-swap variants and the recipe generator."""
-import json
 import logging
 import random
 from dataclasses import dataclass
@@ -9,6 +8,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app import models
 from app.config import settings
+from app.services import ai
 
 log = logging.getLogger(__name__)
 
@@ -236,13 +236,19 @@ def generate(
     Tries Gemini first when an API key is configured, otherwise (or on any error)
     uses the rule-based picker over the recipe library.
     """
+    ai_out: list[dict] = []
     if use_ai and settings.gemini_enabled:
         try:
-            ai = _generate_with_gemini(db, budget, filters, allergies)
-            if ai:
-                return {"recipes": [{**recipe_out(r), "pay": recipe_cost(r)} for r in ai[:count]], "note": "", "engine": "gemini"}
-        except Exception as e:  # pragma: no cover - network/LLM failures
+            ids, _model = ai.generate(db, budget, filters, allergies, nonce)
+            for rid in ids[:count]:
+                r = load_recipe(db, rid)
+                if r:
+                    ai_out.append({**recipe_out(r), "pay": _pay(r, set(), "Bahan ada" in filters)})
+        except Exception as e:  # network/LLM failures: fall back to the rule-based picker
+            db.rollback()
             log.warning("Gemini generation failed, falling back: %s", e)
+    if len(ai_out) >= count:
+        return {"recipes": ai_out[:count], "note": "", "engine": "gemini"}
 
     bahan_ada = "Bahan ada" in filters
     veg = "Vegetarian" in filters
@@ -294,10 +300,17 @@ def generate(
         else:
             note = f"Cuma {len(picked)} resep yang muat di budget ini. Naikkan budget untuk pilihan lebih banyak."
 
-    out = []
+    out = list(ai_out)
+    titles = {x["title"].lower() for x in out}
     for c in picked:
+        if len(out) >= count:
+            break
+        if c.recipe.title.lower() in titles:
+            continue
         r = make_variant(db, c.recipe, c.swaps) if c.swaps and -1 not in c.swaps else c.recipe
         out.append({**recipe_out(r), "pay": c.pay})
+    if ai_out:  # AI gave fewer than `count`: topped up from the library
+        return {"recipes": out, "note": "", "engine": "gemini"}
     return {"recipes": out, "note": note, "engine": "rules"}
 
 
@@ -306,48 +319,3 @@ def today_picks(db: Session, budget: int, count: int = 3) -> list[dict]:
     rs = sorted(all_base_recipes(db), key=recipe_cost)
     fit = [r for r in rs if recipe_cost(r) <= budget] or rs
     return [recipe_out(r) for r in fit[:count]]
-
-
-# --------------------------------------------------------------------------- #
-# Gemini (optional)                                                           #
-# --------------------------------------------------------------------------- #
-
-def _generate_with_gemini(db: Session, budget: int, filters: list[str], allergies: str) -> list[models.Recipe]:  # pragma: no cover
-    from google import genai  # imported lazily so the app runs without the package configured
-
-    ings = {i.name: i for i in db.scalars(select(models.Ingredient))}
-    price_list = "\n".join(f"- {n}: Rp{int(i.price_per_unit)} per {i.unit}" for n, i in ings.items())
-    prompt = f"""Kamu koki hemat untuk mahasiswa kos di Indonesia.
-Buat 3 resep berbeda untuk 1 porsi dengan TOTAL biaya bahan maksimal Rp{budget}.
-Preferensi: {", ".join(filters) or "-"}. Alergi: {allergies or "-"}.
-HANYA gunakan bahan dari daftar harga ini (nama harus persis sama):
-{price_list}
-Balas JSON: {{"recipes":[{{"title":str,"minutes":int,"tip":str,"tools":[str],
-"ingredients":[{{"name":str,"qty":number}}],"steps":[{{"text":str,"seconds":int}}]}}]}}"""
-
-    client = genai.Client(api_key=settings.GEMINI_API_KEY)
-    resp = client.models.generate_content(
-        model=settings.GEMINI_MODEL, contents=prompt, config={"response_mime_type": "application/json"}
-    )
-    data = json.loads(resp.text)
-    out: list[models.Recipe] = []
-    colors = ["#F4B82E", "#7FBF8F", "#F2A27E"]
-    for n, rd in enumerate(data.get("recipes", [])):
-        items = [(ings[x["name"]], float(x["qty"])) for x in rd.get("ingredients", []) if x.get("name") in ings]
-        if not items or not rd.get("steps"):
-            continue
-        cost = sum(round(q * i.price_per_unit) for i, q in items)
-        if cost > budget:  # never trust the model's arithmetic
-            continue
-        title = str(rd.get("title", "Resep Hemat"))[:120]
-        art = 3 if any(k in title.lower() for k in ["mie", "sup", "sayur", "kuah"]) else 1 if "telur" in title.lower() or "nasi" in title.lower() else 2
-        r = models.Recipe(
-            title=title, art=art, color=colors[n % 3], minutes=int(rd.get("minutes", 15)), tip=str(rd.get("tip", ""))[:300],
-            tools=[t for t in rd.get("tools", []) if t in TOOLS] or ["Kompor"], source="ai",
-        )
-        r.items = [models.RecipeIngredient(ingredient_id=i.id, qty=q, step_idx=0) for i, q in items]
-        r.steps = [models.RecipeStep(idx=k, text=str(s.get("text", ""))[:400], seconds=int(s.get("seconds", 0))) for k, s in enumerate(rd["steps"])]
-        db.add(r)
-        db.commit()
-        out.append(load_recipe(db, r.id))
-    return out

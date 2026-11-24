@@ -22,7 +22,9 @@ class Settings(BaseSettings):
 
     # LLM — optional. Without a key the rule-based generator is used.
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-2.5-flash"
+    # Leave empty to try the free-tier models below in order (each has its own daily quota).
+    # Set one ID (or a comma-separated list) to override.
+    GEMINI_MODEL: str = ""
 
     # Where uploaded post photos are stored. On serverless hosts the disk isn't shared
     # between instances, so photos are kept inside the database instead.
@@ -36,6 +38,11 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = ["*"]
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    @property
+    def gemini_models(self) -> list[str]:
+        custom = [m.strip() for m in self.GEMINI_MODEL.split(",") if m.strip()]
+        return custom or ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.6-flash"]
 
     @property
     def gemini_enabled(self) -> bool:

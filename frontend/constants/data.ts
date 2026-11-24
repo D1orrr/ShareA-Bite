@@ -45,6 +45,7 @@ export type Recipe = {
   pantryCost?: number;
   /** Set on "versi hemat" variants made by a cheaper swap. */
   parentId?: number | null;
+  ai?: boolean;
   tools?: string[];
   tags?: string[];
 };

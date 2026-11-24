@@ -209,6 +209,17 @@ class Usage(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, index=True)
 
 
+class AiBatch(Base):
+    """One set of AI recipes for a request key (budget, filters, allergies): reused to save quota."""
+
+    __tablename__ = "ai_batches"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    key: Mapped[str] = mapped_column(String(300), index=True)
+    recipe_ids: Mapped[list] = mapped_column(JSON, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+
 class AppMeta(Base):
     """Key/value store; holds the seed version so old demo databases get rebuilt."""
 

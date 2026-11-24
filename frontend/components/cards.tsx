@@ -86,6 +86,14 @@ export function RecipeCard({ r }: { r: Recipe }) {
         <Icon name="favorite" fill={isSaved} color={c.sec} />
       </Pressable>
       <View style={{ padding: 16, gap: 8 }}>
+        {r.ai ? (
+          <View style={[row, { gap: 6 }]}>
+            <Icon name="auto_awesome" size={16} color={c.sec} />
+            <Txt v="cap" b color={c.sec}>
+              RESEP AI
+            </Txt>
+          </View>
+        ) : null}
         <Txt v="h3" style={{ fontSize: 21, lineHeight: 25 }}>
           {r.title}
         </Txt>

@@ -93,6 +93,7 @@ type ApiIngredient = {
 };
 type ApiRecipe = {
   id: number;
+  source?: string;
   title: string;
   art: number;
   color: string;
@@ -166,6 +167,7 @@ export const toRecipe = (r: ApiRecipe): Recipe => ({
   pay: r.pay,
   pantryCost: r.pantry_cost,
   parentId: r.parent_id,
+  ai: r.source === "ai",
   tools: r.tools,
   tags: r.tags,
   ing: r.ingredients.map(i => ({

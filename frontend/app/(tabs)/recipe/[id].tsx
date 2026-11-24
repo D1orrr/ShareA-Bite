@@ -115,6 +115,7 @@ export default function RecipeDetail() {
             </Txt>
             <Stamp bad={!ok} label={ok ? "UNDER BUDGET" : "LEWAT BUDGET"} />
             {r.parentId ? <Stamp label="VERSI HEMAT" color={c.sec} bg={alpha(c.sec, 0.14)} /> : null}
+            {r.ai ? <Stamp label="RESEP AI" color={c.sec} bg={alpha(c.sec, 0.14)} /> : null}
           </View>
           {r.parentId ? (
             <Pressable role="link" onPress={() => router.replace(`/recipe/${r.parentId}`)} style={{ alignSelf: "flex-start" }}>
