@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
 import { Mascot } from "../components/art";
+import { EggGame } from "../components/EggGame";
 import { goBack } from "../components/nav";
 import { useLayout, useTheme } from "../components/theme";
 import { Txt } from "../components/Txt";
@@ -51,7 +52,7 @@ export default function Loading() {
   return (
     <Screen focus>
       <View style={{ alignItems: "center", maxWidth: 480, width: "100%", alignSelf: "center", marginTop: h * 0.06, gap: 18 }}>
-        <Mascot size={190} mood="cook" />
+        <Mascot size={140} mood="cook" />
         <Txt v="h1" style={{ textAlign: "center" }} aria-live="polite">
           Lagi masak ide buat kamu...
         </Txt>
@@ -66,6 +67,7 @@ export default function Loading() {
           </View>
           <Bar pct={bar} color={c.chili} label="Progres" style={{ marginTop: 16 }} />
         </Card>
+        <EggGame />
         <Sticky style={{ width: "100%" }}>Tips: telur dadar plus nasi hangat itu kombo paling aman buat akhir bulan.</Sticky>
         <Btn ghost size="s" title="Batal" onPress={goBack} />
       </View>
