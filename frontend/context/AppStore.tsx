@@ -165,7 +165,7 @@ function useStoreValue() {
       } catch {
         /* storage unavailable: start fresh */
       }
-      if (await api.ping()) {
+      if (await api.reachable()) {
         setMode("online");
         if (tok) {
           setToken(tok);

@@ -247,6 +247,11 @@ export const api = {
       return false;
     }
   },
+  /** Like ping, but patient on a deployed server that may be cold-starting. */
+  reachable: async () => {
+    if (apiBase() === "") return (await api.ping(15000)) || (await api.ping(10000));
+    return api.ping(3000);
+  },
 
   register: (name: string, email: string, password: string) => req<Session>("POST", "/auth/register", { name, email, password }),
   login: (email: string, password: string) => req<Session>("POST", "/auth/login", { email, password }),

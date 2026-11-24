@@ -11,6 +11,7 @@ export function Splash() {
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 12, backgroundColor: c.paper, minHeight: 300 }}>
       <Mascot size={110} mood="cook" />
       <Txt v="cap">Menyiapkan dapur...</Txt>
+      <Txt v="cap" style={{ opacity: 0.7, fontSize: 12 }}>Pertama kali dibuka bisa butuh beberapa detik.</Txt>
     </View>
   );
 }
