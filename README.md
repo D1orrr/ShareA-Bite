@@ -120,8 +120,9 @@ If the styling looks wrong after you pull changes or switch branches, restart wi
 | Email | Password |
 |---|---|
 | `dinda@sharebite.id` | `hemat123` |
+| `raka@sharebite.id` | `galadinner` |
 
-It is on the **Brunch** plan and already has a week of spending history, a saved recipe and a shopping list. You can also register a new account or continue as a guest (guests are on the Free plan).
+Dinda is on the **Brunch** plan; Raka is on **Gala Dinner** (the highest tier, never expires) for showing the paid features. Both already have spending history, saved recipes and a shopping list. You can also register a new account or continue as a guest (guests are on the Free plan).
 
 ### Demo data
 

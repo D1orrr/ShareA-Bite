@@ -180,3 +180,14 @@ def test_old_database_is_rebuilt():
     with SessionLocal() as db:
         assert db.get(models.AppMeta, "seed_version")
         assert {s.city for s in db.scalars(select(models.Spot))} == {"Alam Sutera"}
+
+
+def test_gala_demo_account(client):
+    from app.seed import GALA_EMAIL, GALA_PASSWORD
+
+    r = client.post("/api/auth/login", json={"email": GALA_EMAIL, "password": GALA_PASSWORD})
+    assert r.status_code == 200 and r.json()["user"]["tier"] == "gala"
+    h = {"Authorization": "Bearer " + r.json()["token"]}
+    plan = client.get("/api/me/plan", headers=h).json()
+    assert plan["plan"]["name"] == "Gala Dinner" and plan["usage"]["generate"]["limit"] is None
+    assert plan["usage"]["saved"]["used"] == 4

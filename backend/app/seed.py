@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from app import models
 from app.security import hash_password
 
-SEED_VERSION = 2
+SEED_VERSION = 3
 
 # name: (unit, Rp/unit, category, kcal, protein g, carbs g, flags)
 # Nutrition is per unit. flags: m = meat/fish (not vegetarian), p = pantry staple most
@@ -385,6 +385,9 @@ SPOTS = [
 
 DEMO_EMAIL = "dinda@sharebite.id"
 DEMO_PASSWORD = "hemat123"
+# Second demo account on the highest tier (Gala Dinner, no expiry) for showing paid features
+GALA_EMAIL = "raka@sharebite.id"
+GALA_PASSWORD = "galadinner"
 CAMPUS = "BINUS University @Alam Sutera"
 
 
@@ -445,6 +448,24 @@ def seed(db: Session) -> None:
         ("Cabai rawit", 50, "g", 4800, "Bumbu", False), ("Indomie", 5, "bks", 14600, "Karbo", False),
     ]:
         db.add(models.CartItem(user_id=demo.id, name=name, qty=qty, unit=unit, price=price, category=cat, done=done))
+
+    # Gala Dinner demo account (tier_until = None means the plan never expires)
+    gala = models.User(
+        email=GALA_EMAIL, password_hash=hash_password(GALA_PASSWORD), name="Raka Pratama",
+        campus=CAMPUS, daily_budget=20000, shop_budget=60000, tier="gala", tier_until=None,
+        prefs=["Halal", "High protein", "Kompor", "Rice cooker"],
+    )
+    db.add(gala)
+    db.flush()
+    for days_ago, amount in zip(range(13, 0, -1), [16000, 18500, 12000, 19000, 15500, 21000, 17500, 14000, 18000, 16500, 13500, 19500, 15000]):
+        db.add(models.Expense(user_id=gala.id, amount=amount, budget=20000, created_at=now - timedelta(days=days_ago)))
+    for rid in (7, 17, 27, 39):
+        db.add(models.SavedRecipe(user_id=gala.id, recipe_id=rid))
+    for name, qty, unit, price, cat, done in [
+        ("Dada ayam", 3, "ons", 16500, "Protein", False), ("Telur ayam", 10, "btr", 18000, "Protein", True),
+        ("Brokoli", 2, "ons", 8000, "Sayuran", False), ("Udang kupas", 1, "ons", 9000, "Protein", False),
+    ]:
+        db.add(models.CartItem(user_id=gala.id, name=name, qty=qty, unit=unit, price=price, category=cat, done=done))
 
     # Community posts
     posts = [
